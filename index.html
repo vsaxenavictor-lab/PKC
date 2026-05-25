@@ -1,0 +1,4252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pradeep Kapoor & Co — Litigation Task Manager v4.0</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1b2a;
+    --ink-2: #1a3050;
+    --ink-3: #244270;
+    --surface: #f0f4f9;
+    --surface-2: #e3eaf4;
+    --surface-3: #d5e0ee;
+    --white: #ffffff;
+    --accent: #c8a84b;
+    --accent-2: #d9bc6a;
+    --accent-light: #fdf6e3;
+    --gold: #c8a84b;
+    --gold-dark: #9a7b20;
+    --gold-light: #fdf6e3;
+    --green: #1a7a4a;
+    --green-light: #e0f5ea;
+    --blue: #1a4fa0;
+    --blue-2: #1e60c0;
+    --blue-light: #deeafa;
+    --purple: #4a3fa0;
+    --purple-light: #eceafa;
+    --ca-navy: #0d1b2a;
+    --ca-gold: #c8a84b;
+    --ca-gold-light: #fdf6e3;
+    --ca-blue: #1a4fa0;
+    --border: rgba(13,27,42,0.13);
+    --shadow-sm: 0 1px 3px rgba(13,27,42,0.08);
+    --shadow-md: 0 4px 16px rgba(13,27,42,0.11);
+    --shadow-lg: 0 8px 32px rgba(13,27,42,0.14);
+    --radius: 10px;
+    --radius-lg: 16px;
+    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 15px; scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--ink);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: width var(--transition);
+    overflow: hidden;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-sub {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 16px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    padding: 0 12px 8px;
+  }
+
+  .nav-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 8px 8px 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all var(--transition);
+    color: rgba(255,255,255,0.6);
+    font-size: 0.875rem;
+    font-weight: 500;
+    position: relative;
+  }
+
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: var(--white); }
+
+  .nav-item.active {
+    background: linear-gradient(90deg, var(--ca-gold) 0%, var(--accent-2) 100%);
+    color: var(--ca-navy);
+    font-weight: 700;
+  }
+
+  .nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--ca-gold);
+    color: var(--ca-navy);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item.active .nav-badge { background: rgba(13,27,42,0.2); color: var(--ca-navy); }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-shrink: 0;
+  }
+
+  .topbar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all var(--transition);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--ca-gold) 0%, var(--accent-2) 100%);
+    color: var(--ca-navy);
+    font-weight: 700;
+    border: 1px solid rgba(200,168,75,0.4);
+  }
+  .btn-primary:hover { background: linear-gradient(135deg, var(--accent-2) 0%, var(--ca-gold) 100%); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(200,168,75,0.4); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--ink-3); background: var(--surface); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-3);
+    padding: 8px 10px;
+  }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  .avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    padding: 28px;
+    flex: 1;
+  }
+
+  /* ── VIEWS (show/hide) ── */
+  .view { display: none; animation: fadeSlide 0.3s ease; }
+  .view.active { display: block; }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── DASHBOARD ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .kpi-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .kpi-card.danger::before { background: var(--ca-blue); }
+  .kpi-card.warning::before { background: var(--ca-gold); }
+  .kpi-card.info::before { background: var(--ca-blue); }
+  .kpi-card.purple::before { background: var(--purple); }
+  .kpi-card.green::before { background: var(--green); }
+
+  .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+
+  .kpi-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(15,17,23,0.45);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .kpi-card.danger .kpi-value { color: var(--ca-blue); }
+  .kpi-card.warning .kpi-value { color: var(--gold-dark); }
+
+  .kpi-trend {
+    font-size: 0.75rem;
+    color: rgba(15,17,23,0.4);
+    margin-top: 6px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+
+  /* ── TABLE ── */
+  .table-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .table-toolbar {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 320px;
+    transition: border-color var(--transition);
+  }
+
+  .search-box:focus-within { border-color: var(--ink); }
+
+  .search-box input {
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--ink);
+    width: 100%;
+    outline: none;
+  }
+
+  .search-box input::placeholder { color: rgba(15,17,23,0.35); }
+
+  .filter-select {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .filter-select:focus { border-color: var(--ink); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  thead th {
+    background: var(--surface);
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(15,17,23,0.5);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  thead th:hover { color: var(--ink); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition);
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+
+  td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    color: var(--ink);
+  }
+
+  .td-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(15,17,23,0.6);
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .badge-danger { background: var(--blue-light); color: var(--ca-blue); }
+  .badge-warning { background: var(--gold-light); color: var(--gold-dark); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-gray { background: var(--surface-3); color: rgba(13,27,42,0.55); }
+
+  /* ── STAGE PIPELINE ── */
+  .pipeline {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .pipeline-stage {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .stage-block {
+    padding: 6px 14px;
+    background: var(--surface-2);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(15,17,23,0.5);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: all var(--transition);
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .stage-block:first-child { border-radius: 6px 0 0 6px; border-left: 1px solid var(--border); }
+
+  .stage-arrow {
+    width: 0;
+    height: 0;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    border-left: 8px solid var(--surface-2);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stage-block.active {
+    background: var(--ca-navy);
+    color: white;
+  }
+
+  .pipeline-stage:has(.stage-block.active) .stage-arrow { border-left-color: var(--ca-navy); }
+
+  .stage-block:hover { background: var(--ink-2); color: white; }
+  .pipeline-stage:has(.stage-block:hover) .stage-arrow { border-left-color: var(--ink-2); }
+
+  /* ── KANBAN ── */
+  .kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+
+  .kanban-col {
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    min-height: 300px;
+  }
+
+  .kanban-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--surface-3);
+  }
+
+  .kanban-col-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(15,17,23,0.55);
+  }
+
+  .kanban-count {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    background: var(--white);
+    padding: 1px 7px;
+    border-radius: 10px;
+    color: rgba(15,17,23,0.5);
+  }
+
+  .kanban-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .kanban-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .kanban-card-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(15,17,23,0.35);
+    margin-bottom: 4px;
+  }
+
+  .kanban-card-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .kanban-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: rgba(15,17,23,0.45);
+  }
+
+  .kanban-assignee {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--ink-3);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── WORKLOAD BAR ── */
+  .workload-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .workload-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 50px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .workload-name { font-size: 0.85rem; font-weight: 600; }
+
+  .workload-bar-track {
+    background: var(--surface-2);
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+  }
+
+  .workload-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--ca-blue), var(--ca-gold));
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .workload-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(15,17,23,0.55);
+    text-align: right;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,17,23,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 640px;
+    box-shadow: 0 20px 60px rgba(15,17,23,0.25);
+    animation: slideUp 0.25s ease;
+    overflow: hidden;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .modal-header {
+    padding: 20px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+  }
+
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: var(--surface-2);
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition);
+  }
+
+  .modal-close:hover { background: var(--surface-3); }
+
+  .modal-body { padding: 24px; }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* ── FORM ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(15,17,23,0.5);
+  }
+
+  .form-input, .form-select, .form-textarea {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color var(--transition);
+    width: 100%;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--ink);
+    background: var(--white);
+  }
+
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  /* ── STAGE TRACKER ── */
+  .stage-tracker {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .stage-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 8px 0;
+  }
+
+  .stage-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+    width: 28px;
+  }
+
+  .stage-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--white);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-size: 0.5rem;
+    color: transparent;
+  }
+
+  .stage-item.done .stage-dot {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .stage-item.active .stage-dot {
+    background: var(--ca-gold);
+    border-color: var(--ca-gold);
+    box-shadow: 0 0 0 4px var(--ca-gold-light);
+    color: var(--ca-navy);
+  }
+
+  .stage-line {
+    width: 2px;
+    flex: 1;
+    background: var(--border);
+    min-height: 20px;
+  }
+
+  .stage-item.done .stage-line { background: var(--green); }
+
+  .stage-content { padding-top: 0px; }
+
+  .stage-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(15,17,23,0.4);
+    transition: color var(--transition);
+  }
+
+  .stage-item.active .stage-name,
+  .stage-item.done .stage-name { color: var(--ink); }
+
+  .stage-date {
+    font-size: 0.72rem;
+    color: rgba(15,17,23,0.35);
+    margin-top: 1px;
+  }
+
+  /* ── DETAIL PANEL ── */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    margin-bottom: 20px;
+  }
+
+  .detail-field label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(15,17,23,0.4);
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .detail-field span {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface-2);
+    padding: 3px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(15,17,23,0.5);
+    transition: all var(--transition);
+    user-select: none;
+  }
+
+  .tab.active { background: var(--white); color: var(--ink); box-shadow: var(--shadow-sm); }
+  .tab:hover:not(.active) { color: var(--ink); }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: rgba(15,17,23,0.35);
+  }
+
+  .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+  .empty-text { font-size: 0.9rem; }
+
+  /* ── CHART BAR ── */
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 80px;
+    padding: 8px 0;
+  }
+
+  .chart-bar-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .chart-bar {
+    width: 100%;
+    background: var(--blue-light);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.8s cubic-bezier(0.4,0,0.2,1);
+    min-height: 4px;
+  }
+
+  .chart-bar-label {
+    font-size: 0.6rem;
+    color: rgba(15,17,23,0.35);
+    font-weight: 600;
+  }
+
+  /* ── OVERDUE ALERT ── */
+  .alert-banner {
+    background: var(--blue-light);
+    border: 1px solid rgba(26,79,160,0.25);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+  }
+
+  .alert-icon { font-size: 1.1rem; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(15,17,23,0.15); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(15,17,23,0.3); }
+
+  /* ── PRIORITY DOT ── */
+  .prio-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .prio-high { background: #b93a1a; }
+  .prio-medium { background: var(--ca-gold); }
+  .prio-low { background: var(--green); }
+
+  /* ── DUE DATE ── */
+  .due-overdue { color: #b93a1a; font-weight: 700; }
+  .due-today { color: var(--gold-dark); font-weight: 700; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Mobile hamburger button */
+  .mob-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 768px) {
+    .mob-menu-btn { display: block; }
+    .sidebar {
+      width: 0;
+      transform: translateX(-100%);
+      transition: width var(--transition), transform var(--transition);
+      z-index: 300;
+    }
+    .sidebar.open {
+      width: 240px;
+      transform: translateX(0);
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 299;
+    }
+    .sidebar-overlay.open { display: block; }
+    .main { margin-left: 0; }
+    .topbar { padding: 10px 14px; }
+    .topbar-title { font-size: 1.1rem; }
+    .content { padding: 12px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .kanban-board { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .table-toolbar { flex-wrap: wrap; gap: 8px; }
+    .search-box { min-width: 100%; max-width: 100%; }
+    .filter-select { flex: 1; min-width: 120px; }
+    table { font-size: 0.8rem; }
+    td, th { padding: 8px 10px; }
+    .modal { margin: 0 4px; }
+    .modal-overlay { padding: 16px 8px; }
+    .modal-body { padding: 16px; }
+    .workload-row { grid-template-columns: 100px 1fr 40px; }
+    .pipeline { flex-wrap: wrap; gap: 6px; }
+    .stage-block { border-radius: 6px !important; border: 1px solid var(--border) !important; }
+    .stage-arrow { display: none; }
+    .btn { padding: 8px 12px; font-size: 0.82rem; }
+    .kpi-value { font-size: 2rem; }
+    #view-workload > div { grid-template-columns: 1fr; }
+    .modal-wide { max-width: 100% !important; }
+    .tabs { width: 100%; }
+    .tab { flex: 1; text-align: center; }
+  }
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kpi-card { padding: 14px; }
+    .kpi-value { font-size: 1.7rem; }
+    .topbar-actions .btn-outline { display: none; }
+  }
+
+  .google-sync-bar {
+    background: var(--green-light);
+    border-top: 1px solid rgba(26,122,74,0.2);
+    padding: 8px 16px;
+    font-size: 0.78rem;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  .pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  /* ── STAFF MODULE ── */
+  .staff-avatar-lg {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── DOCUMENT UPLOAD ── */
+  #docUploadZone:hover {
+    border-color: var(--ca-gold);
+    background: var(--ca-gold-light);
+  }
+
+  .doc-tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  /* ── MODAL WIDE ── */
+  @media (min-width: 768px) {
+    .modal-wide { max-width: 800px; }
+  }
+
+  /* ── MOBILE BOTTOM SAFE AREA ── */
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .modal-overlay { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  }
+
+  /* ── PIPELINE (client-specific) stage strip ── */
+  .cp-stage-strip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .cp-stage-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--surface-2);
+    color: rgba(15,17,23,0.55);
+    cursor: pointer;
+    transition: all var(--transition);
+    border: 1.5px solid transparent;
+  }
+  .cp-stage-pill.active-stage {
+    background: var(--ink);
+    color: white;
+  }
+  .cp-stage-pill:hover:not(.active-stage) {
+    background: var(--surface-3);
+  }
+
+  /* ── Touch-friendly tap targets ── */
+  @media (max-width: 768px) {
+    .nav-item { min-height: 44px; }
+    .btn { min-height: 40px; }
+    .form-input, .form-select, .form-textarea { min-height: 44px; font-size: 16px !important; }
+    td { font-size: 0.78rem; }
+    .tab { min-height: 38px; display: flex; align-items: center; justify-content: center; }
+    .dash-two-col { grid-template-columns: 1fr !important; }
+    #firmSubtitle { display: block !important; }
+  }
+
+  /* ── Section-wise panel ── */
+  .section-group {
+    border-bottom: 1px solid var(--border);
+  }
+  .section-group:last-child { border-bottom: none; }
+  .section-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 20px;
+    cursor: pointer;
+    transition: background var(--transition);
+    background: var(--surface);
+    user-select: none;
+  }
+  .section-group-header:hover { background: var(--surface-2); }
+  .section-group-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ca-navy);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-group-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+  }
+  .section-group-count {
+    background: var(--ca-blue);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .section-group-count.overdue-count {
+    background: #b93a1a;
+  }
+  .section-group-chevron {
+    font-size: 0.7rem;
+    color: rgba(13,27,42,0.4);
+    transition: transform var(--transition);
+  }
+  .section-group.collapsed .section-group-chevron { transform: rotate(-90deg); }
+  .section-group-body {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .section-group.collapsed .section-group-body { max-height: 0 !important; }
+
+  /* ── Hearing cards (mobile-friendly) ── */
+  .hearing-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--white);
+  }
+  .hearing-card:hover { border-color: var(--ca-gold); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .hearing-date-block {
+    background: linear-gradient(135deg, var(--ca-navy), var(--ink-2));
+    color: white;
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+    min-width: 48px;
+    flex-shrink: 0;
+  }
+  .hearing-date-day {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--ca-gold);
+  }
+  .hearing-date-mon {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-top: 2px;
+  }
+  .hearing-card-body { flex: 1; min-width: 0; }
+  .hearing-client-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+  }
+  .hearing-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: rgba(13,27,42,0.5);
+    align-items: center;
+  }
+  .hearing-section-tag {
+    font-size: 0.7rem;
+    background: var(--ca-gold-light);
+    color: var(--gold-dark);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+
+  /* ── Sidebar gradient ── */
+  .sidebar {
+    background: linear-gradient(180deg, #0d1b2a 0%, #122035 60%, #0f2244 100%);
+  }
+  .sidebar-logo {
+    border-bottom: 1px solid rgba(200,168,75,0.2);
+    background: rgba(200,168,75,0.04);
+  }
+  .logo-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+  .sidebar-footer {
+    border-top: 1px solid rgba(200,168,75,0.15);
+    color: rgba(200,168,75,0.5);
+  }
+
+  /* ── LOADING SCREEN ── */
+  #loadingScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(160deg, #0d1b2a 0%, #0f2244 60%, #0d1b2a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+  }
+  #loadingScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .ls-logo-ring {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(200,168,75,0.15) 0%, rgba(200,168,75,0.05) 100%);
+    border: 2px solid rgba(200,168,75,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    position: relative;
+    animation: spin-ring 3s linear infinite;
+  }
+  @keyframes spin-ring {
+    from { box-shadow: 0 0 0 0 rgba(200,168,75,0.15), 0 0 30px rgba(200,168,75,0.1); }
+    50%  { box-shadow: 0 0 0 10px rgba(200,168,75,0.05), 0 0 50px rgba(200,168,75,0.2); }
+    to   { box-shadow: 0 0 0 0 rgba(200,168,75,0.15), 0 0 30px rgba(200,168,75,0.1); }
+  }
+  .ls-ca-emblem {
+    width: 80px; height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  /* CA Logo SVG drawn inline */
+  .ls-firm-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.9rem;
+    color: #fff;
+    letter-spacing: -0.01em;
+    text-align: center;
+    line-height: 1.15;
+    margin-bottom: 4px;
+  }
+  .ls-firm-sub {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ca-gold);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .ls-firm-tagline {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .ls-bar-track {
+    width: 200px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .ls-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ca-gold), var(--accent-2));
+    border-radius: 10px;
+    animation: ls-fill 2.2s cubic-bezier(0.4,0,0.2,1) forwards;
+    width: 0%;
+  }
+  @keyframes ls-fill { from { width: 0% } to { width: 100% } }
+  .ls-status {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(160deg, #0d1b2a 0%, #0f2244 60%, #0d1b2a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  #loginScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .login-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(200,168,75,0.2);
+    border-radius: 20px;
+    padding: 44px 40px 40px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    text-align: center;
+  }
+  .login-logo-wrap {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(200,168,75,0.2), rgba(200,168,75,0.05));
+    border: 1.5px solid rgba(200,168,75,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .login-firm-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.45rem;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .login-firm-sub {
+    font-size: 0.72rem;
+    color: var(--ca-gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 36px;
+  }
+  .login-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .pin-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(200,168,75,0.5);
+    background: transparent;
+    transition: all 0.2s ease;
+  }
+  .pin-dot.filled {
+    background: var(--ca-gold);
+    border-color: var(--ca-gold);
+    box-shadow: 0 0 8px rgba(200,168,75,0.5);
+  }
+  .pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pin-key {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: 'DM Sans', sans-serif;
+    user-select: none;
+  }
+  .pin-key:hover { background: rgba(200,168,75,0.15); border-color: rgba(200,168,75,0.4); }
+  .pin-key:active { transform: scale(0.93); background: rgba(200,168,75,0.25); }
+  .pin-key.del { font-size: 1rem; color: rgba(255,255,255,0.5); }
+  .pin-error {
+    color: #e57373;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 20px;
+    transition: opacity 0.3s;
+    margin-top: 4px;
+  }
+  .pin-error.shake {
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%,100%{ transform: translateX(0) }
+    20%{ transform: translateX(-8px) }
+    40%{ transform: translateX(8px) }
+    60%{ transform: translateX(-6px) }
+    80%{ transform: translateX(6px) }
+  }
+  @media (max-width: 480px) {
+    .login-card { padding: 32px 20px 28px; }
+    .pin-key { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LOADING SCREEN ══ -->
+<div id="loadingScreen">
+  <div class="ls-logo-ring">
+    <div class="ls-ca-emblem">
+      <!-- CA Institute Emblem (simplified SVG) -->
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer circle -->
+        <circle cx="36" cy="36" r="34" stroke="#c8a84b" stroke-width="1.5" fill="none"/>
+        <!-- Inner decorative ring -->
+        <circle cx="36" cy="36" r="28" stroke="rgba(200,168,75,0.35)" stroke-width="0.8" fill="none"/>
+        <!-- CA text -->
+        <text x="36" y="32" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="#c8a84b" letter-spacing="1">CA</text>
+        <!-- Divider line -->
+        <line x1="20" y1="37" x2="52" y2="37" stroke="rgba(200,168,75,0.5)" stroke-width="0.8"/>
+        <!-- Bottom text -->
+        <text x="36" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" fill="rgba(200,168,75,0.75)" letter-spacing="0.8">CHARTERED ACCOUNTANT</text>
+        <!-- Decorative dots -->
+        <circle cx="19" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
+        <circle cx="53" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
+        <!-- Top arch text -->
+        <path id="topArc" d="M 12,36 A 24,24 0 0,1 60,36" fill="none"/>
+        <text font-family="Georgia,serif" font-size="5" fill="rgba(200,168,75,0.5)" letter-spacing="1.2">
+          <textPath href="#topArc" startOffset="10%">INSTITUTE OF CHARTERED ACCOUNTANTS</textPath>
+        </text>
+      </svg>
+    </div>
+  </div>
+  <div class="ls-firm-name">Pradeep Kapoor<br><span style="font-size:1.3rem;font-style:italic;color:var(--ca-gold);">& Co</span></div>
+  <div class="ls-firm-sub">Chartered Accountants</div>
+  <div class="ls-firm-tagline">Litigation Task Manager &middot; v4.0</div>
+  <div class="ls-bar-track"><div class="ls-bar-fill" id="lsBarFill"></div></div>
+  <div class="ls-status" id="lsStatus">Initialising…</div>
+</div>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo-wrap">
+      <svg width="44" height="44" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="36" cy="36" r="34" stroke="#c8a84b" stroke-width="1.5" fill="none"/>
+        <circle cx="36" cy="36" r="28" stroke="rgba(200,168,75,0.35)" stroke-width="0.8" fill="none"/>
+        <text x="36" y="32" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="#c8a84b" letter-spacing="1">CA</text>
+        <line x1="20" y1="37" x2="52" y2="37" stroke="rgba(200,168,75,0.5)" stroke-width="0.8"/>
+        <text x="36" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" fill="rgba(200,168,75,0.75)" letter-spacing="0.8">CHARTERED ACCOUNTANT</text>
+        <circle cx="19" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
+        <circle cx="53" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="login-firm-name">Pradeep Kapoor<br><span style="font-style:italic;color:var(--ca-gold);">& Co</span></div>
+    <div class="login-firm-sub">Chartered Accountants</div>
+    <div class="login-label">Enter your PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key" style="visibility:hidden"></button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<nav class="sidebar" id="mainSidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--ca-gold),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--ca-navy);font-weight:900;flex-shrink:0;">⚖</div>
+      <div class="logo-text" style="font-size:1.1rem;line-height:1.15;">Pradeep Kapoor<br><span style="font-size:0.85rem;font-style:italic;color:var(--ca-gold);">& Co</span></div>
+    </div>
+    <div class="logo-sub">Chartered Accountants</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="switchView('dashboard', this)">
+        <span class="nav-icon">📊</span>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="switchView('tasks', this)">
+        <span class="nav-icon">✅</span>
+        <span>Tasks</span>
+        <span class="nav-badge" id="taskBadge">12</span>
+      </div>
+      <div class="nav-item" onclick="switchView('clients', this)">
+        <span class="nav-icon">👥</span>
+        <span>Clients</span>
+      </div>
+      <div class="nav-item" onclick="switchView('kanban', this)">
+        <span class="nav-icon">🗂️</span>
+        <span>Kanban</span>
+      </div>
+      <div class="nav-item" onclick="switchView('clients', this);setTimeout(()=>document.getElementById('clientSearch').focus(),200)">
+        <span class="nav-icon">📊</span>
+        <span>Client Pipeline</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Reports</div>
+      <div class="nav-item" onclick="switchView('workload', this)">
+        <span class="nav-icon">📈</span>
+        <span>Workload</span>
+      </div>
+      <div class="nav-item" onclick="switchView('calendar', this)">
+        <span class="nav-icon">📅</span>
+        <span>Calendar</span>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Administration</div>
+      <div class="nav-item" onclick="switchView('staff', this)">
+        <span class="nav-icon">👤</span>
+        <span>Staff</span>
+      </div>
+      <div class="nav-item" onclick="openSyncModal()">
+        <span class="nav-icon">🔗</span>
+        <span>Google Sync</span>
+      </div>
+      <div class="nav-item" onclick="switchView('settings', this)">
+        <span class="nav-icon">⚙️</span>
+        <span>Settings</span>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer">v4.0 · IT Act 1961 & 2025 · PK & Co</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <button class="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div style="font-size:0.7rem;color:rgba(13,27,42,0.4);font-weight:600;letter-spacing:0.04em;display:none;" id="firmSubtitle" class="mob-firm-sub">Pradeep Kapoor & Co, Chartered Accountants</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-outline btn-ghost" onclick="openSyncModal()" title="Sync with Google Sheets">🔄 Sync</button>
+      <button class="btn btn-primary" id="mainAddBtn" onclick="handleMainAdd()">+ Add Task</button>
+      <div class="avatar" title="Admin">AD</div>
+    </div>
+  </header>
+
+  <!-- Google Sync Bar -->
+  <div class="google-sync-bar" id="syncBar">
+    <div class="pulse"></div>
+    Connected to Google Sheets · Last sync: just now · Drive backup enabled
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD VIEW ══ -->
+    <div class="view active" id="view-dashboard">
+
+      <div class="alert-banner" id="overdueAlert">
+        <span class="alert-icon">⚠️</span>
+        <strong id="overdueAlertCount">Tasks are overdue</strong> — Immediate attention required. Review the Tasks view for details.
+        <button class="btn btn-outline" style="margin-left:auto;padding:4px 10px;font-size:0.78rem;" onclick="switchView('tasks', document.querySelector('[onclick*=tasks]'))">View All</button>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card danger" onclick="filterAndGo('due_today')">
+          <div class="kpi-label">Due Today</div>
+          <div class="kpi-value" id="kpiDueToday">5</div>
+          <div class="kpi-trend">⏰ Requires action today</div>
+        </div>
+        <div class="kpi-card warning" onclick="filterAndGo('overdue')">
+          <div class="kpi-label">Overdue</div>
+          <div class="kpi-value" id="kpiOverdue">3</div>
+          <div class="kpi-trend">🔴 Past deadline</div>
+        </div>
+        <div class="kpi-card info" onclick="filterAndGo('AO')">
+          <div class="kpi-label">AO Cases</div>
+          <div class="kpi-value" id="kpiAO">14</div>
+          <div class="kpi-trend">🏛️ Assessing Officer</div>
+        </div>
+        <div class="kpi-card purple" onclick="filterAndGo('CIT(A)')">
+          <div class="kpi-label">CIT(A) Cases</div>
+          <div class="kpi-value" id="kpiCITA">9</div>
+          <div class="kpi-trend">⚖️ Commissioner Appeals</div>
+        </div>
+        <div class="kpi-card green" onclick="filterAndGo('ITAT')">
+          <div class="kpi-label">ITAT Cases</div>
+          <div class="kpi-value" id="kpiITAT">6</div>
+          <div class="kpi-trend">🏦 Income Tax Appellate</div>
+        </div>
+        <div class="kpi-card" onclick="switchView('clients', document.querySelector('[onclick*=clients]'))">
+          <div class="kpi-label">Total Clients</div>
+          <div class="kpi-value" id="kpiClients">28</div>
+          <div class="kpi-trend">👥 Active matters</div>
+        </div>
+      </div>
+
+      <!-- ── Section-wise Pending Tasks ── -->
+      <div class="table-card" style="margin-bottom:28px;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div class="section-title" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:1.1rem;">📑</span> Section-wise Pending Tasks
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <select id="sectionFilterDash" class="filter-select" onchange="renderSectionWise()" style="font-size:0.8rem;padding:5px 8px;">
+              <option value="">All Sections</option>
+              <option>143(1) – Intimation</option>
+              <option>143(2) – Scrutiny Notice</option>
+              <option>143(3) – Scrutiny Assessment</option>
+              <option>147 – Reassessment / Reopening</option>
+              <option>148 – Notice for Reassessment</option>
+              <option>148A – Show Cause Before Reopening</option>
+              <option>153A – Search Assessment</option>
+              <option>270A – Underreporting / Misreporting Penalty</option>
+              <option>271(1)(c) – Concealment / Inaccurate Particulars</option>
+              <option>246A – Appeal to CIT(A)</option>
+              <option>253 – Appeal to ITAT</option>
+              <option>154 – Rectification of Mistake</option>
+              <option>General Task</option>
+            </select>
+            <select id="sectionDeptDash" class="filter-select" onchange="renderSectionWise()" style="font-size:0.8rem;padding:5px 8px;">
+              <option value="">All Depts</option>
+              <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
+            </select>
+          </div>
+        </div>
+        <div id="sectionWiseContainer" style="overflow-x:auto;">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;" class="dash-two-col">
+
+        <div class="table-card">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div class="section-title">Upcoming Hearings</div>
+          </div>
+          <div id="hearingCards" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <div class="table-card">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div class="section-title">Employee Workload</div>
+          </div>
+          <div style="padding:16px 20px;">
+            <div class="workload-list" id="workloadList"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="table-card">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+          <div class="section-title">Recent Activity</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Task ID</th><th>Client</th><th>AY</th><th>Department</th><th>Stage</th><th>Priority</th><th>Due Date</th><th>Assigned</th>
+            </tr>
+          </thead>
+          <tbody id="recentTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ TASKS VIEW ══ -->
+    <div class="view" id="view-tasks">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search by client, PAN, task ID…" id="taskSearch" oninput="renderTasks()">
+          </div>
+          <select class="filter-select" id="filterDept" onchange="renderTasks()">
+            <option value="">All Departments</option>
+            <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
+          </select>
+          <select class="filter-select" id="filterStatus" onchange="renderTasks()">
+            <option value="">All Status</option>
+            <option>Notice Received</option><option>Reply Drafting</option><option>Review Pending</option>
+            <option>Filed</option><option>Hearing Scheduled</option><option>Order Awaited</option>
+            <option>Appeal Required</option><option>Closed</option>
+          </select>
+          <select class="filter-select" id="filterPriority" onchange="renderTasks()">
+            <option value="">All Priority</option>
+            <option>High</option><option>Medium</option><option>Low</option>
+          </select>
+          <select class="filter-select" id="filterAssigned" onchange="renderTasks()">
+            <option value="">All Employees</option>
+          </select>
+          <select class="filter-select" id="filterSection" onchange="renderTasks()">
+            <option value="">All Sections</option>
+            <option>143(1)</option><option>143(2)</option><option>143(3)</option>
+            <option>147</option><option>148</option><option>148A</option>
+            <option>153A</option><option>270A</option><option>271(1)(c)</option>
+            <option>246A</option><option>253</option><option>154</option>
+            <option>General Task</option>
+          </select>
+          <button class="btn btn-outline" onclick="exportCSV()">⬇ Export</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortTasks('id')">Task ID ↕</th>
+              <th onclick="sortTasks('client')">Client ↕</th>
+              <th>PAN</th>
+              <th onclick="sortTasks('ay')">AY ↕</th>
+              <th>Section</th>
+              <th>Dept</th>
+              <th onclick="sortTasks('assigned')">Responsible ↕</th>
+              <th onclick="sortTasks('priority')">Priority ↕</th>
+              <th onclick="sortTasks('dueDate')">Due Date ↕</th>
+              <th>Stage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="taskTable"></tbody>
+        </table>
+        <div style="padding:12px 20px;border-top:1px solid var(--border);font-size:0.78rem;color:rgba(15,17,23,0.4);">
+          Showing <strong id="taskCount">0</strong> tasks
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENTS VIEW ══ -->
+    <div class="view" id="view-clients">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search clients…" id="clientSearch" oninput="renderClients()">
+          </div>
+          <select class="filter-select" id="clientFilterType" onchange="renderClients()">
+            <option value="">All Matter Types</option>
+            <option>Assessment</option><option>Appeal</option><option>Penalty</option><option>Raid Matter</option><option>Survey Matter</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddClientModal()">+ Add Client</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Client ID</th><th>Client Name</th><th>PAN</th><th>Mobile</th><th>AY</th><th>Matter Type</th><th>Department</th><th>Stage</th><th>Supervisor</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="clientTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ KANBAN VIEW ══ -->
+    <div class="view" id="view-kanban">
+      <div class="section-header" style="margin-bottom:20px;">
+        <div>
+          <div class="section-title" style="margin-bottom:4px;">Litigation Pipeline</div>
+          <div style="font-size:0.85rem;color:rgba(15,17,23,0.45);">Drag-and-drop or click cards to advance stages</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">+ New Task</button>
+      </div>
+      <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+
+    <!-- ══ WORKLOAD VIEW ══ -->
+    <div class="view" id="view-workload">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="table-card">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div class="section-title">Employee Task Distribution</div>
+          </div>
+          <div style="padding:20px;">
+            <div class="workload-list" id="workloadFull"></div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div class="section-title">Stage Distribution</div>
+          </div>
+          <div style="padding:20px;" id="stageDistribution"></div>
+        </div>
+        <div class="table-card" style="grid-column:1/-1">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div class="section-title">Department Breakdown</div>
+          </div>
+          <div style="padding:20px;">
+            <div style="display:flex;gap:20px;flex-wrap:wrap;" id="deptBreakdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CALENDAR VIEW ══ -->
+    <div class="view" id="view-calendar">
+      <div class="table-card">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+          <div class="section-title">Hearing Calendar — May 2025</div>
+        </div>
+        <div style="padding:20px;" id="calendarView"></div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS VIEW ══ -->
+    <div class="view" id="view-settings">
+      <div class="table-card" style="max-width:600px;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+          <div class="section-title">Google Integration Settings</div>
+        </div>
+        <div style="padding:24px;">
+          <div class="form-grid" style="grid-template-columns:1fr;">
+            <div class="form-group">
+              <label class="form-label">Google Sheets URL</label>
+              <input class="form-input" placeholder="https://docs.google.com/spreadsheets/d/..." value="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Google Apps Script Endpoint</label>
+              <input class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." value="">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Auto-sync Interval</label>
+              <select class="form-select">
+                <option>Every 5 minutes</option>
+                <option>Every 15 minutes</option>
+                <option selected>Every 30 minutes</option>
+                <option>Manual only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firm Name</label>
+              <input class="form-input" placeholder="e.g. M/s Your Firm Name, Chartered Accountants">
+            </div>
+            <div style="background:var(--blue-light);border-radius:8px;padding:14px 16px;font-size:0.82rem;color:var(--ca-blue);line-height:1.7;">
+              <strong>⚖️ Tax Year / AY Reference</strong><br>
+              Under <strong>IT Act 1961</strong>: Assessment Year (AY) follows the Previous Year (PY). e.g. PY 2024-25 → AY 2025-26.<br>
+              Under <strong>IT Act 2025</strong> (effective from Tax Year 2026-27 onwards): "Tax Year" replaces "Previous Year". AY dropdowns will show Tax Year labels for AY 2026-27 and later. The system automatically caps AY to the current financial year.
+            </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:8px;">
+              <button class="btn btn-primary" onclick="saveAppsScriptUrl(document.getElementById('scriptUrl').value)">Save Settings</button>
+              <button class="btn btn-outline" onclick="testSync()">Test Sync</button>
+              <button class="btn btn-ghost" onclick="runDiagnostic()" style="font-size:0.8rem;">🔬 Diagnose</button>
+            </div>
+            <!-- Diagnostic output -->
+            <div id="diagBox" style="display:none;margin-top:16px;background:#0f1117;color:#e8f5e8;border-radius:8px;
+                 padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.7;
+                 max-height:260px;overflow-y:auto;white-space:pre-wrap;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STAFF VIEW ══ -->
+    <div class="view" id="view-staff">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search staff…" id="staffSearch" oninput="renderStaff()">
+          </div>
+          <select class="filter-select" id="staffFilterRole" onchange="renderStaff()">
+            <option value="">All Roles</option>
+            <option>Partner</option><option>Manager</option><option>Senior Associate</option><option>Associate</option><option>Intern</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddStaffModal()">+ Add Staff</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Role</th><th>Mobile</th><th>Email</th><th>Specialisation</th><th>Active Tasks</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="staffTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══ ADD TASK MODAL ══ -->
+<div class="modal-overlay" id="addTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="addModalTitle">Add New Task</div>
+      <button class="modal-close" onclick="closeModal('addTaskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client *</label>
+          <select class="form-select" id="taskClient" onchange="autoFillPAN()">
+            <option value="">Select Client</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PAN</label>
+          <input class="form-input" id="taskPAN" placeholder="Auto-filled" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment Year *</label>
+          <select class="form-select" id="taskAY">
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department *</label>
+          <select class="form-select" id="taskDept">
+            <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsible Person *</label>
+          <select class="form-select" id="taskAssigned">
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority *</label>
+          <select class="form-select" id="taskPriority">
+            <option>High</option><option>Medium</option><option>Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date *</label>
+          <input class="form-input" type="date" id="taskDueDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Stage</label>
+          <select class="form-select" id="taskStage">
+            <option>Notice Received</option><option>Reply Drafting</option><option>Review Pending</option>
+            <option>Filed</option><option>Hearing Scheduled</option><option>Order Awaited</option>
+            <option>Appeal Required</option><option>Closed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Task Type</label>
+          <select class="form-select" id="taskType" onchange="toggleTaskTypeFields()">
+            <option value="litigation">⚖️ Litigation / Notice Matter</option>
+            <option value="general">📋 General / Non-Specific Task</option>
+          </select>
+        </div>
+        <div class="form-group" id="sectionFieldGroup">
+          <label class="form-label">Section / Notice Type</label>
+          <select class="form-select" id="taskSection">
+            <optgroup label="── Assessment (AO) ──">
+              <option value="">-- Select Section --</option>
+              <option>143(1) – Intimation</option>
+              <option>143(2) – Scrutiny Notice</option>
+              <option>143(3) – Scrutiny Assessment</option>
+              <option>144 – Best Judgement Assessment</option>
+              <option>144B – Faceless Assessment</option>
+              <option>147 – Reassessment / Reopening</option>
+              <option>148 – Notice for Reassessment</option>
+              <option>148A – Show Cause Before Reopening</option>
+              <option>153A – Search Assessment</option>
+              <option>153C – Third Party Search Assessment</option>
+              <option>156 – Notice of Demand</option>
+              <option>245 – Refund Adjustment Notice</option>
+            </optgroup>
+            <optgroup label="── Penalty ──">
+              <option>270A – Underreporting / Misreporting Penalty</option>
+              <option>271(1)(c) – Concealment / Inaccurate Particulars</option>
+              <option>271AAB – Penalty on Search Cases</option>
+              <option>271AAC – Penalty on Unexplained Income</option>
+              <option>271B – Failure to Audit</option>
+              <option>271D – Violation of Section 269SS</option>
+              <option>271E – Violation of Section 269T</option>
+              <option>272A – Failure to Comply with Notices</option>
+            </optgroup>
+            <optgroup label="── TDS / TCS ──">
+              <option>201(1A) – Interest on TDS Default</option>
+              <option>234E – Fee for Late TDS Return</option>
+              <option>206C – TCS Notice</option>
+            </optgroup>
+            <optgroup label="── Appeals (CIT(A) / ITAT) ──">
+              <option>246A – Appeal to CIT(A)</option>
+              <option>253 – Appeal to ITAT</option>
+              <option>254 – ITAT Order</option>
+              <option>260A – Appeal to High Court</option>
+              <option>261 – Appeal to Supreme Court</option>
+            </optgroup>
+            <optgroup label="── Revision / Rectification ──">
+              <option>154 – Rectification of Mistake</option>
+              <option>263 – Revision by PCIT / CIT</option>
+              <option>264 – Revision on Application</option>
+            </optgroup>
+            <optgroup label="── Survey / Search ──">
+              <option>131 – Summons</option>
+              <option>133(6) – Notice to Third Party</option>
+              <option>133A – Survey</option>
+              <option>132 – Search &amp; Seizure</option>
+              <option>132A – Requisition</option>
+            </optgroup>
+            <optgroup label="── Exemption / Registration ──">
+              <option>12A – Registration of Trust</option>
+              <option>12AB – Re-registration of Trust</option>
+              <option>80G – Donation Exemption</option>
+              <option>10(23C) – Educational/Charitable Exemption</option>
+            </optgroup>
+            <optgroup label="── Advance Tax / Interest ──">
+              <option>234A – Interest for Late Return</option>
+              <option>234B – Interest for Advance Tax Default</option>
+              <option>234C – Interest on Instalment Default</option>
+              <option>220(2) – Interest on Demand</option>
+            </optgroup>
+            <optgroup label="── IT Act 2025 (New) ──">
+              <option>263 IT25 – Revision by Authority</option>
+              <option>357 IT25 – Reassessment</option>
+              <option>358 IT25 – Show Cause Before Reassessment</option>
+              <option>Other – IT Act 2025</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group full" id="generalTaskGroup" style="display:none;">
+          <label class="form-label">Task Description *</label>
+          <textarea class="form-textarea" id="taskGeneralDesc" placeholder="Describe the task in detail (e.g. file ROI, prepare computation, renew DSC, MSME registration, etc.)…" style="min-height:60px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Remarks / Notes</label>
+          <textarea class="form-textarea" id="taskRemarks" placeholder="Any additional notes, hearing details, document references…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addTaskModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveTaskBtn" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TASK DETAIL MODAL ══ -->
+<div class="modal-overlay" id="taskDetailModal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="detailTitle">Task Details</div>
+        <div id="detailTaskId" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(15,17,23,0.4);margin-top:2px;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('taskDetailModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid" id="detailGrid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);margin-bottom:12px;">Stage Progress</div>
+          <div class="stage-tracker" id="stageTrackerUI"></div>
+        </div>
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);margin-bottom:12px;">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px;" id="quickActions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-ghost" id="deleteTaskBtn" onclick="deleteCurrentTask()" style="margin-right:auto;color:var(--accent);">🗑 Delete</button>
+      <button class="btn btn-outline" onclick="closeModal('taskDetailModal')">Close</button>
+      <button class="btn btn-primary" onclick="advanceStage()">Advance Stage →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD CLIENT MODAL ══ -->
+<div class="modal-overlay" id="addClientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Client</div>
+      <button class="modal-close" onclick="closeModal('addClientModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client Name *</label>
+          <input class="form-input" id="cName" placeholder="M/s Company or Individual Name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">PAN *</label>
+          <input class="form-input" id="cPAN" placeholder="ABCDE1234F" style="text-transform:uppercase;" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input class="form-input" id="cMobile" placeholder="9876543210">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="cEmail" placeholder="client@email.com" type="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment Year</label>
+          <select class="form-select" id="cAY">
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Matter Type</label>
+          <select class="form-select" id="cMatterType">
+            <option>Assessment</option><option>Appeal</option><option>Penalty</option><option>Raid Matter</option><option>Survey Matter</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-select" id="cDept">
+            <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supervisor *</label>
+          <select class="form-select" id="cEmployee">
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Stage</label>
+          <select class="form-select" id="cStage">
+            <option>Notice Received</option><option>Reply Drafting</option><option>Review Pending</option>
+            <option>Filed</option><option>Hearing Scheduled</option><option>Order Awaited</option>
+            <option>Appeal Required</option><option>Closed</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addClientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Add Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD/EDIT STAFF MODAL ══ -->
+<div class="modal-overlay" id="addStaffModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="staffModalTitle">Add Staff Member</div>
+      <button class="modal-close" onclick="closeModal('addStaffModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input class="form-input" id="sName" placeholder="e.g. Ramesh Kumar">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Short Name (Display) *</label>
+          <input class="form-input" id="sShortName" placeholder="e.g. Ramesh K.">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role / Designation *</label>
+          <select class="form-select" id="sRole">
+            <option>Partner</option><option>Manager</option><option>Senior Associate</option><option>Associate</option><option>Intern</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input class="form-input" id="sMobile" placeholder="9876543210" type="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="sEmail" placeholder="staff@firm.com" type="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Specialisation</label>
+          <select class="form-select" id="sSpecial">
+            <option>Income Tax Litigation</option><option>Direct Tax Advisory</option><option>ITAT Appearances</option><option>High Court Matters</option><option>Supreme Court Matters</option><option>General Practice</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Joining</label>
+          <input class="form-input" id="sDOJ" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="sStatus">
+            <option>Active</option><option>On Leave</option><option>Inactive</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="sNotes" placeholder="Any additional notes about this staff member…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-ghost" id="deleteStaffBtn" onclick="deleteCurrentStaff()" style="margin-right:auto;color:var(--accent);display:none;">🗑 Remove</button>
+      <button class="btn btn-outline" onclick="closeModal('addStaffModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveStaffBtn" onclick="saveStaff()">Add Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DOCUMENT UPLOAD MODAL ══ -->
+<div class="modal-overlay" id="docUploadModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="docModalTitle">Upload Documents</div>
+        <div id="docModalSub" style="font-size:0.8rem;color:rgba(15,17,23,0.4);margin-top:2px;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('docUploadModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Doc Type Tabs -->
+      <div class="tabs" style="margin-bottom:20px;">
+        <div class="tab active" id="docTab-Notice" onclick="switchDocTab('Notice')">📋 Notice</div>
+        <div class="tab" id="docTab-Reply" onclick="switchDocTab('Reply')">📝 Reply</div>
+        <div class="tab" id="docTab-Order" onclick="switchDocTab('Order')">⚖️ Orders</div>
+      </div>
+
+      <!-- Upload Zone -->
+      <div id="docUploadZone" style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--surface);"
+           onclick="document.getElementById('docFileInput').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-light)';"
+           ondragleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)';"
+           ondrop="handleDocDrop(event)">
+        <div style="font-size:2.5rem;margin-bottom:10px;">📎</div>
+        <div style="font-weight:700;margin-bottom:6px;color:var(--ink);">Drop files here or click to browse</div>
+        <div style="font-size:0.8rem;color:rgba(15,17,23,0.4);">Supports PDF, Word (.docx), Excel (.xlsx), images · Max 10MB per file</div>
+        <input type="file" id="docFileInput" style="display:none;" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" onchange="handleFileSelect(this.files)">
+      </div>
+
+      <!-- Selected Files List -->
+      <div id="selectedFilesList" style="margin-top:16px;display:none;">
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(15,17,23,0.4);margin-bottom:10px;">Files Selected</div>
+        <div id="filesListBody"></div>
+      </div>
+
+      <!-- Existing Docs -->
+      <div id="existingDocsSection" style="margin-top:20px;">
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:rgba(15,17,23,0.4);margin-bottom:10px;">Uploaded Documents</div>
+        <div id="existingDocsList">
+          <div style="text-align:center;padding:24px;color:rgba(15,17,23,0.3);font-size:0.85rem;">No documents uploaded yet for this task</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px;background:var(--blue-light);border-radius:8px;font-size:0.8rem;color:var(--blue);display:flex;align-items:center;gap:8px;">
+        <span>ℹ️</span>
+        <span>Files will be uploaded to the client's Google Drive folder. Make sure Apps Script URL is configured in Settings.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('docUploadModal')">Close</button>
+      <button class="btn btn-primary" id="uploadDocsBtn" onclick="uploadDocuments()" style="display:none;">⬆ Upload to Drive</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SYNC MODAL ══ -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Google Integration</div>
+      <button class="modal-close" onclick="closeModal('syncModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:16px 0;">
+        <div style="font-size:3rem;margin-bottom:16px;">📊</div>
+        <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px;">Google Sheets + Drive</div>
+        <div style="font-size:0.875rem;color:rgba(15,17,23,0.5);margin-bottom:20px;line-height:1.6;">
+          Your data syncs with Google Sheets as the database and Google Drive for document storage via Google Apps Script.
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:16px;text-align:left;font-size:0.82rem;margin-bottom:20px;">
+          <div style="font-weight:700;margin-bottom:8px;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(15,17,23,0.4);">Architecture</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green)">✓</span> HTML Frontend (this app)</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-left:20px;color:rgba(15,17,23,0.4);font-size:0.75rem;">↕ REST API calls</div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green)">✓</span> Google Apps Script Endpoint</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-left:20px;color:rgba(15,17,23,0.4);font-size:0.75rem;">↕ Sheets API</div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green)">✓</span> Google Sheets (Database)</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-left:20px;color:rgba(15,17,23,0.4);font-size:0.75rem;">↕ Drive API</div>
+            <div style="display:flex;align-items:center;gap:8px;"><span style="color:var(--green)">✓</span> Google Drive (Documents)</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn btn-primary" onclick="simulateSync()">🔄 Sync Now</button>
+          <button class="btn btn-outline" onclick="switchView('settings', null); closeModal('syncModal')">⚙️ Configure</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ CLIENT PIPELINE MODAL ══ -->
+<div class="modal-overlay" id="clientPipelineModal">
+  <div class="modal modal-wide" style="max-width:900px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="cpModalTitle">Client Pipeline</div>
+        <div id="cpModalSub" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(15,17,23,0.4);margin-top:2px;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('clientPipelineModal')">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:75vh;overflow-y:auto;">
+
+      <!-- Client summary strip -->
+      <div id="cpClientSummary" style="background:var(--surface);border-radius:10px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;"></div>
+
+      <!-- Year filter tabs -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);margin-bottom:8px;">Filter by Assessment Year</div>
+        <div id="cpYearTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+
+      <!-- Tasks table for this client -->
+      <div class="table-card" style="margin-bottom:0;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+          <div class="section-title" style="font-size:1rem;">All Tasks</div>
+          <button class="btn btn-primary" style="font-size:0.8rem;padding:6px 12px;" onclick="addTaskFromPipeline()">+ Add Task</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="font-size:0.82rem;">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>AY / Tax Year</th>
+                <th>Type</th>
+                <th>Section</th>
+                <th>Dept</th>
+                <th>Stage</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+                <th>Responsible</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cpTasksTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('clientPipelineModal')">Close</button>
+      <button class="btn btn-primary" onclick="openClientDocModal(currentPipelineClientId)">📁 Documents</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  GOOGLE APPS SCRIPT CONFIG
+//  Replace with your deployed Web App URL
+// ══════════════════════════════════════════
+let APPS_SCRIPT_URL = localStorage.getItem('lextrack_url') || '';
+
+// ── Mobile sidebar toggle ──
+function toggleSidebar() {
+  const sidebar  = document.getElementById('mainSidebar');
+  const overlay  = document.getElementById('sidebarOverlay');
+  const isOpen   = sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+}
+// Close sidebar when a nav item is clicked on mobile
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        document.getElementById('mainSidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+      }
+    });
+  });
+});
+
+// ── API HELPERS ──
+// Apps Script Web Apps use a 302 redirect before serving JSON.
+// fetch() with mode:'cors' fails because the redirect response lacks
+// CORS headers. The only reliable browser→Apps Script pattern is JSONP
+// (inject a <script> tag). We wrap it in a Promise with a timeout.
+
+function jsonpRequest(url, timeoutMs = 15000) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_lx_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+    const script  = document.createElement('script');
+    let done = false;
+
+    const cleanup = () => {
+      done = true;
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    window[cbName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('Script load error — check Apps Script URL'));
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Request timed out after ' + (timeoutMs/1000) + 's'));
+    }, timeoutMs);
+
+    // Apps Script: append &callback=fnName to get JSONP response
+    script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
+async function apiGet(action, params = {}) {
+  if (!APPS_SCRIPT_URL) return null;
+  const qs  = new URLSearchParams({ action, ...params }).toString();
+  const url = APPS_SCRIPT_URL + '?' + qs;
+  try {
+    const json = await jsonpRequest(url);
+    if (!json.success) throw new Error(json.error || 'Apps Script returned success:false');
+    return json.data;
+  } catch (e) {
+    console.error('[PK&Co] apiGet(' + action + ') failed:', e.message);
+    // Surface the real error so the toast shows something useful
+    throw e;
+  }
+}
+
+// All write actions go through GET (same as reads).
+async function apiPost(action, params = {}) {
+  return apiGet(action, params);
+}
+
+// Load all data from Sheets on startup (if URL configured)
+async function loadFromSheets() {
+  if (!APPS_SCRIPT_URL) return;
+  showToast('🔄 Connecting to Google Sheets…');
+  try {
+    // Run sequentially so errors are easier to attribute
+    const remoteTasks   = await apiGet('getTasks');
+    const remoteClients = await apiGet('getClients');
+    const remoteStaff   = await apiGet('getStaff');
+
+    if (Array.isArray(remoteTasks))   { tasks   = remoteTasks;   }
+    if (Array.isArray(remoteClients)) { clients = remoteClients; }
+
+    // Always replace staffMembers with whatever the sheet returns (even empty)
+    if (Array.isArray(remoteStaff)) {
+      staffMembers = remoteStaff;
+      // Re-derive counter so new local additions don't collide with sheet IDs
+      staffIdCounter = staffMembers.reduce((max, s) => {
+        const n = parseInt((s.id || '').replace(/\D/g, ''), 10);
+        return isNaN(n) ? max : Math.max(max, n + 1);
+      }, 1);
+      employees = staffMembers.filter(s => s.status === 'Active').map(s => s.shortName);
+      updateEmployeeDropdowns();
+    }
+
+    // Re-derive taskIdCounter from sheet data
+    if (Array.isArray(remoteTasks) && remoteTasks.length) {
+      taskIdCounter = remoteTasks.reduce((max, t) => {
+        const n = parseInt((t.id || '').replace(/\D/g, ''), 10);
+        return isNaN(n) ? max : Math.max(max, n + 1);
+      }, 1);
+    }
+
+    showToast('✅ Synced — Tasks: ' + tasks.length + ' | Clients: ' + clients.length + ' | Staff: ' + staffMembers.length);
+    renderDashboard();
+    if (currentView === 'tasks')   renderTasks();
+    if (currentView === 'clients') renderClients();
+    if (currentView === 'staff')   renderStaff();
+
+  } catch (e) {
+    showToast('❌ ' + e.message);
+    console.error('[PK&Co] loadFromSheets error:', e);
+  }
+}
+
+// Alias used by Settings "Test Sync" button
+async function testSync() {
+  if (!APPS_SCRIPT_URL) { showToast('⚠️ Enter & Save Apps Script URL first'); return; }
+  await loadFromSheets();
+}
+
+// ── Diagnostic tool — shows exactly what's going wrong ──
+async function runDiagnostic() {
+  const box = document.getElementById('diagBox');
+  box.style.display = 'block';
+  box.textContent   = '🔬 Running diagnostics…\n\n';
+
+  const log = (msg) => { box.textContent += msg + '\n'; box.scrollTop = box.scrollHeight; };
+
+  const url = APPS_SCRIPT_URL || localStorage.getItem('lextrack_url') || '';
+
+  log('URL: ' + (url || '(not set)'));
+  if (!url) { log('\n❌ No Apps Script URL configured.\nGo to Settings and paste your Web App URL.'); return; }
+
+  // Check URL format
+  if (!url.startsWith('https://script.google.com/macros/s/')) {
+    log('⚠️ URL does not look like an Apps Script Web App URL.');
+    log('   Expected: https://script.google.com/macros/s/YOUR_ID/exec');
+  } else {
+    log('✅ URL format looks correct');
+  }
+
+  log('\n▶ Sending test JSONP request (action=getTasks)…');
+  try {
+    const data = await jsonpRequest(url + '?action=getTasks', 12000);
+    log('✅ JSONP response received');
+    log('   success: ' + data.success);
+    if (data.success) {
+      log('   Records returned: ' + (Array.isArray(data.data) ? data.data.length : typeof data.data));
+    } else {
+      log('❌ Apps Script error: ' + data.error);
+      log('\n── Possible causes ──');
+      log('• Sheet named "Tasks" not found → run setupSheets() in Apps Script editor');
+      log('• SPREADSHEET_ID in Code.gs is still "YOUR_SPREADSHEET_ID_HERE"');
+      log('• Script not deployed as Web App, or old deployment used');
+    }
+  } catch (err) {
+    log('❌ Request failed: ' + err.message);
+    log('\n── Possible causes ──');
+    if (err.message.includes('timed out')) {
+      log('• Apps Script URL is wrong or the deployment was deleted');
+      log('• Script has never been deployed — deploy it first');
+    } else {
+      log('• Script load error usually means the URL 404s');
+      log('• Check: Deploy → Manage deployments → copy the /exec URL');
+    }
+    log('\n── Deployment checklist ──');
+    log('1. In Apps Script editor: Deploy → New deployment');
+    log('2. Type: Web App');
+    log('3. Execute as: Me');
+    log('4. Who has access: Anyone');
+    log('5. Click Deploy → Copy the Web App URL');
+    log('6. Paste it here in Settings');
+  }
+  log('\n── Done ──');
+}
+
+// ══════════════════════════════════════════
+//  DATA STORE
+// ══════════════════════════════════════════
+const stages = ['Notice Received','Reply Drafting','Review Pending','Filed','Hearing Scheduled','Order Awaited','Appeal Required','Closed'];
+
+let staffMembers = [];
+let staffIdCounter = 1;
+let currentStaffId = null;
+
+let employees = [];
+
+let clients = [];
+
+const today = new Date();
+const fmtDate = (d) => d.toISOString().split('T')[0];
+
+let tasks = [];
+
+let taskIdCounter = 1;
+let currentTaskId = null;
+
+function generateClientId() {
+  // Alphanumeric: CLT + 3 random uppercase letters + 2 digits
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const r = () => chars[Math.floor(Math.random()*chars.length)];
+  const d = () => digits[Math.floor(Math.random()*digits.length)];
+  let id = 'CLT'+r()+r()+d()+d();
+  // Ensure uniqueness
+  while (clients.some(c => c.id === id)) {
+    id = 'CLT'+r()+r()+d()+d();
+  }
+  return id;
+}
+let sortField = 'id';
+let sortAsc = true;
+let currentView = 'dashboard';
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function switchView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if (el) el.classList.add('active');
+  currentView = name;
+  const titles = {dashboard:'Dashboard',tasks:'Task Management',clients:'Client Master',kanban:'Litigation Pipeline',workload:'Workload Analysis',calendar:'Hearing Calendar',settings:'System Settings',staff:'Staff Management'};
+  document.getElementById('topbarTitle').textContent = titles[name] || name;
+  const addBtnLabels = {tasks:'+ Add Task', clients:'+ Add Client', kanban:'+ New Task', staff:'+ Add Staff'};
+  const mainBtn = document.getElementById('mainAddBtn');
+  if (addBtnLabels[name]) { mainBtn.textContent = addBtnLabels[name]; mainBtn.style.display=''; }
+  else mainBtn.style.display = 'none';
+  if (name==='tasks') renderTasks();
+  if (name==='clients') renderClients();
+  if (name==='kanban') renderKanban();
+  if (name==='workload') renderWorkload();
+  if (name==='calendar') renderCalendar();
+  if (name==='dashboard') renderDashboard();
+  if (name==='staff') renderStaff();
+}
+
+function filterAndGo(filter) {
+  switchView('tasks', document.querySelector('[onclick*="tasks"]'));
+  if (filter==='due_today') { document.getElementById('filterStatus').value=''; }
+  else if (filter==='overdue') { document.getElementById('filterStatus').value=''; }
+  else { document.getElementById('filterDept').value=filter; }
+  renderTasks();
+}
+
+// ══════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  const now = fmtDate(today);
+  const overdue = tasks.filter(t => t.dueDate < now && t.stage!=='Closed');
+  const dueToday = tasks.filter(t => t.dueDate === now && t.stage!=='Closed');
+  const ao = tasks.filter(t => t.dept==='AO');
+  const cita = tasks.filter(t => t.dept==='CIT(A)');
+  const itat = tasks.filter(t => t.dept==='ITAT');
+
+  document.getElementById('kpiDueToday').textContent = dueToday.length;
+  document.getElementById('kpiOverdue').textContent = overdue.length;
+  document.getElementById('kpiAO').textContent = ao.length;
+  document.getElementById('kpiCITA').textContent = cita.length;
+  document.getElementById('kpiITAT').textContent = itat.length;
+  document.getElementById('kpiClients').textContent = clients.length;
+
+  if (overdue.length===0) document.getElementById('overdueAlert').style.display='none';
+  else {
+    document.getElementById('overdueAlert').style.display='flex';
+    document.getElementById('overdueAlertCount').textContent = overdue.length + ' task' + (overdue.length > 1 ? 's are' : ' is') + ' overdue';
+  }
+
+  // ── Hearing cards (mobile-friendly card layout)
+  const hearingTasks = tasks.filter(t=>t.stage==='Hearing Scheduled')
+    .sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,6);
+  const hearingEl = document.getElementById('hearingCards');
+  if (!hearingTasks.length) {
+    hearingEl.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No upcoming hearings</div></div>';
+  } else {
+    hearingEl.innerHTML = hearingTasks.map(t => {
+      const d = t.dueDate ? new Date(t.dueDate) : null;
+      const dayNum = d ? d.getDate() : '--';
+      const mon = d ? d.toLocaleString('en-IN', {month:'short'}) : '---';
+      const sectionLabel = (t.section||'').replace(/–.*$/,'').trim() || (t.generalDesc ? t.generalDesc.slice(0,30) : '');
+      return `<div class="hearing-card" onclick="openDetail('${t.id}')">
+        <div class="hearing-date-block">
+          <div class="hearing-date-day">${dayNum}</div>
+          <div class="hearing-date-mon">${mon}</div>
+        </div>
+        <div class="hearing-card-body">
+          <div class="hearing-client-name">${t.client}</div>
+          <div class="hearing-meta">
+            <span class="badge ${deptBadge(t.dept)}">${t.dept}</span>
+            ${sectionLabel ? `<span class="hearing-section-tag">${sectionLabel}</span>` : ''}
+            <span>${prioBadge(t.priority)}</span>
+          </div>
+          <div style="font-size:0.72rem;color:rgba(13,27,42,0.4);margin-top:4px;">👤 ${t.assigned||'Unassigned'} &middot; AY ${t.ay||'—'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Workload
+  renderWorkloadBar('workloadList');
+
+  // ── Recent table
+  document.getElementById('recentTable').innerHTML = tasks.slice(0,8).map(t=>`
+    <tr onclick="openDetail('${t.id}')">
+      <td class="td-mono">${t.id}</td>
+      <td><strong>${t.client.split(' ').slice(0,2).join(' ')}</strong></td>
+      <td class="td-mono">${t.ay}</td>
+      <td><span class="badge ${deptBadge(t.dept)}">${t.dept}</span></td>
+      <td>${stageBadge(t.stage)}</td>
+      <td>${prioBadge(t.priority)}</td>
+      <td class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</td>
+      <td>${initials(t.assigned)}</td>
+    </tr>`).join('');
+
+  document.getElementById('taskBadge').textContent = tasks.filter(t=>t.stage!=='Closed').length;
+
+  // ── Section-wise panel
+  renderSectionWise();
+}
+
+// ── Section-wise pending tasks grouped by section, sorted by due date ──
+function renderSectionWise() {
+  const now = fmtDate(today);
+  const secFilter = (document.getElementById('sectionFilterDash')||{}).value || '';
+  const deptFilter = (document.getElementById('sectionDeptDash')||{}).value || '';
+
+  let pending = tasks.filter(t => t.stage !== 'Closed');
+  if (deptFilter) pending = pending.filter(t => t.dept === deptFilter);
+
+  // Group by section label
+  const groups = {};
+  pending.forEach(t => {
+    const rawSec = (t.section||'').trim();
+    const key = rawSec || (t.generalDesc ? 'General / ' + t.generalDesc.slice(0,30) : 'General Task');
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(t);
+  });
+
+  // Sort each group by dueDate
+  Object.values(groups).forEach(arr => arr.sort((a,b) => a.dueDate.localeCompare(b.dueDate)));
+
+  // Filter by section if selected
+  let keys = Object.keys(groups).sort();
+  if (secFilter) keys = keys.filter(k => k.toLowerCase().includes(secFilter.toLowerCase()));
+
+  const container = document.getElementById('sectionWiseContainer');
+  if (!keys.length) {
+    container.innerHTML = '<div class="empty" style="padding:32px;"><div class="empty-icon">📋</div><div class="empty-text">No pending tasks matching the filter</div></div>';
+    return;
+  }
+
+  container.innerHTML = keys.map((sec, gi) => {
+    const list = groups[sec];
+    const overdueCount = list.filter(t => t.dueDate < now).length;
+    const rows = list.map(t => {
+      const dClass = dueDateClass(t.dueDate);
+      return `<tr onclick="openDetail('${t.id}')">
+        <td class="td-mono">${t.id}</td>
+        <td><strong>${t.client}</strong></td>
+        <td class="td-mono" style="font-size:0.75rem;">${t.pan||'—'}</td>
+        <td class="td-mono">${t.ay||'—'}</td>
+        <td><span class="badge ${deptBadge(t.dept)}">${t.dept}</span></td>
+        <td>${stageBadge(t.stage)}</td>
+        <td>${prioBadge(t.priority)}</td>
+        <td class="${dClass}" style="white-space:nowrap;">${formatDate(t.dueDate)}${t.dueDate < now ? ' ⚠' : ''}</td>
+        <td>${initials(t.assigned)}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="section-group" id="sg_${gi}">
+      <div class="section-group-header" onclick="toggleSectionGroup(${gi})">
+        <div class="section-group-title">
+          <span style="font-size:0.9rem;">§</span>
+          <span>${sec}</span>
+        </div>
+        <div class="section-group-meta">
+          <span class="section-group-count">${list.length} task${list.length!==1?'s':''}</span>
+          ${overdueCount ? `<span class="section-group-count overdue-count">⚠ ${overdueCount} overdue</span>` : ''}
+          <span class="section-group-chevron">▼</span>
+        </div>
+      </div>
+      <div class="section-group-body" style="max-height:600px;">
+        <div style="overflow-x:auto;">
+          <table style="font-size:0.82rem;">
+            <thead>
+              <tr>
+                <th>Task ID</th><th>Client</th><th>PAN</th><th>AY</th><th>Dept</th><th>Stage</th><th>Priority</th><th>Due Date</th><th>By</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSectionGroup(gi) {
+  const el = document.getElementById('sg_' + gi);
+  el.classList.toggle('collapsed');
+}
+
+function renderWorkloadBar(containerId) {
+  const counts = {};
+  employees.forEach(e => counts[e]=0);
+  tasks.filter(t=>t.stage!=='Closed').forEach(t=>{ if(counts[t.assigned]!==undefined) counts[t.assigned]++; });
+  const max = Math.max(...Object.values(counts), 1);
+  document.getElementById(containerId).innerHTML = employees.map(e=>`
+    <div class="workload-row">
+      <div class="workload-name">${e}</div>
+      <div class="workload-bar-track">
+        <div class="workload-bar-fill" style="width:${(counts[e]/max*100)}%"></div>
+      </div>
+      <div class="workload-count">${counts[e]}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  TASKS
+// ══════════════════════════════════════════
+function renderTasks() {
+  const search = document.getElementById('taskSearch').value.toLowerCase();
+  const dept = document.getElementById('filterDept').value;
+  const stage = document.getElementById('filterStatus').value;
+  const prio = document.getElementById('filterPriority').value;
+  const assigned = document.getElementById('filterAssigned').value;
+
+  let filtered = tasks.filter(t => {
+    const matchSearch = !search || t.client.toLowerCase().includes(search) || t.pan.toLowerCase().includes(search) || t.id.toLowerCase().includes(search) || (t.section||'').toLowerCase().includes(search) || (t.generalDesc||'').toLowerCase().includes(search);
+    const matchDept = !dept || t.dept===dept;
+    const matchStage = !stage || t.stage===stage;
+    const matchPrio = !prio || t.priority===prio;
+    const matchAssigned = !assigned || t.assigned===assigned;
+    const sec = document.getElementById('filterSection').value;
+    const matchSection = !sec || (sec==='General Task' ? t.taskType==='general' : (t.section||'').startsWith(sec));
+    return matchSearch && matchDept && matchStage && matchPrio && matchAssigned && matchSection;
+  });
+
+  filtered.sort((a,b) => {
+    let va=a[sortField]||'', vb=b[sortField]||'';
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  document.getElementById('taskCount').textContent = filtered.length;
+  const now = fmtDate(today);
+  document.getElementById('taskTable').innerHTML = filtered.map(t=>{
+    const tyLabel = getTYForAY(t.ay);
+    const sectionDisplay = t.taskType==='general' ? `<span class="badge badge-gray" style="font-size:0.65rem;">General</span>` : (t.section ? `<span style="font-size:0.72rem;color:rgba(15,17,23,0.7);">${t.section.split('–')[0].trim()}</span>` : '—');
+    return `
+    <tr onclick="openDetail('${t.id}')">
+      <td class="td-mono">${t.id}</td>
+      <td><strong>${t.client}</strong></td>
+      <td class="td-mono">${t.pan}</td>
+      <td style="white-space:nowrap;">${t.ay}${tyLabel?`<br><span style="font-size:0.65rem;color:rgba(15,17,23,0.4);">${tyLabel}</span>`:''}
+      </td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sectionDisplay}</td>
+      <td><span class="badge ${deptBadge(t.dept)}">${t.dept}</span></td>
+      <td>${initials(t.assigned)} ${t.assigned}</td>
+      <td>${prioBadge(t.priority)}</td>
+      <td class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</td>
+      <td>${stageBadge(t.stage)}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();openDetail('${t.id}')">View</button></td>
+    </tr>`;}).join('') || '<tr><td colspan="11"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No tasks match your filters</div></div></td></tr>';
+}
+
+function sortTasks(field) {
+  if (sortField===field) sortAsc=!sortAsc;
+  else { sortField=field; sortAsc=true; }
+  renderTasks();
+}
+
+// ══════════════════════════════════════════
+//  CLIENTS
+// ══════════════════════════════════════════
+function renderClients() {
+  const search = document.getElementById('clientSearch').value.toLowerCase();
+  const mType = document.getElementById('clientFilterType').value;
+  let filtered = clients.filter(c => {
+    const ms = !search || c.name.toLowerCase().includes(search) || c.pan.toLowerCase().includes(search);
+    const mm = !mType || c.matterType===mType;
+    return ms && mm;
+  });
+  document.getElementById('clientTable').innerHTML = filtered.map(c=>`
+    <tr onclick="showClientDetail('${c.id}')">
+      <td class="td-mono" style="font-size:0.78rem;">${c.id}</td>
+      <td><strong>${c.name}</strong></td>
+      <td class="td-mono">${c.pan}</td>
+      <td>${c.mobile}</td>
+      <td style="font-size:0.8rem;">${c.ay}</td>
+      <td><span class="badge badge-gray">${c.matterType}</span></td>
+      <td><span class="badge ${deptBadge(c.dept)}">${c.dept}</span></td>
+      <td>${stageBadge(c.stage)}</td>
+      <td>${c.responsible ? initials(c.responsible)+' '+c.responsible : '—'}</td>
+      <td>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();addTaskForClient('${c.id}')">+ Task</button>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();editClient('${c.id}')">✏️</button>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();openClientDocModal('${c.id}')">📁</button>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();showClientPipeline('${c.id}')">📊</button>
+      </td>
+    </tr>`).join('');
+}
+
+function showClientDetail(id) {
+  // Open the client's tasks in tasks view filtered
+  const c = clients.find(x=>x.id===id);
+  if (!c) return;
+  switchView('tasks', document.querySelector('[onclick*="tasks"]'));
+  document.getElementById('taskSearch').value = c.name;
+  renderTasks();
+}
+
+function addTaskForClient(cid) {
+  const c = clients.find(x=>x.id===cid);
+  if (!c) return;
+  openAddModal();
+  setTimeout(()=>{
+    document.getElementById('taskClient').value = c.name;
+    document.getElementById('taskPAN').value = c.pan;
+    document.getElementById('taskDept').value = c.dept;
+    document.getElementById('taskStage').value = c.stage;
+  }, 100);
+}
+
+// ══════════════════════════════════════════
+//  KANBAN
+// ══════════════════════════════════════════
+function renderKanban() {
+  const board = document.getElementById('kanbanBoard');
+  board.innerHTML = stages.map(stage => {
+    const cards = tasks.filter(t => t.stage===stage);
+    return `
+      <div class="kanban-col" ondragover="event.preventDefault()" ondrop="dropCard(event,'${stage}')">
+        <div class="kanban-col-header">
+          <div class="kanban-col-title">${stage}</div>
+          <div class="kanban-count">${cards.length}</div>
+        </div>
+        ${cards.map(t=>`
+          <div class="kanban-card" draggable="true" ondragstart="dragStart(event,'${t.id}')" onclick="openDetail('${t.id}')">
+            <div class="kanban-card-id">${t.id} · ${t.ay}</div>
+            <div class="kanban-card-name">${t.client.split(' ').slice(0,3).join(' ')}</div>
+            <div style="margin-bottom:6px;">${prioBadge(t.priority)} <span class="badge ${deptBadge(t.dept)}" style="margin-left:4px;">${t.dept}</span></div>
+            <div class="kanban-card-meta">
+              <span class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</span>
+              <div class="kanban-assignee">${t.assigned.charAt(0)}</div>
+            </div>
+          </div>`).join('')}
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:12px;text-align:center;font-size:0.75rem;color:rgba(15,17,23,0.3);cursor:pointer;margin-top:4px;" onclick="openAddModalWithStage('${stage}')">+ Add here</div>
+      </div>`;
+  }).join('');
+}
+
+let dragId = null;
+function dragStart(e, id) { dragId=id; e.dataTransfer.effectAllowed='move'; }
+async function dropCard(e, newStage) {
+  e.preventDefault();
+  if (!dragId) return;
+  const t = tasks.find(x=>x.id===dragId);
+  const movedId = dragId;
+  dragId = null;
+  if (!t || t.stage === newStage) return;
+  const oldStage = t.stage;
+  t.stage = newStage;
+  renderKanban();
+  showToast(`✅ Moved ${movedId} to "${newStage}"`);
+  // Sync stage change to Google Sheets
+  if (APPS_SCRIPT_URL) {
+    const ok = await apiPost('setStage', { taskId: movedId, stage: newStage });
+    if (ok) showToast('☁️ Synced to Google Sheets');
+    else showToast('⚠️ Local only — sheet sync failed');
+  }
+}
+
+// ══════════════════════════════════════════
+//  WORKLOAD
+// ══════════════════════════════════════════
+function renderWorkload() {
+  renderWorkloadBar('workloadFull');
+
+  // Stage distribution
+  const stageCounts = {};
+  stages.forEach(s=>stageCounts[s]=0);
+  tasks.forEach(t=>{ if(stageCounts[t.stage]!==undefined) stageCounts[t.stage]++; });
+  const maxS = Math.max(...Object.values(stageCounts),1);
+  document.getElementById('stageDistribution').innerHTML = stages.map(s=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.8rem;">
+        <span style="font-weight:600;">${s}</span>
+        <span style="font-family:'JetBrains Mono',monospace;color:rgba(15,17,23,0.5);">${stageCounts[s]}</span>
+      </div>
+      <div class="workload-bar-track">
+        <div class="workload-bar-fill" style="width:${(stageCounts[s]/maxS*100)}%;background:${stageColor(s)}"></div>
+      </div>
+    </div>`).join('');
+
+  // Dept breakdown
+  const depts = ['AO','CIT(A)','ITAT','HC','SC'];
+  document.getElementById('deptBreakdown').innerHTML = depts.map(d=>{
+    const dt = tasks.filter(t=>t.dept===d);
+    return `
+      <div style="background:var(--surface);border-radius:var(--radius);padding:16px;min-width:140px;text-align:center;flex:1;">
+        <div class="kpi-label" style="margin-bottom:6px;">${d}</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--ink);">${dt.length}</div>
+        <div style="font-size:0.75rem;color:rgba(15,17,23,0.4);margin-top:4px;">${dt.filter(t=>t.priority==='High').length} high priority</div>
+      </div>`}).join('');
+}
+
+function stageColor(s) {
+  const map = {'Notice Received':'#c8441a','Reply Drafting':'#b8960c','Review Pending':'#e8622f','Filed':'#1a5fa8','Hearing Scheduled':'#6b3fa0','Order Awaited':'#1a7a4a','Appeal Required':'#c8441a','Closed':'#555'};
+  return map[s]||'#888';
+}
+
+// ══════════════════════════════════════════
+//  CALENDAR
+// ══════════════════════════════════════════
+function renderCalendar() {
+  const d = new Date(today.getFullYear(), today.getMonth(), 1);
+  const daysInMonth = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  const firstDay = d.getDay();
+  const monthName = d.toLocaleString('default',{month:'long',year:'numeric'});
+
+  const tasksByDate = {};
+  tasks.forEach(t => {
+    if (!tasksByDate[t.dueDate]) tasksByDate[t.dueDate]=[];
+    tasksByDate[t.dueDate].push(t);
+  });
+
+  let html = `<div style="font-weight:700;font-size:1rem;margin-bottom:16px;">${monthName}</div>`;
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day=>{
+    html += `<div style="text-align:center;font-size:0.72rem;font-weight:700;color:rgba(15,17,23,0.4);padding:8px;">${day}</div>`;
+  });
+  html += '</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">';
+
+  for (let i=0;i<firstDay;i++) html += '<div></div>';
+  for (let day=1;day<=daysInMonth;day++) {
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayTasks = tasksByDate[dateStr]||[];
+    const isToday = dateStr===fmtDate(today);
+    html += `
+      <div style="background:${isToday?'var(--ink)':dayTasks.length?'var(--white)':'var(--surface)'};border-radius:8px;padding:8px;min-height:70px;border:1px solid ${isToday?'transparent':'var(--border)'};cursor:${dayTasks.length?'pointer':'default'}" onclick="${dayTasks.length?`calDay('${dateStr}')`:''}" >
+        <div style="font-size:0.8rem;font-weight:700;color:${isToday?'white':'rgba(15,17,23,0.7)'};margin-bottom:4px;">${day}</div>
+        ${dayTasks.slice(0,2).map(t=>`<div style="background:${isToday?'rgba(255,255,255,0.2)':'var(--accent-light)'};color:${isToday?'white':'var(--accent)'};font-size:0.6rem;padding:2px 5px;border-radius:3px;margin-bottom:2px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.client.split(' ')[0]}</div>`).join('')}
+        ${dayTasks.length>2?`<div style="font-size:0.6rem;color:rgba(15,17,23,0.4);">+${dayTasks.length-2} more</div>`:''}
+      </div>`;
+  }
+  html += '</div>';
+  document.getElementById('calendarView').innerHTML = html;
+}
+
+function calDay(dateStr) {
+  switchView('tasks', document.querySelector('[onclick*="tasks"]'));
+  document.getElementById('taskSearch').value = dateStr;
+  renderTasks();
+}
+
+// ══════════════════════════════════════════
+//  TASK DETAIL
+// ══════════════════════════════════════════
+function openDetail(id) {
+  currentTaskId = id;
+  const t = tasks.find(x=>x.id===id);
+  if (!t) return;
+  document.getElementById('detailTitle').textContent = t.client;
+  const _ty = getTYForAY(t.ay); document.getElementById('detailTaskId').textContent = t.id + ' · ' + t.ay + (_ty ? ' · ' + _ty : '');
+
+  const tyLabel = getTYForAY(t.ay);
+  const ayFull  = t.ay + (tyLabel ? ` (${tyLabel})` : '');
+  const isGeneral = t.taskType === 'general';
+  document.getElementById('detailGrid').innerHTML = [
+    ['Task ID',      `<span class="td-mono">${t.id}</span>`],
+    ['PAN',          `<span class="td-mono">${t.pan}</span>`],
+    [isGeneral ? 'Assessment Year' : 'Assessment Year', ayFull],
+    ['Task Type',    isGeneral ? '<span class="badge badge-gray">📋 General Task</span>' : '<span class="badge badge-blue">⚖️ Litigation</span>'],
+    isGeneral ? null : ['Section / Notice', t.section || '—'],
+    isGeneral ? ['Task Description', t.generalDesc || '—'] : null,
+    ['Department',   `<span class="badge ${deptBadge(t.dept)}">${t.dept}</span>`],
+    ['Responsible',  `${initials(t.assigned)} ${t.assigned}`],
+    ['Priority',     prioBadge(t.priority)],
+    ['Due Date',     `<span class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</span>`],
+    ['Remarks',      t.remarks || '—'],
+  ].filter(Boolean).map(([label,val])=>`<div class="detail-field"><label>${label}</label><span>${val}</span></div>`).join('');
+
+  const stageIdx = stages.indexOf(t.stage);
+  document.getElementById('stageTrackerUI').innerHTML = stages.map((s,i)=>`
+    <div class="stage-item ${i<stageIdx?'done':i===stageIdx?'active':''}" onclick="setStage('${s}')">
+      <div class="stage-dot-wrap">
+        <div class="stage-dot">${i<stageIdx?'✓':'•'}</div>
+        ${i<stages.length-1?'<div class="stage-line"></div>':''}
+      </div>
+      <div class="stage-content">
+        <div class="stage-name">${s}</div>
+        ${i<stageIdx?`<div class="stage-date">Completed</div>`:''}
+        ${i===stageIdx?`<div class="stage-date" style="color:var(--accent);font-weight:600;">Current stage</div>`:''}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('quickActions').innerHTML = `
+    <button class="btn btn-primary" onclick="advanceStage()" ${stageIdx===stages.length-1?'disabled':''}>→ Advance Stage</button>
+    <button class="btn btn-outline" onclick="editCurrentTask()">✏️ Edit Task</button>
+    <button class="btn btn-outline" onclick="openDocModal(currentTaskId)">📁 Documents</button>
+  `;
+
+  openModal('taskDetailModal');
+}
+
+async function advanceStage() {
+  const t = tasks.find(x=>x.id===currentTaskId);
+  if (!t) return;
+  const idx = stages.indexOf(t.stage);
+  if (idx < stages.length-1) {
+    const oldStage = t.stage;
+    t.stage = stages[idx+1];
+    showToast(`✅ Advanced to "${t.stage}"`);
+    openDetail(currentTaskId);
+    if (currentView==='kanban') renderKanban();
+    if (currentView==='tasks') renderTasks();
+    if (currentView==='dashboard') renderDashboard();
+    // Sync to Sheets
+    if (APPS_SCRIPT_URL) {
+      apiPost('advanceStage', { taskId: currentTaskId })
+        .catch(() => {});
+    }
+  }
+}
+
+async function setStage(s) {
+  const t = tasks.find(x=>x.id===currentTaskId);
+  if (!t) return;
+  t.stage = s;
+  showToast(`✅ Stage set to "${s}"`);
+  openDetail(currentTaskId);
+  if (currentView==='kanban') renderKanban();
+  if (currentView==='tasks') renderTasks();
+  // Sync to Sheets
+  if (APPS_SCRIPT_URL) {
+    apiPost('setStage', { taskId: currentTaskId, stage: s })
+      .catch(() => {});
+  }
+}
+
+function editCurrentTask() {
+  closeModal('taskDetailModal');
+  const editId = currentTaskId; // save before openAddModal resets it
+  const t = tasks.find(x=>x.id===editId);
+  if (!t) return;
+  openAddModal(); // resets form + sets currentTaskId = null
+  currentTaskId = editId; // restore for edit mode
+  document.getElementById('addModalTitle').textContent = 'Edit Task · '+t.id;
+  document.getElementById('saveTaskBtn').textContent = 'Update Task';
+  setTimeout(()=>{
+    document.getElementById('taskClient').value = t.client;
+    document.getElementById('taskPAN').value = t.pan;
+    document.getElementById('taskAY').value = t.ay;
+    document.getElementById('taskDept').value = t.dept;
+    document.getElementById('taskAssigned').value = t.assigned;
+    document.getElementById('taskPriority').value = t.priority;
+    document.getElementById('taskDueDate').value = t.dueDate;
+    document.getElementById('taskStage').value = t.stage;
+    document.getElementById('taskType').value = t.taskType || 'litigation';
+    document.getElementById('taskSection').value = t.section || '';
+    document.getElementById('taskGeneralDesc').value = t.generalDesc || '';
+    document.getElementById('taskRemarks').value = t.remarks;
+    toggleTaskTypeFields();
+  }, 100);
+}
+
+async function deleteCurrentTask() {
+  if (!confirm('Delete this task?')) return;
+  const taskId = currentTaskId;
+  tasks = tasks.filter(x=>x.id!==taskId);
+  closeModal('taskDetailModal');
+  showToast('🗑 Task deleted');
+  renderTasks();
+  renderDashboard();
+  // Sync to Sheets
+  if (APPS_SCRIPT_URL) {
+    apiPost('deleteTask', { taskId })
+      .catch(() => {});
+  }
+}
+
+// ══════════════════════════════════════════
+//  ADD TASK MODAL
+// ══════════════════════════════════════════
+function toggleTaskTypeFields() {
+  const type = document.getElementById('taskType').value;
+  const isGeneral = type === 'general';
+  document.getElementById('sectionFieldGroup').style.display = isGeneral ? 'none' : '';
+  document.getElementById('generalTaskGroup').style.display  = isGeneral ? '' : 'none';
+  // For general tasks, some fields become optional
+  const deptGroup = document.getElementById('taskDept').closest('.form-group');
+  const ayGroup   = document.getElementById('taskAY').closest('.form-group');
+  if (deptGroup) deptGroup.style.opacity = isGeneral ? '0.5' : '1';
+  if (ayGroup)   ayGroup.style.opacity   = isGeneral ? '0.5' : '1';
+}
+
+function openAddModal() {
+  // Populate client dropdown
+  const sel = document.getElementById('taskClient');
+  sel.innerHTML = '<option value="">Select Client</option>' + clients.map(c=>`<option>${c.name}</option>`).join('');
+  // Populate employee dropdown dynamically from staffMembers
+  const empSel = document.getElementById('taskAssigned');
+  empSel.innerHTML = employees.map(e => `<option>${e}</option>`).join('');
+  // Populate AY dropdown
+  populateAYDropdowns();
+  // Reset all fields for a fresh new-task form
+  sel.value = '';
+  document.getElementById('taskPAN').value = '';
+  document.getElementById('taskAY').value = document.getElementById('taskAY').options[0]?.value || '';
+  document.getElementById('taskDept').value = 'AO';
+  empSel.value = employees[0] || '';
+  document.getElementById('taskPriority').value = 'Medium';
+  document.getElementById('taskDueDate').value = fmtDate(today);
+  document.getElementById('taskStage').value = 'Notice Received';
+  document.getElementById('taskRemarks').value = '';
+  document.getElementById('taskType').value = 'litigation';
+  document.getElementById('taskSection').value = '';
+  document.getElementById('taskGeneralDesc').value = '';
+  toggleTaskTypeFields();
+  document.getElementById('addModalTitle').textContent = 'Add New Task';
+  document.getElementById('saveTaskBtn').textContent = 'Save Task';
+  currentTaskId = null; // clear edit mode
+  openModal('addTaskModal');
+}
+
+function openAddModalWithStage(stage) {
+  openAddModal();
+  setTimeout(()=>document.getElementById('taskStage').value=stage, 50);
+}
+
+function autoFillPAN() {
+  const name = document.getElementById('taskClient').value;
+  const c = clients.find(x=>x.name===name);
+  document.getElementById('taskPAN').value = c ? c.pan : '';
+}
+
+async function saveTask() {
+  const client = document.getElementById('taskClient').value;
+  if (!client) { showToast('⚠️ Please select a client'); return; }
+  const dueDate = document.getElementById('taskDueDate').value;
+  if (!dueDate) { showToast('⚠️ Please set a due date'); return; }
+
+  const taskType = document.getElementById('taskType').value;
+  const formData = {
+    client,
+    pan:         document.getElementById('taskPAN').value,
+    ay:          document.getElementById('taskAY').value,
+    dept:        document.getElementById('taskDept').value,
+    assigned:    document.getElementById('taskAssigned').value,
+    priority:    document.getElementById('taskPriority').value,
+    dueDate,
+    stage:       document.getElementById('taskStage').value,
+    taskType,
+    section:     document.getElementById('taskSection').value,
+    generalDesc: document.getElementById('taskGeneralDesc').value,
+    remarks:     document.getElementById('taskRemarks').value
+  };
+  if (taskType === 'general' && !formData.generalDesc.trim()) {
+    showToast('⚠️ Please enter task description'); return;
+  }
+
+  if (currentTaskId) {
+    // ── EDIT MODE ──
+    const t = tasks.find(x => x.id === currentTaskId);
+    if (!t) return;
+    Object.assign(t, formData);
+    closeModal('addTaskModal');
+    showToast(`✅ Task ${currentTaskId} updated`);
+    // Sync to Sheets
+    if (APPS_SCRIPT_URL) {
+      apiPost('updateTask', { id: currentTaskId, ...formData })
+        .then(r => { if (r) showToast('☁️ Synced to Google Sheets'); })
+        .catch(() => {});
+    }
+  } else {
+    // ── ADD MODE ──
+    const id = `TK-${String(taskIdCounter++).padStart(3,'0')}`;
+    const newTask = { id, ...formData, status: 'Pending' };
+    tasks.unshift(newTask);
+    closeModal('addTaskModal');
+    showToast(`✅ Task ${id} created`);
+    // Sync to Sheets
+    if (APPS_SCRIPT_URL) {
+      apiPost('addTask', formData)
+        .then(r => { if (r) showToast('☁️ Synced to Google Sheets'); })
+        .catch(() => {});
+    }
+  }
+
+  currentTaskId = null;
+  if (currentView==='tasks') renderTasks();
+  if (currentView==='kanban') renderKanban();
+  if (currentView==='dashboard') renderDashboard();
+}
+
+// ══════════════════════════════════════════
+//  ADD CLIENT MODAL
+// ══════════════════════════════════════════
+function openAddClientModal() {
+  currentClientId = null;
+  // Reset modal to add mode
+  document.querySelector('#addClientModal .modal-title').textContent = 'Add New Client';
+  document.querySelector('#addClientModal .modal-footer .btn-primary').textContent = 'Add Client';
+  // Clear fields
+  ['cName','cPAN','cMobile','cEmail'].forEach(id => document.getElementById(id).value = '');
+  // Populate employee dropdown from staffMembers
+  const empSel = document.getElementById('cEmployee');
+  empSel.innerHTML = employees.map(e => `<option>${e}</option>`).join('');
+  populateAYDropdowns();
+  openModal('addClientModal');
+}
+
+async function saveClient() {
+  const name = document.getElementById('cName').value.trim();
+  const pan = document.getElementById('cPAN').value.trim().toUpperCase();
+  if (!name || !pan) { showToast('⚠️ Name and PAN required'); return; }
+
+  const formData = {
+    name, pan,
+    mobile: document.getElementById('cMobile').value,
+    email: document.getElementById('cEmail').value,
+    ay: document.getElementById('cAY').value,
+    matterType: document.getElementById('cMatterType').value,
+    dept: document.getElementById('cDept').value,
+    stage: document.getElementById('cStage').value,
+    responsible: document.getElementById('cEmployee').value,
+  };
+
+  if (currentClientId) {
+    // ── EDIT MODE ──
+    const c = clients.find(x => x.id === currentClientId);
+    if (c) Object.assign(c, formData);
+    closeModal('addClientModal');
+    showToast(`✅ Client ${name} updated`);
+    if (APPS_SCRIPT_URL) {
+      apiPost('updateClient', { id: currentClientId, ...formData }).catch(() => {});
+    }
+    currentClientId = null;
+    // Reset modal title/button for next time
+    document.querySelector('#addClientModal .modal-title').textContent = 'Add New Client';
+    document.querySelector('#addClientModal .modal-footer .btn-primary').textContent = 'Add Client';
+  } else {
+    // ── ADD MODE ──
+    const newClient = {
+      id: generateClientId(),
+      ...formData,
+      driveFolder: ''
+    };
+    clients.push(newClient);
+    closeModal('addClientModal');
+    showToast(`✅ Client ${name} added`);
+    renderClients();
+    document.getElementById('kpiClients').textContent = clients.length;
+    // Sync to Sheets + create Drive folder
+    if (APPS_SCRIPT_URL) {
+      apiPost('addClient', newClient)
+        .then(r => {
+          if (r) {
+            showToast('☁️ Client saved & Drive folder created');
+            // Update local record with the Drive folder URL returned by server
+            if (r.driveFolder) {
+              const saved = clients.find(x => x.id === newClient.id);
+              if (saved) saved.driveFolder = r.driveFolder;
+            }
+          }
+        })
+        .catch(() => {});
+    }
+  }
+  renderClients();
+  document.getElementById('kpiClients').textContent = clients.length;
+}
+
+// ══════════════════════════════════════════
+//  SYNC MODAL
+// ══════════════════════════════════════════
+function openSyncModal() { openModal('syncModal'); }
+
+async function simulateSync() {
+  closeModal('syncModal');
+  if (!APPS_SCRIPT_URL) { showToast('⚠️ No Apps Script URL set — go to Settings'); return; }
+  showToast('🔄 Syncing with Google Sheets…');
+  await loadFromSheets();
+}
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d+'T00:00:00');
+  return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
+}
+
+function dueDateClass(d) {
+  const now = fmtDate(today);
+  if (d < now) return 'due-overdue';
+  if (d === now) return 'due-today';
+  return '';
+}
+
+function deptBadge(d) {
+  const map = {AO:'badge-blue','CIT(A)':'badge-purple',ITAT:'badge-green',HC:'badge-warning',SC:'badge-danger'};
+  return map[d]||'badge-gray';
+}
+
+function stageBadge(s) {
+  const cls = {
+    'Notice Received':'badge-warning','Reply Drafting':'badge-warning','Review Pending':'badge-warning',
+    'Filed':'badge-blue','Hearing Scheduled':'badge-purple','Order Awaited':'badge-blue',
+    'Appeal Required':'badge-danger','Closed':'badge-green'
+  };
+  return `<span class="badge ${cls[s]||'badge-gray'}">${s}</span>`;
+}
+
+function prioBadge(p) {
+  const map = {High:'badge-danger',Medium:'badge-warning',Low:'badge-green'};
+  return `<span class="badge ${map[p]||'badge-gray'}"><span class="prio-dot prio-${p.toLowerCase()}"></span>${p}</span>`;
+}
+
+function initials(name) {
+  return `<span class="kanban-assignee" style="display:inline-flex;width:22px;height:22px;flex-shrink:0;vertical-align:middle;margin-right:4px;">${name.split(' ').map(x=>x[0]).join('')}</span>`;
+}
+
+function exportCSV() {
+  const headers = ['Task ID','Client','PAN','AY','Tax Year','Task Type','Section','Dept','Assigned','Priority','Due Date','Stage','Remarks'];
+  const rows = tasks.map(t=>[t.id,t.client,t.pan,t.ay,getTYForAY(t.ay),t.taskType||'litigation',t.section||t.generalDesc||'',t.dept,t.assigned,t.priority,t.dueDate,t.stage,t.remarks||'']);
+  const csv = [headers,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'pk_co_tasks.csv';
+  a.click();
+  showToast('⬇ CSV exported');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', e=>{
+    if (e.target===o) o.classList.remove('open');
+  });
+});
+
+// ── INIT ──
+// Populate AY dropdowns from 2001-02 to current+2
+// ── Tax Year / Assessment Year helpers (IT Act 1961 & 2025) ──
+// Under IT Act 1961: AY is the year AFTER the previous year (PY)
+//   e.g. PY 2023-24 → AY 2024-25
+// Under IT Act 2025 (effective from AY 2026-27): "Tax Year" replaces
+//   "Previous Year". Tax Year 2025-26 → AY 2026-27.
+// We show AY labels for all years; from AY 2026-27 we also note Tax Year.
+
+function getTYForAY(ayStr) {
+  // Returns Tax Year label (IT Act 2025) for AY >= 2026-27
+  if (!ayStr) return '';
+  const ayStart = parseInt(ayStr.split('-')[0], 10);
+  if (ayStart >= 2026) {
+    const tyStart = ayStart - 1;
+    const tyEnd   = String(tyStart + 1).slice(-2);
+    return `TY ${tyStart}-${tyEnd}`;
+  }
+  return '';
+}
+
+function populateAYDropdowns() {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth(); // 0-indexed; April = 3
+  // AY for current FY: if month >= April (3), AY = currentYear+1, else currentYear
+  const maxAYStart = currentMonth >= 3 ? currentYear + 1 : currentYear;
+  let options = '';
+  for (let yr = maxAYStart; yr >= 2001; yr--) {
+    const ayEnd = String(yr + 1).slice(-2);
+    const ayLabel = `${yr}-${ayEnd}`;
+    const ty = getTYForAY(ayLabel);
+    const label = ty ? `${ayLabel} (${ty})` : ayLabel;
+    options += `<option value="${ayLabel}">${label}</option>`;
+  }
+  ['taskAY','cAY'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.innerHTML = options; }
+  });
+}
+populateAYDropdowns();
+
+function handleMainAdd() {
+  if (currentView === 'clients') openAddClientModal();
+  else if (currentView === 'staff') openAddStaffModal();
+  else openAddModal();
+}
+
+// ══════════════════════════════════════════
+//  STAFF MODULE
+// ══════════════════════════════════════════
+function renderStaff() {
+  const search = document.getElementById('staffSearch').value.toLowerCase();
+  const role = document.getElementById('staffFilterRole').value;
+  let filtered = staffMembers.filter(s => {
+    const ms = !search || s.name.toLowerCase().includes(search) || (s.email || '').toLowerCase().includes(search);
+    const mr = !role || s.role === role;
+    return ms && mr;
+  });
+
+  document.getElementById('staffTable').innerHTML = filtered.map(s => {
+    const activeTasks = tasks.filter(t => t.assigned === s.shortName && t.stage !== 'Closed').length;
+    const statusBadge = s.status === 'Active' ? 'badge-green' : s.status === 'On Leave' ? 'badge-warning' : 'badge-gray';
+    return `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--ink);color:white;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">
+            ${s.name.split(' ').map(x=>x[0]).join('')}
+          </div>
+          <div>
+            <div style="font-weight:600;">${s.name}</div>
+            <div style="font-size:0.75rem;color:rgba(15,17,23,0.45);">${s.shortName}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge badge-blue">${s.role}</span></td>
+      <td>${s.mobile || '—'}</td>
+      <td style="font-size:0.8rem;color:rgba(15,17,23,0.55);">${s.email || '—'}</td>
+      <td style="font-size:0.82rem;">${s.special || '—'}</td>
+      <td>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${activeTasks>5?'var(--accent)':activeTasks>2?'var(--gold)':'var(--green)'};">${activeTasks}</span>
+        <span style="font-size:0.75rem;color:rgba(15,17,23,0.4);"> active</span>
+      </td>
+      <td><span class="badge ${statusBadge}">${s.status}</span></td>
+      <td>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="editStaff('${s.id}')">✏️ Edit</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8"><div class="empty"><div class="empty-icon">👤</div><div class="empty-text">No staff members found</div></div></td></tr>';
+}
+
+function openAddStaffModal() {
+  currentStaffId = null;
+  document.getElementById('staffModalTitle').textContent = 'Add Staff Member';
+  document.getElementById('saveStaffBtn').textContent = 'Add Staff';
+  document.getElementById('deleteStaffBtn').style.display = 'none';
+  document.getElementById('sName').value = '';
+  document.getElementById('sShortName').value = '';
+  document.getElementById('sRole').value = 'Associate';
+  document.getElementById('sMobile').value = '';
+  document.getElementById('sEmail').value = '';
+  document.getElementById('sSpecial').value = 'General Practice';
+  document.getElementById('sDOJ').value = '';
+  document.getElementById('sStatus').value = 'Active';
+  document.getElementById('sNotes').value = '';
+  openModal('addStaffModal');
+}
+
+function editStaff(id) {
+  const s = staffMembers.find(x => x.id === id);
+  if (!s) return;
+  currentStaffId = id;
+  document.getElementById('staffModalTitle').textContent = 'Edit Staff · ' + s.name;
+  document.getElementById('saveStaffBtn').textContent = 'Update';
+  document.getElementById('deleteStaffBtn').style.display = '';
+  document.getElementById('sName').value = s.name;
+  document.getElementById('sShortName').value = s.shortName;
+  document.getElementById('sRole').value = s.role;
+  document.getElementById('sMobile').value = s.mobile;
+  document.getElementById('sEmail').value = s.email;
+  document.getElementById('sSpecial').value = s.special;
+  document.getElementById('sDOJ').value = s.doj;
+  document.getElementById('sStatus').value = s.status;
+  document.getElementById('sNotes').value = s.notes;
+  openModal('addStaffModal');
+}
+
+function saveStaff() {
+  const name = document.getElementById('sName').value.trim();
+  const shortName = document.getElementById('sShortName').value.trim();
+  if (!name || !shortName) { showToast('⚠️ Name and display name required'); return; }
+
+  const data = {
+    name, shortName,
+    role: document.getElementById('sRole').value,
+    mobile: document.getElementById('sMobile').value,
+    email: document.getElementById('sEmail').value,
+    special: document.getElementById('sSpecial').value,
+    doj: document.getElementById('sDOJ').value,
+    status: document.getElementById('sStatus').value,
+    notes: document.getElementById('sNotes').value,
+  };
+
+  if (currentStaffId) {
+    const s = staffMembers.find(x => x.id === currentStaffId);
+    if (s) Object.assign(s, data);
+    showToast(`✅ ${name} updated`);
+    if (APPS_SCRIPT_URL) {
+      apiPost('updateStaff', { id: currentStaffId, ...data }).catch(() => {});
+    }
+  } else {
+    const id = 'S' + String(staffIdCounter++).padStart(3, '0');
+    staffMembers.push({ id, ...data });
+    showToast(`✅ ${name} added to team`);
+    if (APPS_SCRIPT_URL) {
+      apiPost('addStaff', { id, ...data }).catch(() => {});
+    }
+  }
+
+  // Keep employees list in sync
+  employees = staffMembers.filter(s => s.status === 'Active').map(s => s.shortName);
+  closeModal('addStaffModal');
+  renderStaff();
+  updateEmployeeDropdowns();
+}
+
+function deleteCurrentStaff() {
+  if (!currentStaffId) return;
+  const s = staffMembers.find(x => x.id === currentStaffId);
+  if (!confirm(`Remove ${s ? s.name : 'this staff member'}? This cannot be undone.`)) return;
+  staffMembers = staffMembers.filter(x => x.id !== currentStaffId);
+  employees = staffMembers.filter(s => s.status === 'Active').map(s => s.shortName);
+  closeModal('addStaffModal');
+  showToast('🗑 Staff member removed');
+  renderStaff();
+  updateEmployeeDropdowns();
+  if (APPS_SCRIPT_URL) {
+    apiPost('deleteStaff', { staffId: currentStaffId }).catch(() => {});
+  }
+}
+
+function updateEmployeeDropdowns() {
+  // Update filter dropdown in tasks view
+  const filterSel = document.getElementById('filterAssigned');
+  if (filterSel) {
+    filterSel.innerHTML = '<option value="">All Employees</option>' + employees.map(e => `<option>${e}</option>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════
+//  CLIENT PIPELINE (consolidated view)
+// ══════════════════════════════════════════
+let currentPipelineClientId = null;
+let cpFilterAY = 'all';
+
+function showClientPipeline(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  currentPipelineClientId = id;
+  cpFilterAY = 'all';
+
+  document.getElementById('cpModalTitle').textContent = c.name;
+  document.getElementById('cpModalSub').textContent   = 'ID: ' + c.id + '  ·  PAN: ' + c.pan;
+
+  // Summary strip
+  const clientTasks = tasks.filter(t => t.client === c.name);
+  const open = clientTasks.filter(t => t.stage !== 'Closed');
+  const overdue = clientTasks.filter(t => t.dueDate < fmtDate(today) && t.stage !== 'Closed');
+  document.getElementById('cpClientSummary').innerHTML = [
+    ['Client ID',   `<span class="td-mono">${c.id}</span>`],
+    ['PAN',         `<span class="td-mono">${c.pan}</span>`],
+    ['Mobile',      c.mobile || '—'],
+    ['Supervisor',  c.responsible || '—'],
+    ['Total Tasks', `<strong>${clientTasks.length}</strong>`],
+    ['Open Tasks',  `<strong style="color:var(--blue)">${open.length}</strong>`],
+    ['Overdue',     `<strong style="color:var(--accent)">${overdue.length}</strong>`],
+  ].map(([l,v]) => `<div><div style="font-size:0.7rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:rgba(15,17,23,0.4);margin-bottom:3px;">${l}</div><div style="font-size:0.88rem;">${v}</div></div>`).join('');
+
+  // Year tabs
+  const allAYs = [...new Set(clientTasks.map(t => t.ay).filter(Boolean))].sort((a,b)=>b.localeCompare(a));
+  const tabsHtml = ['all',...allAYs].map(ay => {
+    const label = ay === 'all' ? 'All Years' : ay + (getTYForAY(ay) ? ` <span style="font-size:0.65rem;opacity:0.7;">(${getTYForAY(ay)})</span>` : '');
+    return `<button class="btn ${ay===cpFilterAY?'btn-primary':'btn-outline'}" style="padding:5px 12px;font-size:0.78rem;"
+      onclick="cpSetAY('${ay}')">${label}</button>`;
+  }).join('');
+  document.getElementById('cpYearTabs').innerHTML = tabsHtml;
+
+  renderCPTasks();
+  openModal('clientPipelineModal');
+}
+
+function cpSetAY(ay) {
+  cpFilterAY = ay;
+  // Re-render tabs
+  const c = clients.find(x => x.id === currentPipelineClientId);
+  if (c) showClientPipeline(c.id);
+  // keep modal open – showClientPipeline calls openModal again
+}
+
+function renderCPTasks() {
+  const c = clients.find(x => x.id === currentPipelineClientId);
+  if (!c) return;
+  let ct = tasks.filter(t => t.client === c.name);
+  if (cpFilterAY !== 'all') ct = ct.filter(t => t.ay === cpFilterAY);
+  ct.sort((a,b) => (b.dueDate||'').localeCompare(a.dueDate||''));
+
+  document.getElementById('cpTasksTable').innerHTML = ct.map(t => {
+    const ty = getTYForAY(t.ay);
+    const ayDisplay = t.ay + (ty ? ` <span style="font-size:0.65rem;color:rgba(15,17,23,0.45);">(${ty})</span>` : '');
+    const typeLabel = t.taskType === 'general' ? '<span class="badge badge-gray">General</span>' : '<span class="badge badge-blue">Litigation</span>';
+    return `
+    <tr onclick="openDetail('${t.id}');closeModal('clientPipelineModal')">
+      <td class="td-mono">${t.id}</td>
+      <td>${ayDisplay}</td>
+      <td>${typeLabel}</td>
+      <td style="font-size:0.78rem;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.section || (t.taskType==='general'?t.generalDesc||'—':'—')}</td>
+      <td><span class="badge ${deptBadge(t.dept)}">${t.dept}</span></td>
+      <td>${stageBadge(t.stage)}</td>
+      <td>${prioBadge(t.priority)}</td>
+      <td class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</td>
+      <td style="font-size:0.8rem;">${t.assigned}</td>
+      <td>
+        <button class="btn btn-ghost" style="padding:3px 7px;font-size:0.72rem;"
+          onclick="event.stopPropagation();openDetail('${t.id}')">View</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10"><div class="empty" style="padding:24px;"><div class="empty-icon">📋</div><div class="empty-text">No tasks found</div></div></td></tr>';
+}
+
+function addTaskFromPipeline() {
+  const c = clients.find(x => x.id === currentPipelineClientId);
+  closeModal('clientPipelineModal');
+  if (!c) return openAddModal();
+  openAddModal();
+  setTimeout(() => {
+    document.getElementById('taskClient').value = c.name;
+    autoFillPAN();
+    if (cpFilterAY && cpFilterAY !== 'all') document.getElementById('taskAY').value = cpFilterAY;
+  }, 80);
+}
+
+// ══════════════════════════════════════════
+//  EDIT CLIENT
+// ══════════════════════════════════════════
+let currentClientId = null;
+
+// showClientDetail — called when a row in the clients table is clicked
+function showClientDetail(id) {
+  showClientPipeline(id);
+}
+
+function editClient(id) {
+  const c = clients.find(x => x.id === id);
+  if (!c) return;
+  currentClientId = id;
+  // Reuse addClientModal with pre-filled values
+  populateAYDropdowns();
+  document.getElementById('cName').value = c.name;
+  document.getElementById('cPAN').value = c.pan;
+  document.getElementById('cMobile').value = c.mobile;
+  document.getElementById('cEmail').value = c.email;
+  document.getElementById('cAY').value = c.ay;
+  document.getElementById('cMatterType').value = c.matterType;
+  document.getElementById('cDept').value = c.dept;
+  document.getElementById('cStage').value = c.stage;
+  document.getElementById('cEmployee').value = c.responsible;
+  // Update modal title and button
+  document.querySelector('#addClientModal .modal-title').textContent = 'Edit Client · ' + c.name;
+  document.querySelector('#addClientModal .modal-footer .btn-primary').textContent = 'Update Client';
+  openModal('addClientModal');
+}
+
+// ══════════════════════════════════════════
+//  DOCUMENT UPLOAD MODULE
+// ══════════════════════════════════════════
+let currentDocTaskId = null;
+let currentDocClientId = null;
+let currentDocClientName = '';
+let currentDocClientPAN  = '';
+let currentDocTab = 'Notice';
+let selectedFiles = [];
+
+// Key: clientName → { Notice:[], Reply:[], Order:[] }
+const docStore = {};
+
+// ══════════════════════════════════════════
+//  DOCUMENT MODULE — full Drive integration
+// ══════════════════════════════════════════
+
+function openDocModal(taskId) {
+  const t = tasks.find(x => x.id === taskId);
+  if (!t) return;
+  currentDocTaskId = taskId;
+  currentDocClientId = null;
+  // Resolve the client to get their name (used as Drive folder key)
+  const c = clients.find(x => x.name === t.client);
+  currentDocClientName = t.client;
+  currentDocClientPAN  = t.pan;
+  document.getElementById('docModalTitle').textContent = '📁 Documents — ' + t.client;
+  document.getElementById('docModalSub').textContent   = t.id + ' · ' + t.ay + ' · ' + t.dept;
+  resetDocModal();
+  openModal('docUploadModal');
+  fetchFilesFromDrive();
+}
+
+function openClientDocModal(clientId) {
+  const c = clients.find(x => x.id === clientId);
+  if (!c) return;
+  currentDocClientId   = clientId;
+  currentDocTaskId     = null;
+  currentDocClientName = c.name;
+  currentDocClientPAN  = c.pan;
+  document.getElementById('docModalTitle').textContent = '📁 Documents — ' + c.name;
+  document.getElementById('docModalSub').textContent   = c.pan + ' · ' + c.matterType;
+  resetDocModal();
+  openModal('docUploadModal');
+  fetchFilesFromDrive();
+}
+
+function resetDocModal() {
+  currentDocTab  = 'Notice';
+  selectedFiles  = [];
+  ['Notice','Reply','Order'].forEach(tab => {
+    document.getElementById('docTab-' + tab).classList.toggle('active', tab === 'Notice');
+  });
+  document.getElementById('selectedFilesList').style.display = 'none';
+  document.getElementById('filesListBody').innerHTML        = '';
+  document.getElementById('uploadDocsBtn').style.display    = 'none';
+  document.getElementById('docFileInput').value             = '';
+  document.getElementById('existingDocsList').innerHTML     =
+    '<div style="text-align:center;padding:24px;color:rgba(15,17,23,0.4);font-size:0.85rem;">Loading…</div>';
+}
+
+function switchDocTab(tab) {
+  currentDocTab = tab;
+  ['Notice','Reply','Order'].forEach(t => {
+    document.getElementById('docTab-' + t).classList.toggle('active', t === tab);
+  });
+  // Clear pending selection when switching tabs
+  selectedFiles = [];
+  document.getElementById('selectedFilesList').style.display = 'none';
+  document.getElementById('filesListBody').innerHTML        = '';
+  document.getElementById('uploadDocsBtn').style.display    = 'none';
+  document.getElementById('docFileInput').value             = '';
+  fetchFilesFromDrive();
+}
+
+function handleDocDrop(e) {
+  e.preventDefault();
+  const zone = document.getElementById('docUploadZone');
+  zone.style.borderColor = 'var(--border)';
+  zone.style.background  = 'var(--surface)';
+  handleFileSelect(e.dataTransfer.files);
+}
+
+function handleFileSelect(fileList) {
+  selectedFiles = Array.from(fileList);
+  if (!selectedFiles.length) return;
+
+  // Validate file sizes (max 10 MB each)
+  const oversized = selectedFiles.filter(f => f.size > 10 * 1024 * 1024);
+  if (oversized.length) {
+    showToast('⚠️ ' + oversized.map(f=>f.name).join(', ') + ' exceeds 10 MB limit');
+    selectedFiles = selectedFiles.filter(f => f.size <= 10 * 1024 * 1024);
+    if (!selectedFiles.length) return;
+  }
+
+  renderSelectedFiles();
+}
+
+function renderSelectedFiles() {
+  document.getElementById('filesListBody').innerHTML = selectedFiles.map((f, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;
+                background:var(--surface);border-radius:8px;margin-bottom:6px;">
+      <span style="font-size:1.3rem;">${fileIcon(f.name)}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.85rem;font-weight:600;overflow:hidden;
+                    text-overflow:ellipsis;white-space:nowrap;">${f.name}</div>
+        <div style="font-size:0.72rem;color:rgba(15,17,23,0.4);">
+          ${(f.size/1024).toFixed(1)} KB &middot; Will be saved as <strong>${currentDocTab}</strong>
+        </div>
+      </div>
+      <button onclick="removeFile(${i})"
+              style="background:none;border:none;cursor:pointer;
+                     color:var(--accent);font-size:1.1rem;line-height:1;">✕</button>
+    </div>`).join('');
+
+  document.getElementById('selectedFilesList').style.display = selectedFiles.length ? 'block' : 'none';
+  document.getElementById('uploadDocsBtn').style.display     = selectedFiles.length ? ''      : 'none';
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  if (!selectedFiles.length) {
+    document.getElementById('selectedFilesList').style.display = 'none';
+    document.getElementById('uploadDocsBtn').style.display     = 'none';
+    document.getElementById('filesListBody').innerHTML         = '';
+  } else {
+    renderSelectedFiles();
+  }
+}
+
+function fileIcon(name) {
+  const ext = (name.split('.').pop() || '').toLowerCase();
+  const map = { pdf:'📄', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊',
+                png:'🖼️', jpg:'🖼️', jpeg:'🖼️', gif:'🖼️' };
+  return map[ext] || '📎';
+}
+
+// ── Read a File object into a base64 string ──────────────────
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => resolve(reader.result.split(',')[1]); // strip data: prefix
+    reader.onerror = () => reject(new Error('Could not read file: ' + file.name));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Upload one file at a time via Apps Script ─────────────
+// File uploads cannot go through JSONP (GET only).
+// We use a hidden <form> POST trick — submits to Apps Script
+// in a hidden iframe so the browser doesn't navigate away.
+// The response is read by polling the iframe's content.
+async function uploadDocuments() {
+  if (!selectedFiles.length) { showToast('⚠️ No files selected'); return; }
+
+  if (!APPS_SCRIPT_URL) {
+    const refId = currentDocTaskId || currentDocClientId || currentDocClientName;
+    if (!docStore[refId]) docStore[refId] = { Notice:[], Reply:[], Order:[] };
+    selectedFiles.forEach(f => {
+      docStore[refId][currentDocTab].push({
+        name: f.name, size: f.size,
+        uploadedAt: new Date().toLocaleString('en-IN'),
+        driveUrl: null, driveFileId: null
+      });
+    });
+    showToast(`✅ ${selectedFiles.length} file(s) stored locally (set Apps Script URL for Drive upload)`);
+    selectedFiles = [];
+    renderSelectedFiles();
+    document.getElementById('docFileInput').value = '';
+    renderExistingDocs();
+    return;
+  }
+
+  const btn = document.getElementById('uploadDocsBtn');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Uploading…';
+
+  const results = [];
+  for (const file of selectedFiles) {
+    try {
+      const totalChunks = Math.ceil(file.size * 1.37 / CHUNK_SIZE) || 1; // ~1.37x for base64
+      showToast(`⬆ Uploading ${file.name} (${totalChunks} chunk${totalChunks > 1 ? 's' : ''})…`);
+      const base64 = await fileToBase64(file);
+
+      // Build GET URL with all params except fileData (too large for URL)
+      // fileData goes as a hidden field in a form POST to a hidden iframe
+      const result = await iframeFormPost(APPS_SCRIPT_URL, {
+        clientName: currentDocClientName,
+        pan:        currentDocClientPAN || '',
+        docType:    currentDocTab,
+        fileName:   file.name,
+        mimeType:   file.type || 'application/octet-stream',
+        fileData:   base64
+      });
+
+      results.push({
+        name:        file.name,
+        size:        file.size,
+        uploadedAt:  new Date().toLocaleString('en-IN'),
+        driveUrl:    result.driveUrl    || null,
+        driveFileId: result.driveFileId || null
+      });
+      showToast(`✅ ${file.name} uploaded`);
+    } catch (err) {
+      showToast(`❌ ${file.name}: ${err.message}`);
+    }
+  }
+
+  if (results.length) {
+    const refId = currentDocTaskId || currentDocClientId || currentDocClientName;
+    if (!docStore[refId]) docStore[refId] = { Notice:[], Reply:[], Order:[] };
+    docStore[refId][currentDocTab].push(...results);
+  }
+
+  btn.disabled    = false;
+  btn.textContent = '⬆ Upload to Drive';
+  selectedFiles   = [];
+  document.getElementById('docFileInput').value = '';
+  renderSelectedFiles();
+  renderExistingDocs();
+}
+
+// ── Chunked JSONP upload ──────────────────────────────────
+// Splits base64 into chunks small enough to fit in a GET URL,
+// sends each chunk via JSONP, then calls finalizeUpload.
+// This completely avoids the "URL too long" / POST body issues.
+const CHUNK_SIZE = 3000; // base64 chars per chunk (~2.25 KB)
+
+async function iframeFormPost(url, fields) {
+  const base64    = fields.fileData || '';
+  const totalChunks = Math.ceil(base64.length / CHUNK_SIZE) || 1;
+  const sessionId = 'lx_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+
+  // Upload each chunk via JSONP GET
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk = base64.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    const result = await jsonpRequest(
+      url + '?' + new URLSearchParams({
+        action:      'uploadChunk',
+        sessionId,
+        chunkIndex:  i,
+        totalChunks,
+        fileData:    chunk
+      }).toString(),
+      30000
+    );
+    if (!result.success) throw new Error(result.error || 'Chunk ' + i + ' upload failed');
+  }
+
+  // All chunks uploaded — finalize to assemble and save to Drive
+  const finalResult = await jsonpRequest(
+    url + '?' + new URLSearchParams({
+      action:     'finalizeUpload',
+      sessionId,
+      clientName: fields.clientName,
+      pan:        fields.pan        || '',
+      docType:    fields.docType    || 'Notice',
+      fileName:   fields.fileName,
+      mimeType:   fields.mimeType   || 'application/octet-stream',
+      totalChunks
+    }).toString(),
+    60000
+  );
+
+  if (!finalResult.success) throw new Error(finalResult.error || 'Finalize failed');
+  return finalResult.data;
+}
+
+// ── Fetch file list from Drive via Apps Script ────────────────
+// Apps Script: action=getFiles, clientName, pan, docType  → [{name, size, driveUrl, driveFileId, uploadedAt}]
+async function fetchFilesFromDrive() {
+  document.getElementById('existingDocsList').innerHTML =
+    '<div style="text-align:center;padding:24px;color:rgba(15,17,23,0.4);font-size:0.85rem;">⏳ Loading…</div>';
+
+  // Always show local cache first (instant)
+  const refId = currentDocTaskId || currentDocClientId || currentDocClientName;
+  if (docStore[refId] && docStore[refId][currentDocTab] && docStore[refId][currentDocTab].length) {
+    renderExistingDocs();
+  }
+
+  if (!APPS_SCRIPT_URL) { renderExistingDocs(); return; }
+
+  try {
+    const qs   = new URLSearchParams({
+      action:     'getFiles',
+      clientName: currentDocClientName,
+      pan:        currentDocClientPAN || '',
+      docType:    currentDocTab
+    }).toString();
+    const json = await jsonpRequest(APPS_SCRIPT_URL + '?' + qs);
+    if (!json.success) throw new Error(json.error);
+
+    // Merge Drive results into local cache (deduplicate by name)
+    if (!docStore[refId]) docStore[refId] = { Notice:[], Reply:[], Order:[] };
+    const existing = docStore[refId][currentDocTab].map(d => d.name);
+    (json.data || []).forEach(d => {
+      if (!existing.includes(d.name)) docStore[refId][currentDocTab].push(d);
+    });
+  } catch (e) {
+    // Silently fall back to local cache
+    console.warn('Drive fetch failed:', e.message);
+  }
+
+  renderExistingDocs();
+}
+
+// ── Render the list of uploaded docs ─────────────────────────
+function renderExistingDocs() {
+  const refId = currentDocTaskId || currentDocClientId || currentDocClientName;
+  const docs  = (docStore[refId] && docStore[refId][currentDocTab]) || [];
+
+  document.getElementById('existingDocsList').innerHTML = docs.length
+    ? docs.map((d, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+                    border:1px solid var(--border);border-radius:8px;
+                    margin-bottom:8px;background:var(--white);">
+          <span style="font-size:1.4rem;">${fileIcon(d.name)}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:0.875rem;font-weight:600;
+                        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${d.name}</div>
+            <div style="font-size:0.72rem;color:rgba(15,17,23,0.4);">
+              ${d.uploadedAt}
+              ${d.size ? ' &middot; ' + (d.size/1024).toFixed(1) + ' KB' : ''}
+              ${d.driveUrl ? ' &middot; <span style="color:var(--green);">✓ On Drive</span>' : ''}
+            </div>
+          </div>
+          ${d.driveUrl
+            ? `<a href="${d.driveUrl}" target="_blank" class="btn btn-ghost"
+                  style="padding:4px 8px;font-size:0.75rem;text-decoration:none;">🔗 Open</a>`
+            : `<button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;"
+                       onclick="showToast('⚠️ No Drive link — file stored locally only')">🔗</button>`
+          }
+          <button class="btn btn-ghost"
+                  style="padding:4px 8px;font-size:0.75rem;color:var(--accent);"
+                  onclick="deleteDocFile('${refId}','${currentDocTab}',${i},'${d.driveFileId||''}')">✕</button>
+        </div>`)
+      .join('')
+    : `<div style="text-align:center;padding:28px;color:rgba(15,17,23,0.3);font-size:0.85rem;">
+         No <strong>${currentDocTab}</strong> documents uploaded yet
+       </div>`;
+}
+
+// ── Delete a file (Drive + local cache) ──────────────────────
+async function deleteDocFile(refId, tab, idx, driveFileId) {
+  if (!confirm('Remove this document? This cannot be undone.')) return;
+
+  if (driveFileId && APPS_SCRIPT_URL) {
+    try {
+      await apiGet('deleteFile', { driveFileId });
+    } catch(e) { console.warn('Drive delete failed:', e.message); }
+  }
+
+  docStore[refId][tab].splice(idx, 1);
+  renderExistingDocs();
+  showToast('🗑 Document removed');
+}
+
+renderDashboard();
+populateAYDropdowns();
+updateEmployeeDropdowns();
+// Pre-fill saved URL in settings
+const savedUrl = localStorage.getItem('lextrack_url') || '';
+if (document.getElementById('scriptUrl')) document.getElementById('scriptUrl').value = savedUrl;
+loadFromSheets(); // no-op if URL not set
+
+// ── LOADING SCREEN ─────────────────────────────────────────
+(function() {
+  const msgs = ['Initialising…', 'Loading modules…', 'Preparing dashboard…', 'Almost ready…'];
+  let i = 0;
+  const statusEl = document.getElementById('lsStatus');
+  const iv = setInterval(() => {
+    i++;
+    if (statusEl && msgs[i]) statusEl.textContent = msgs[i];
+    if (i >= msgs.length - 1) clearInterval(iv);
+  }, 520);
+
+  setTimeout(() => {
+    const ls = document.getElementById('loadingScreen');
+    const login = document.getElementById('loginScreen');
+    if (ls) ls.classList.add('hidden');
+    if (login) login.classList.remove('hidden');
+    // focus handled by PIN pad clicks
+  }, 2400);
+})();
+
+// ── PIN LOGIN ──────────────────────────────────────────────
+(function() {
+  const CORRECT_PIN = '2026';
+  let current = '';
+
+  function updateDots() {
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('pd' + i);
+      if (d) d.classList.toggle('filled', i < current.length);
+    }
+  }
+
+  window.pinPress = function(digit) {
+    if (current.length >= 4) return;
+    current += digit;
+    updateDots();
+    document.getElementById('pinError').textContent = '';
+    if (current.length === 4) {
+      setTimeout(checkPin, 180);
+    }
+  };
+
+  window.pinDel = function() {
+    if (!current.length) return;
+    current = current.slice(0, -1);
+    updateDots();
+    document.getElementById('pinError').textContent = '';
+  };
+
+  function checkPin() {
+    if (current === CORRECT_PIN) {
+      const loginScreen = document.getElementById('loginScreen');
+      if (loginScreen) loginScreen.classList.add('hidden');
+    } else {
+      const errEl = document.getElementById('pinError');
+      errEl.textContent = 'Incorrect PIN. Please try again.';
+      errEl.classList.remove('shake');
+      void errEl.offsetWidth; // reflow to restart animation
+      errEl.classList.add('shake');
+      // shake dots
+      const dots = document.querySelector('.pin-dots');
+      if (dots) {
+        dots.style.animation = 'none';
+        void dots.offsetWidth;
+        dots.style.animation = 'shake 0.4s ease';
+        setTimeout(() => dots.style.animation = '', 400);
+      }
+      current = '';
+      updateDots();
+    }
+  }
+
+  // Keyboard support
+  document.addEventListener('keydown', (e) => {
+    const loginScreen = document.getElementById('loginScreen');
+    if (!loginScreen || loginScreen.classList.contains('hidden')) return;
+    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+    else if (e.key === 'Backspace') pinDel();
+  });
+})();
+
+function saveAppsScriptUrl(url) {
+  APPS_SCRIPT_URL = url.trim();
+  localStorage.setItem('lextrack_url', APPS_SCRIPT_URL);
+  showToast('✅ URL saved. Syncing…');
+  loadFromSheets();
+}</script>
+</body>
+</html>
