@@ -1549,7 +1549,7 @@
 
     <button class="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="login-error" id="loginError"></div>
-    <div style="margin-top:16px;font-size:0.7rem;color:rgba(255,255,255,0.18);letter-spacing:0.05em;">Staff password: YourName@123 &nbsp;·&nbsp; Admin: admin@123</div>
+    <div style="margin-top:16px;font-size:0.7rem;color:rgba(255,255,255,0.18);letter-spacing:0.05em;">Contact your administrator if you forget your password.</div>
   </div>
 </div>
 
@@ -4842,53 +4842,50 @@ function switchLoginRole(role) {
   document.getElementById('loginTabStaff').classList.toggle('active', role === 'staff');
   document.getElementById('staffIdWrap').style.display = role === 'staff' ? '' : 'none';
   document.getElementById('loginPasswordLabel').textContent = role === 'admin' ? 'Admin Password' : 'Staff Password';
-  document.getElementById('loginPassword').placeholder = role === 'admin' ? 'Enter admin password' : 'YourName@123';
+  document.getElementById('loginPassword').placeholder = 'Enter password';
   document.getElementById('loginError').textContent = '';
   if (role === 'staff') document.getElementById('loginUsername').focus();
   else document.getElementById('loginPassword').focus();
 }
 
-function doLogin() {
+async function doLogin() {
   const errEl = document.getElementById('loginError');
   const pass  = document.getElementById('loginPassword').value.trim();
+  const btn   = document.querySelector('.login-btn');
   errEl.textContent = '';
 
-  if (_loginRole === 'admin') {
-    if (pass === 'admin@123') {
-      _loginSuccess('admin', 'Admin');
-    } else {
-      _loginFail('Incorrect admin password.');
-    }
-  } else {
-    // Staff login: name + Name@123
-    const username = (document.getElementById('loginUsername').value || '').trim();
-    if (!username) { errEl.textContent = 'Please enter your name.'; return; }
+  if (!pass) { errEl.textContent = 'Please enter your password.'; return; }
 
-    // Try to match against staffMembers loaded from Sheets
-    // (also allow match before Sheets load using just the pattern)
-    const expectedPass = username.replace(/\s+/g,'') + '@123';
-    // Case-insensitive name match among known staff
-    const matchedStaff = staffMembers.find(s =>
-      s.name.trim().toLowerCase() === username.toLowerCase() && s.status === 'Active'
-    );
+  // Require Apps Script URL to be set before login
+  if (!APPS_SCRIPT_URL) {
+    errEl.textContent = 'Apps Script URL not configured. Please set it first.';
+    return;
+  }
 
-    if (matchedStaff) {
-      // Sheets data available: verify by exact matched name's password
-      const staffExpected = matchedStaff.name.trim().replace(/\s+/g,'') + '@123';
-      if (pass === staffExpected) {
-        _loginSuccess('staff', matchedStaff.name.trim());
-      } else {
-        _loginFail('Incorrect password. Use ' + matchedStaff.name.trim().split(' ')[0] + '@123 pattern.');
-      }
+  const username = (_loginRole === 'staff')
+    ? (document.getElementById('loginUsername').value || '').trim()
+    : 'admin';
+
+  if (_loginRole === 'staff' && !username) {
+    errEl.textContent = 'Please enter your name.';
+    return;
+  }
+
+  // Disable button while verifying
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+
+  try {
+    const result = await apiGet('verifyLogin', { role: _loginRole, username, password: pass });
+
+    if (result && result.success) {
+      _loginSuccess(result.role, result.name);
     } else {
-      // Sheets not loaded yet or name not in sheet — allow pattern-based login
-      // Pattern: EnterName@123 (name without spaces + @123)
-      if (pass === expectedPass && username.length >= 2) {
-        _loginSuccess('staff', username);
-      } else {
-        _loginFail('Name not found or wrong password. Format: YourName@123');
-      }
+      _loginFail((result && result.error) || 'Incorrect credentials.');
     }
+  } catch (e) {
+    _loginFail('Authentication error. Please try again.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In →'; }
   }
 }
 
