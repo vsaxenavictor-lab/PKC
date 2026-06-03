@@ -2754,7 +2754,7 @@
 //  GOOGLE APPS SCRIPT CONFIG
 //  Replace with your deployed Web App URL
 // ══════════════════════════════════════════
-let APPS_SCRIPT_URL = localStorage.getItem('lextrack_url') || '';
+let APPS_SCRIPT_URL = localStorage.getItem('lextrack_url') || 'https://script.google.com/macros/s/AKfycbxGxQ9BWccRI9EEKBn7D4b3YFXdY50ToLDFfelz1j4ypQBCaTMlOCxQxuBsp0ImglmEnA/exec';
 
 // ── Mobile sidebar toggle ──
 function toggleSidebar() {
@@ -2919,7 +2919,7 @@ async function runDiagnostic() {
 
   const log = (msg) => { box.textContent += msg + '\n'; box.scrollTop = box.scrollHeight; };
 
-  const url = APPS_SCRIPT_URL || localStorage.getItem('lextrack_url') || '';
+  const url = APPS_SCRIPT_URL || localStorage.getItem('lextrack_url') || 'https://script.google.com/macros/s/AKfycbxGxQ9BWccRI9EEKBn7D4b3YFXdY50ToLDFfelz1j4ypQBCaTMlOCxQxuBsp0ImglmEnA/exec';
 
   log('URL: ' + (url || '(not set)'));
   if (!url) { log('\n❌ No Apps Script URL configured.\nGo to Settings and paste your Web App URL.'); return; }
@@ -4799,7 +4799,7 @@ renderDashboard();
 populateAYDropdowns();
 updateEmployeeDropdowns();
 // Pre-fill saved URL in settings
-const savedUrl = localStorage.getItem('lextrack_url') || '';
+const savedUrl = localStorage.getItem('lextrack_url') || 'https://script.google.com/macros/s/AKfycbxGxQ9BWccRI9EEKBn7D4b3YFXdY50ToLDFfelz1j4ypQBCaTMlOCxQxuBsp0ImglmEnA/exec';
 if (document.getElementById('scriptUrl')) document.getElementById('scriptUrl').value = savedUrl;
 loadFromSheets(); // no-op if URL not set
 
