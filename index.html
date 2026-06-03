@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Pradeep Kapoor & Co — Litigation Task Manager v4.0</title>
+<title>Pradeep Kapoor & Co — Litigation Task Manager v7.0</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1370,7 +1370,7 @@
     border-radius: 20px;
     padding: 44px 40px 40px;
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.5);
     backdrop-filter: blur(10px);
     text-align: center;
@@ -1398,22 +1398,88 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     font-weight: 600;
-    margin-bottom: 36px;
+    margin-bottom: 24px;
   }
-  .login-label {
-    font-size: 0.78rem;
+  .login-role-tabs {
+    display: flex;
+    gap: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(200,168,75,0.25);
+    margin-bottom: 24px;
+  }
+  .login-role-tab {
+    flex: 1;
+    padding: 11px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
     color: rgba(255,255,255,0.5);
-    font-weight: 600;
+    background: transparent;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.03em;
+  }
+  .login-role-tab.active {
+    background: linear-gradient(135deg, var(--ca-gold), var(--accent-2));
+    color: var(--ca-navy);
+  }
+  .login-role-tab:not(.active):hover { background: rgba(255,255,255,0.06); color: white; }
+  .login-field-wrap { text-align: left; margin-bottom: 14px; }
+  .login-field-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 6px;
   }
-  .pin-dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 28px;
+  .login-field-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
   }
+  .login-field-input:focus { border-color: rgba(200,168,75,0.6); }
+  .login-field-input::placeholder { color: rgba(255,255,255,0.25); }
+  .login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--ca-gold) 0%, var(--accent-2) 100%);
+    color: var(--ca-navy);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,168,75,0.35); }
+  .login-btn:active { transform: translateY(0); }
+  .login-error {
+    color: #e57373;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 20px;
+    text-align: center;
+    margin-top: 10px;
+    transition: opacity 0.3s;
+  }
+  .login-error.shake { animation: shake 0.4s ease; }
+  /* Keep pin-dot/pin-pad classes for compatibility, but hidden */
+  .pin-dots { display: none; }
   .pin-dot {
     width: 14px; height: 14px;
     border-radius: 50%;
@@ -1426,39 +1492,6 @@
     border-color: var(--ca-gold);
     box-shadow: 0 0 8px rgba(200,168,75,0.5);
   }
-  .pin-pad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .pin-key {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
-    padding: 16px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    font-family: 'DM Sans', sans-serif;
-    user-select: none;
-  }
-  .pin-key:hover { background: rgba(200,168,75,0.15); border-color: rgba(200,168,75,0.4); }
-  .pin-key:active { transform: scale(0.93); background: rgba(200,168,75,0.25); }
-  .pin-key.del { font-size: 1rem; color: rgba(255,255,255,0.5); }
-  .pin-error {
-    color: #e57373;
-    font-size: 0.8rem;
-    font-weight: 600;
-    min-height: 20px;
-    transition: opacity 0.3s;
-    margin-top: 4px;
-  }
-  .pin-error.shake {
-    animation: shake 0.4s ease;
-  }
   @keyframes shake {
     0%,100%{ transform: translateX(0) }
     20%{ transform: translateX(-8px) }
@@ -1468,7 +1501,6 @@
   }
   @media (max-width: 480px) {
     .login-card { padding: 32px 20px 28px; }
-    .pin-key { padding: 14px; }
   }
 </style>
 </head>
@@ -1477,33 +1509,13 @@
 <!-- ══ LOADING SCREEN ══ -->
 <div id="loadingScreen">
   <div class="ls-logo-ring">
-    <div class="ls-ca-emblem">
-      <!-- CA Institute Emblem (simplified SVG) -->
-      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Outer circle -->
-        <circle cx="36" cy="36" r="34" stroke="#c8a84b" stroke-width="1.5" fill="none"/>
-        <!-- Inner decorative ring -->
-        <circle cx="36" cy="36" r="28" stroke="rgba(200,168,75,0.35)" stroke-width="0.8" fill="none"/>
-        <!-- CA text -->
-        <text x="36" y="32" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="#c8a84b" letter-spacing="1">CA</text>
-        <!-- Divider line -->
-        <line x1="20" y1="37" x2="52" y2="37" stroke="rgba(200,168,75,0.5)" stroke-width="0.8"/>
-        <!-- Bottom text -->
-        <text x="36" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" fill="rgba(200,168,75,0.75)" letter-spacing="0.8">CHARTERED ACCOUNTANT</text>
-        <!-- Decorative dots -->
-        <circle cx="19" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
-        <circle cx="53" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
-        <!-- Top arch text -->
-        <path id="topArc" d="M 12,36 A 24,24 0 0,1 60,36" fill="none"/>
-        <text font-family="Georgia,serif" font-size="5" fill="rgba(200,168,75,0.5)" letter-spacing="1.2">
-          <textPath href="#topArc" startOffset="10%">INSTITUTE OF CHARTERED ACCOUNTANTS</textPath>
-        </text>
-      </svg>
+    <div class="ls-ca-emblem" style="background:white;border-radius:50%;padding:4px;">
+      <img src="data:image/png;base64,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" alt="CA India" style="width:72px;height:72px;object-fit:contain;">
     </div>
   </div>
   <div class="ls-firm-name">Pradeep Kapoor<br><span style="font-size:1.3rem;font-style:italic;color:var(--ca-gold);">& Co</span></div>
   <div class="ls-firm-sub">Chartered Accountants</div>
-  <div class="ls-firm-tagline">Litigation Task Manager &middot; v4.0</div>
+  <div class="ls-firm-tagline">Litigation Task Manager &middot; v7.0</div>
   <div class="ls-bar-track"><div class="ls-bar-fill" id="lsBarFill"></div></div>
   <div class="ls-status" id="lsStatus">Initialising…</div>
 </div>
@@ -1511,41 +1523,33 @@
 <!-- ══ LOGIN SCREEN ══ -->
 <div id="loginScreen" class="hidden">
   <div class="login-card">
-    <div class="login-logo-wrap">
-      <svg width="44" height="44" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="36" cy="36" r="34" stroke="#c8a84b" stroke-width="1.5" fill="none"/>
-        <circle cx="36" cy="36" r="28" stroke="rgba(200,168,75,0.35)" stroke-width="0.8" fill="none"/>
-        <text x="36" y="32" text-anchor="middle" font-family="Georgia,serif" font-size="16" font-weight="bold" fill="#c8a84b" letter-spacing="1">CA</text>
-        <line x1="20" y1="37" x2="52" y2="37" stroke="rgba(200,168,75,0.5)" stroke-width="0.8"/>
-        <text x="36" y="50" text-anchor="middle" font-family="Georgia,serif" font-size="5.5" fill="rgba(200,168,75,0.75)" letter-spacing="0.8">CHARTERED ACCOUNTANT</text>
-        <circle cx="19" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
-        <circle cx="53" cy="36" r="2" fill="#c8a84b" opacity="0.6"/>
-      </svg>
+    <div class="login-logo-wrap" style="background:white;">
+      <img src="data:image/png;base64,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" alt="CA India" style="width:44px;height:44px;object-fit:contain;">
     </div>
     <div class="login-firm-name">Pradeep Kapoor<br><span style="font-style:italic;color:var(--ca-gold);">& Co</span></div>
     <div class="login-firm-sub">Chartered Accountants</div>
-    <div class="login-label">Enter your PIN to continue</div>
-    <div class="pin-dots">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
+
+    <!-- Role Tabs -->
+    <div class="login-role-tabs">
+      <button class="login-role-tab active" id="loginTabAdmin" onclick="switchLoginRole('admin')">🔐 Admin</button>
+      <button class="login-role-tab" id="loginTabStaff" onclick="switchLoginRole('staff')">👤 Staff</button>
     </div>
-    <div class="pin-pad">
-      <button class="pin-key" onclick="pinPress('1')">1</button>
-      <button class="pin-key" onclick="pinPress('2')">2</button>
-      <button class="pin-key" onclick="pinPress('3')">3</button>
-      <button class="pin-key" onclick="pinPress('4')">4</button>
-      <button class="pin-key" onclick="pinPress('5')">5</button>
-      <button class="pin-key" onclick="pinPress('6')">6</button>
-      <button class="pin-key" onclick="pinPress('7')">7</button>
-      <button class="pin-key" onclick="pinPress('8')">8</button>
-      <button class="pin-key" onclick="pinPress('9')">9</button>
-      <button class="pin-key" style="visibility:hidden"></button>
-      <button class="pin-key" onclick="pinPress('0')">0</button>
-      <button class="pin-key del" onclick="pinDel()">⌫</button>
+
+    <!-- Staff ID field (only shown for staff login) -->
+    <div class="login-field-wrap" id="staffIdWrap" style="display:none;">
+      <label class="login-field-label">Staff Name (as per records)</label>
+      <input class="login-field-input" id="loginUsername" placeholder="Enter your full name" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <div class="pin-error" id="pinError"></div>
+
+    <!-- Password field -->
+    <div class="login-field-wrap">
+      <label class="login-field-label" id="loginPasswordLabel">Admin Password</label>
+      <input class="login-field-input" id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+    <div style="margin-top:16px;font-size:0.7rem;color:rgba(255,255,255,0.18);letter-spacing:0.05em;">Staff password: YourName@123 &nbsp;·&nbsp; Admin: admin@123</div>
   </div>
 </div>
 
@@ -1554,7 +1558,9 @@
 <nav class="sidebar" id="mainSidebar">
   <div class="sidebar-logo">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-      <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--ca-gold),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--ca-navy);font-weight:900;flex-shrink:0;">⚖</div>
+      <div style="width:34px;height:34px;border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:2px;">
+<img src="data:image/png;base64,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" alt="CA India" style="width:28px;height:28px;object-fit:contain;">
+    </div>
       <div class="logo-text" style="font-size:1.1rem;line-height:1.15;">Pradeep Kapoor<br><span style="font-size:0.85rem;font-style:italic;color:var(--ca-gold);">& Co</span></div>
     </div>
     <div class="logo-sub">Chartered Accountants</div>
@@ -1575,13 +1581,23 @@
         <span class="nav-icon">👥</span>
         <span>Clients</span>
       </div>
-      <div class="nav-item" onclick="switchView('kanban', this)">
-        <span class="nav-icon">🗂️</span>
-        <span>Kanban</span>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Compliance</div>
+      <div class="nav-item" onclick="switchView('gst', this)">
+        <span class="nav-icon">🧾</span>
+        <span>GST</span>
+        <span class="nav-badge" id="gstBadge">0</span>
       </div>
-      <div class="nav-item" onclick="switchView('clients', this);setTimeout(()=>document.getElementById('clientSearch').focus(),200)">
-        <span class="nav-icon">📊</span>
-        <span>Client Pipeline</span>
+      <div class="nav-item" onclick="switchView('roc', this)">
+        <span class="nav-icon">🏢</span>
+        <span>ROC</span>
+        <span class="nav-badge" id="rocBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="switchView('itr', this)">
+        <span class="nav-icon">📑</span>
+        <span>ITR</span>
+        <span class="nav-badge" id="itrBadge">0</span>
       </div>
     </div>
     <div class="nav-section">
@@ -1595,15 +1611,15 @@
         <span>Calendar</span>
       </div>
     </div>
-    <div class="nav-section">
+    <div class="nav-section admin-only-nav">
       <div class="nav-section-label">Administration</div>
       <div class="nav-item" onclick="switchView('staff', this)">
         <span class="nav-icon">👤</span>
         <span>Staff</span>
       </div>
-      <div class="nav-item" onclick="openSyncModal()">
-        <span class="nav-icon">🔗</span>
-        <span>Google Sync</span>
+      <div class="nav-item" onclick="switchView('referrals', this)">
+        <span class="nav-icon">🤝</span>
+        <span>Referrals</span>
       </div>
       <div class="nav-item" onclick="switchView('settings', this)">
         <span class="nav-icon">⚙️</span>
@@ -1611,21 +1627,28 @@
       </div>
     </div>
   </div>
-  <div class="sidebar-footer">v4.0 · IT Act 1961 & 2025 · PK & Co</div>
+  <div class="sidebar-footer">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+      <span id="sidebarUserLabel" style="font-size:0.7rem;color:rgba(200,168,75,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">v5.0 · PK & Co</span>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:rgba(255,255,255,0.45);font-size:0.7rem;padding:4px 8px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;" title="Sign out">⎋ Logout</button>
+    </div>
+  </div>
 </nav>
 
 <!-- MAIN -->
 <div class="main">
   <header class="topbar">
     <button class="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+    <img src="data:image/png;base64,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" alt="CA India" style="height:30px;object-fit:contain;flex-shrink:0;margin-right:6px;">
     <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div style="font-size:0.7rem;color:rgba(13,27,42,0.4);font-weight:600;letter-spacing:0.04em;display:none;" id="firmSubtitle" class="mob-firm-sub">Pradeep Kapoor & Co, Chartered Accountants</div>
     </div>
     <div class="topbar-actions">
+      <span id="topbarUserBadge" style="font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--surface-2);color:var(--ink-3);border:1px solid var(--border);display:none;"></span>
       <button class="btn btn-outline btn-ghost" onclick="openSyncModal()" title="Sync with Google Sheets">🔄 Sync</button>
       <button class="btn btn-primary" id="mainAddBtn" onclick="handleMainAdd()">+ Add Task</button>
-      <div class="avatar" title="Admin">AD</div>
+      
     </div>
   </header>
 
@@ -1724,11 +1747,9 @@
 
         <div class="table-card">
           <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
-            <div class="section-title">Employee Workload</div>
+            <div class="section-title">Stage Distribution</div>
           </div>
-          <div style="padding:16px 20px;">
-            <div class="workload-list" id="workloadList"></div>
-          </div>
+          <div style="padding:16px 20px;" id="dashStageDistribution"></div>
         </div>
 
       </div>
@@ -1824,7 +1845,7 @@
         <table>
           <thead>
             <tr>
-              <th>Client ID</th><th>Client Name</th><th>PAN</th><th>Mobile</th><th>AY</th><th>Matter Type</th><th>Department</th><th>Stage</th><th>Supervisor</th><th>Actions</th>
+              <th>Client ID</th><th>Client Name</th><th>PAN</th><th>Mobile</th><th>Email</th><th>Referred By</th><th>Supervisor</th><th>Actions</th>
             </tr>
           </thead>
           <tbody id="clientTable"></tbody>
@@ -1832,16 +1853,25 @@
       </div>
     </div>
 
-    <!-- ══ KANBAN VIEW ══ -->
-    <div class="view" id="view-kanban">
-      <div class="section-header" style="margin-bottom:20px;">
-        <div>
-          <div class="section-title" style="margin-bottom:4px;">Litigation Pipeline</div>
-          <div style="font-size:0.85rem;color:rgba(15,17,23,0.45);">Drag-and-drop or click cards to advance stages</div>
+    <!-- ══ REFERRALS VIEW ══ -->
+    <div class="view" id="view-referrals">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search referrals…" id="referralSearch" oninput="renderReferrals()">
+          </div>
+          <button class="btn btn-primary" onclick="openAddReferralModal()">+ Add Referral Source</button>
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ New Task</button>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Referrer Name</th><th>Relationship</th><th>Mobile</th><th>Email</th><th>Clients Referred</th><th>Notes</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="referralTable"></tbody>
+        </table>
       </div>
-      <div class="kanban-board" id="kanbanBoard"></div>
     </div>
 
     <!-- ══ WORKLOAD VIEW ══ -->
@@ -1892,11 +1922,11 @@
           <div class="form-grid" style="grid-template-columns:1fr;">
             <div class="form-group">
               <label class="form-label">Google Sheets URL</label>
-              <input class="form-input" placeholder="https://docs.google.com/spreadsheets/d/..." value="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+              <input class="form-input" placeholder="https://docs.google.com/spreadsheets/d/..." value="https://docs.google.com/spreadsheets/d/1z1XsfJge20YcL4cQa2RnSVsTbkwvcPAo9PK_Tni7L4U">
             </div>
             <div class="form-group">
               <label class="form-label">Google Apps Script Endpoint</label>
-              <input class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." value="">
+              <input class="form-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." value="https://script.google.com/macros/s/AKfycbxGxQ9BWccRI9EEKBn7D4b3YFXdY50ToLDFfelz1j4ypQBCaTMlOCxQxuBsp0ImglmEnA/exec">
             </div>
             <div class="form-group">
               <label class="form-label">Auto-sync Interval</label>
@@ -1956,17 +1986,337 @@
       </div>
     </div>
 
+    <!-- ══ GST MODULE VIEW ══ -->
+    <div class="view" id="view-gst">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;">GST Compliance Calendar</h2>
+          <div style="font-size:0.8rem;color:rgba(15,17,23,0.5);margin-top:4px;">Recurring GST return tasks for registered clients</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="search-box" style="min-width:180px;max-width:220px;">
+            <span style="color:rgba(15,17,23,0.35);flex-shrink:0;">🔍</span>
+            <input id="gstClientSearch" type="text" placeholder="Search client / GSTIN…" oninput="renderGST()" style="border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);width:100%;outline:none;">
+          </div>
+          <select class="filter-select" id="gstFilterClient" onchange="renderGST()"><option value="">All Clients</option></select>
+          <select class="filter-select" id="gstFilterStatus" onchange="renderGST()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Filed">Filed</option>
+            <option value="Overdue">Overdue</option>
+          </select>
+          <button id="gstMonthToggle" class="btn btn-ghost" style="font-size:0.78rem;padding:6px 12px;border:1.5px solid var(--blue);color:var(--blue);border-radius:8px;background:var(--blue-light);" onclick="toggleGSTMonthView()" title="Toggle between current-month and all returns">📅 This Month</button>
+          <button class="btn btn-primary" onclick="openAddGSTClientModal()">+ Add GST Client</button>
+        </div>
+      </div>
+      <!-- KPI row -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:20px;">
+        <div class="kpi-card danger"><div class="kpi-label">Overdue Returns</div><div class="kpi-value" id="gstKpiOverdue">0</div></div>
+        <div class="kpi-card warning"><div class="kpi-label">Due This Month</div><div class="kpi-value" id="gstKpiDueMonth">0</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Filed</div><div class="kpi-value" id="gstKpiFiled">0</div></div>
+        <div class="kpi-card info"><div class="kpi-label">GST Clients</div><div class="kpi-value" id="gstKpiClients">0</div></div>
+      </div>
+      <div class="table-card">
+        <div id="gstCalendarContainer"></div>
+      </div>
+    </div>
+
+    <!-- ══ ROC MODULE VIEW ══ -->
+    <div class="view" id="view-roc">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;">ROC Compliance Tracker</h2>
+          <div style="font-size:0.8rem;color:rgba(15,17,23,0.5);margin-top:4px;">Annual ROC filings &amp; company law deadlines</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="search-box" style="min-width:180px;max-width:220px;">
+            <span style="color:rgba(15,17,23,0.35);flex-shrink:0;">🔍</span>
+            <input id="rocClientSearch" type="text" placeholder="Search company / CIN…" oninput="renderROC()" style="border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--ink);width:100%;outline:none;">
+          </div>
+          <select class="filter-select" id="rocFilterClient" onchange="renderROC()"><option value="">All Companies</option></select>
+          <select class="filter-select" id="rocFilterStatus" onchange="renderROC()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Filed">Filed</option>
+            <option value="Overdue">Overdue</option>
+          </select>
+          <button id="rocMonthToggle" class="btn btn-ghost" style="font-size:0.78rem;padding:6px 12px;border:1.5px solid var(--blue);color:var(--blue);border-radius:8px;background:var(--blue-light);" onclick="toggleROCMonthView()" title="Toggle between current-month and all filings">📅 This Month</button>
+          <button class="btn btn-primary" onclick="openAddROCClientModal()">+ Add Company</button>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:20px;">
+        <div class="kpi-card danger"><div class="kpi-label">Overdue Filings</div><div class="kpi-value" id="rocKpiOverdue">0</div></div>
+        <div class="kpi-card warning"><div class="kpi-label">Due This Month</div><div class="kpi-value" id="rocKpiDueMonth">0</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Filed</div><div class="kpi-value" id="rocKpiFiled">0</div></div>
+        <div class="kpi-card info"><div class="kpi-label">Companies</div><div class="kpi-value" id="rocKpiClients">0</div></div>
+      </div>
+      <div class="table-card" id="rocContainer"></div>
+    </div>
+
+    <!-- ══ ITR MODULE VIEW ══ -->
+    <div class="view" id="view-itr">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;">ITR Filing Tracker</h2>
+          <div style="font-size:0.8rem;color:rgba(15,17,23,0.5);margin-top:4px;">Annual Income Tax Return filing status for current year</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <select class="filter-select" id="itrFilterAY" onchange="renderITR()"><option value="">All AY</option></select>
+          <select class="filter-select" id="itrFilterStatus" onchange="renderITR()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Data Awaited">Data Awaited</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Ready to File">Ready to File</option>
+            <option value="Filed">Filed</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAddITRModal()">+ Add ITR Client</button>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:20px;">
+        <div class="kpi-card danger"><div class="kpi-label">Not Started</div><div class="kpi-value" id="itrKpiPending">0</div></div>
+        <div class="kpi-card warning"><div class="kpi-label">In Progress</div><div class="kpi-value" id="itrKpiProgress">0</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Filed</div><div class="kpi-value" id="itrKpiFiled">0</div></div>
+        <div class="kpi-card info"><div class="kpi-label">Total Clients</div><div class="kpi-value" id="itrKpiTotal">0</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box"><span>🔍</span><input type="text" placeholder="Search client / PAN…" id="itrSearch" oninput="renderITR()"></div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Client</th><th>PAN</th><th>AY</th><th>ITR Type</th><th>Assigned</th><th>Due Date</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="itrTable"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ══ ADD GST CLIENT MODAL ══ -->
+<div class="modal-overlay" id="addGSTClientModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div class="modal-title" id="gstClientModalTitle">Add GST Client</div>
+      <button class="modal-close" onclick="closeModal('addGSTClientModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client Name *</label>
+          <select class="form-select" id="gstClientName" onchange="autoFillGSTDetails()"><option value="">Select Client</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">GSTIN *</label>
+          <input class="form-input" id="gstClientGSTIN" placeholder="22AAAAA0000A1Z5" maxlength="15" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Registration Type *</label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;flex:1;min-width:130px;" id="gstCL_RegLabel">
+              <input type="radio" name="gstClientRegType" value="regular" id="gstCL_Regular" checked> <span style="font-weight:600;">Regular</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;flex:1;min-width:130px;">
+              <input type="radio" name="gstClientRegType" value="qrmp" id="gstCL_QRMP"> <span style="font-weight:600;">Regular QRMP</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;flex:1;min-width:130px;">
+              <input type="radio" name="gstClientRegType" value="composition" id="gstCL_Composition"> <span style="font-weight:600;">Composition</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Financial Year *</label>
+          <select class="form-select" id="gstClientFY"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned To</label>
+          <select class="form-select" id="gstClientAssigned"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">GST Portal Login</label>
+          <input class="form-input" id="gstClientLogin" placeholder="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">GST Portal Password</label>
+          <input class="form-input" type="password" id="gstClientPass" placeholder="password">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="gstClientNotes" style="min-height:60px;" placeholder="Any special notes…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addGSTClientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGSTClient()">Create Recurring Tasks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD ROC COMPANY MODAL ══ -->
+<div class="modal-overlay" id="addROCClientModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div class="modal-title" id="rocClientModalTitle">Add Company for ROC Compliance</div>
+      <button class="modal-close" onclick="closeModal('addROCClientModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Client / Company Name *</label>
+          <select class="form-select" id="rocClientName" onchange="autoFillROCDetails()"><option value="">Select Client</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CIN *</label>
+          <input class="form-input" id="rocClientCIN" placeholder="U74999MH2010PTC123456" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Type</label>
+          <select class="form-select" id="rocCompanyType">
+            <option value="private">Private Limited</option>
+            <option value="public">Public Limited</option>
+            <option value="opc">OPC</option>
+            <option value="llp">LLP</option>
+            <option value="section8">Section 8 (NGO)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Financial Year *</label>
+          <select class="form-select" id="rocClientFY"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned To</label>
+          <select class="form-select" id="rocClientAssigned"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">MCA Login ID</label>
+          <input class="form-input" id="rocClientMCALogin" placeholder="MCA username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">MCA Password</label>
+          <input class="form-input" type="password" id="rocClientMCAPass" placeholder="MCA password">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="rocClientNotes" style="min-height:60px;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addROCClientModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveROCClient()">Add &amp; Create Checklist</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD ITR CLIENT MODAL ══ -->
+<div class="modal-overlay" id="addITRModal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div class="modal-title" id="itrModalTitle">Add ITR Client</div>
+      <button class="modal-close" onclick="closeModal('addITRModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Client *</label>
+          <select class="form-select" id="itrClientName" onchange="autoFillITRDetails()"><option value="">Select Client</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">PAN</label>
+          <input class="form-input" id="itrClientPAN" placeholder="Auto-filled" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assessment Year *</label>
+          <select class="form-select" id="itrClientAY"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ITR Form Type</label>
+          <select class="form-select" id="itrFormType">
+            <option>ITR-1 (Sahaj)</option>
+            <option>ITR-2</option>
+            <option>ITR-3</option>
+            <option>ITR-4 (Sugam)</option>
+            <option>ITR-5</option>
+            <option>ITR-6</option>
+            <option>ITR-7</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Assigned To</label>
+          <select class="form-select" id="itrAssigned"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input class="form-input" type="date" id="itrDueDate">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="itrStatus">
+            <option>Pending</option>
+            <option>Data Awaited</option>
+            <option>In Progress</option>
+            <option>Ready to File</option>
+            <option>Filed</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="itrNotes" style="min-height:60px;" placeholder="ITR password, special notes…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addITRModal')">Cancel</button>
+      <button class="btn btn-primary" id="itrSaveBtn" onclick="saveITRClient()">Save ITR Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TASK TYPE CHOOSER MODAL ══ -->
+<div class="modal-overlay" id="taskTypeChooserModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Add New Task</div>
+      <button class="modal-close" onclick="closeModal('taskTypeChooserModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="taskTypeCards" style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:0.85rem;color:rgba(15,17,23,0.5);margin-bottom:20px;">Select the type of task to add</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="task-type-card" onclick="chooseLitigationTask()" style="border:2px solid var(--border);border-radius:14px;padding:28px 16px;cursor:pointer;transition:all 0.2s;text-align:center;background:var(--surface);" onmouseover="this.style.borderColor='var(--ca-gold)';this.style.background='var(--accent-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+            <div style="font-size:2.2rem;margin-bottom:12px;">⚖️</div>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">Litigation</div>
+            <div style="font-size:0.78rem;color:rgba(15,17,23,0.5);line-height:1.5;">Notice, Assessment, Appeal, Penalty matters under Income Tax Act</div>
+          </div>
+          <div class="task-type-card" onclick="openGeneralTaskModal('General')" style="border:2px solid var(--border);border-radius:14px;padding:28px 16px;cursor:pointer;transition:all 0.2s;text-align:center;background:var(--surface);" onmouseover="this.style.borderColor='var(--blue)';this.style.background='var(--blue-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+            <div style="font-size:2.2rem;margin-bottom:12px;">📋</div>
+            <div style="font-weight:700;font-size:1rem;margin-bottom:6px;">General Task</div>
+            <div style="font-size:0.78rem;color:rgba(15,17,23,0.5);line-height:1.5;">Tax Audit, Project work and other non-litigation tasks</div>
+          </div>
+        </div>
+      </div>
+      <!-- generalSubTypes kept for back-compat but unused -->
+      <div id="generalSubTypes" style="display:none;"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ ADD TASK MODAL ══ -->
 <div class="modal-overlay" id="addTaskModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="addModalTitle">Add New Task</div>
+      <div>
+        <div class="modal-title" id="addModalTitle">Add New Task</div>
+        <div id="addModalSubtitle" style="font-size:0.78rem;color:rgba(15,17,23,0.4);margin-top:2px;"></div>
+      </div>
       <button class="modal-close" onclick="closeModal('addTaskModal')">✕</button>
     </div>
     <div class="modal-body">
+      <!-- Hidden field to track task type -->
+      <input type="hidden" id="taskType" value="litigation">
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Client *</label>
@@ -1979,11 +2329,11 @@
           <input class="form-input" id="taskPAN" placeholder="Auto-filled" readonly>
         </div>
         <div class="form-group">
-          <label class="form-label">Assessment Year *</label>
-          <select class="form-select" id="taskAY">
+          <label class="form-label">Year *</label>
+          <select class="form-select" id="taskAY" onchange="onYearChange()">
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="taskDeptGroup">
           <label class="form-label">Department *</label>
           <select class="form-select" id="taskDept">
             <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
@@ -2000,11 +2350,11 @@
             <option>High</option><option>Medium</option><option>Low</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="taskDueDateGroup">
           <label class="form-label">Due Date *</label>
           <input class="form-input" type="date" id="taskDueDate">
         </div>
-        <div class="form-group">
+        <div class="form-group" id="taskStageGroup">
           <label class="form-label">Current Stage</label>
           <select class="form-select" id="taskStage">
             <option>Notice Received</option><option>Reply Drafting</option><option>Review Pending</option>
@@ -2012,88 +2362,24 @@
             <option>Appeal Required</option><option>Closed</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Task Type</label>
-          <select class="form-select" id="taskType" onchange="toggleTaskTypeFields()">
-            <option value="litigation">⚖️ Litigation / Notice Matter</option>
-            <option value="general">📋 General / Non-Specific Task</option>
-          </select>
-        </div>
+        <!-- Section field — litigation only, dynamic based on AY/TY -->
         <div class="form-group" id="sectionFieldGroup">
           <label class="form-label">Section / Notice Type</label>
           <select class="form-select" id="taskSection">
-            <optgroup label="── Assessment (AO) ──">
-              <option value="">-- Select Section --</option>
-              <option>143(1) – Intimation</option>
-              <option>143(2) – Scrutiny Notice</option>
-              <option>143(3) – Scrutiny Assessment</option>
-              <option>144 – Best Judgement Assessment</option>
-              <option>144B – Faceless Assessment</option>
-              <option>147 – Reassessment / Reopening</option>
-              <option>148 – Notice for Reassessment</option>
-              <option>148A – Show Cause Before Reopening</option>
-              <option>153A – Search Assessment</option>
-              <option>153C – Third Party Search Assessment</option>
-              <option>156 – Notice of Demand</option>
-              <option>245 – Refund Adjustment Notice</option>
-            </optgroup>
-            <optgroup label="── Penalty ──">
-              <option>270A – Underreporting / Misreporting Penalty</option>
-              <option>271(1)(c) – Concealment / Inaccurate Particulars</option>
-              <option>271AAB – Penalty on Search Cases</option>
-              <option>271AAC – Penalty on Unexplained Income</option>
-              <option>271B – Failure to Audit</option>
-              <option>271D – Violation of Section 269SS</option>
-              <option>271E – Violation of Section 269T</option>
-              <option>272A – Failure to Comply with Notices</option>
-            </optgroup>
-            <optgroup label="── TDS / TCS ──">
-              <option>201(1A) – Interest on TDS Default</option>
-              <option>234E – Fee for Late TDS Return</option>
-              <option>206C – TCS Notice</option>
-            </optgroup>
-            <optgroup label="── Appeals (CIT(A) / ITAT) ──">
-              <option>246A – Appeal to CIT(A)</option>
-              <option>253 – Appeal to ITAT</option>
-              <option>254 – ITAT Order</option>
-              <option>260A – Appeal to High Court</option>
-              <option>261 – Appeal to Supreme Court</option>
-            </optgroup>
-            <optgroup label="── Revision / Rectification ──">
-              <option>154 – Rectification of Mistake</option>
-              <option>263 – Revision by PCIT / CIT</option>
-              <option>264 – Revision on Application</option>
-            </optgroup>
-            <optgroup label="── Survey / Search ──">
-              <option>131 – Summons</option>
-              <option>133(6) – Notice to Third Party</option>
-              <option>133A – Survey</option>
-              <option>132 – Search &amp; Seizure</option>
-              <option>132A – Requisition</option>
-            </optgroup>
-            <optgroup label="── Exemption / Registration ──">
-              <option>12A – Registration of Trust</option>
-              <option>12AB – Re-registration of Trust</option>
-              <option>80G – Donation Exemption</option>
-              <option>10(23C) – Educational/Charitable Exemption</option>
-            </optgroup>
-            <optgroup label="── Advance Tax / Interest ──">
-              <option>234A – Interest for Late Return</option>
-              <option>234B – Interest for Advance Tax Default</option>
-              <option>234C – Interest on Instalment Default</option>
-              <option>220(2) – Interest on Demand</option>
-            </optgroup>
-            <optgroup label="── IT Act 2025 (New) ──">
-              <option>263 IT25 – Revision by Authority</option>
-              <option>357 IT25 – Reassessment</option>
-              <option>358 IT25 – Show Cause Before Reassessment</option>
-              <option>Other – IT Act 2025</option>
-            </optgroup>
+            <!-- Populated dynamically by onYearChange() -->
           </select>
         </div>
+        <!-- General task category badge display -->
+        <div class="form-group" id="generalCategoryGroup" style="display:none;">
+          <label class="form-label">Task Category</label>
+          <div id="generalCategoryDisplay" style="padding:9px 12px;background:var(--blue-light);border-radius:8px;font-weight:700;color:var(--blue);font-size:0.875rem;"></div>
+        </div>
+
+        <!-- ROC/GST/ITR fields removed — managed via dedicated modules -->
+
         <div class="form-group full" id="generalTaskGroup" style="display:none;">
           <label class="form-label">Task Description *</label>
-          <textarea class="form-textarea" id="taskGeneralDesc" placeholder="Describe the task in detail (e.g. file ROI, prepare computation, renew DSC, MSME registration, etc.)…" style="min-height:60px;"></textarea>
+          <textarea class="form-textarea" id="taskGeneralDesc" placeholder="Describe the task in detail…" style="min-height:60px;"></textarea>
         </div>
         <div class="form-group full">
           <label class="form-label">Remarks / Notes</label>
@@ -2154,32 +2440,15 @@
         </div>
         <div class="form-group">
           <label class="form-label">PAN *</label>
-          <input class="form-input" id="cPAN" placeholder="ABCDE1234F" style="text-transform:uppercase;" maxlength="10">
+          <input class="form-input" id="cPAN" placeholder="ABCDE1234F" style="text-transform:uppercase;" maxlength="10" oninput="validatePAN(this)">
         </div>
         <div class="form-group">
           <label class="form-label">Mobile</label>
-          <input class="form-input" id="cMobile" placeholder="9876543210">
+          <input class="form-input" id="cMobile" placeholder="9876543210" type="tel" maxlength="10" pattern="[0-9]{10}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
           <input class="form-input" id="cEmail" placeholder="client@email.com" type="email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Assessment Year</label>
-          <select class="form-select" id="cAY">
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Matter Type</label>
-          <select class="form-select" id="cMatterType">
-            <option>Assessment</option><option>Appeal</option><option>Penalty</option><option>Raid Matter</option><option>Survey Matter</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Department</label>
-          <select class="form-select" id="cDept">
-            <option>AO</option><option>CIT(A)</option><option>ITAT</option><option>HC</option><option>SC</option>
-          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Supervisor *</label>
@@ -2187,13 +2456,16 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Current Stage</label>
-          <select class="form-select" id="cStage">
-            <option>Notice Received</option><option>Reply Drafting</option><option>Review Pending</option>
-            <option>Filed</option><option>Hearing Scheduled</option><option>Order Awaited</option>
-            <option>Appeal Required</option><option>Closed</option>
+          <label class="form-label">Referred By</label>
+          <select class="form-select" id="cReferredBy">
+            <option value="">— None —</option>
           </select>
         </div>
+        <!-- Hidden fields kept for data compatibility -->
+        <input type="hidden" id="cAY" value="">
+        <input type="hidden" id="cMatterType" value="Assessment">
+        <input type="hidden" id="cDept" value="AO">
+        <input type="hidden" id="cStage" value="Notice Received">
       </div>
     </div>
     <div class="modal-footer">
@@ -2228,7 +2500,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Mobile</label>
-          <input class="form-input" id="sMobile" placeholder="9876543210" type="tel">
+          <input class="form-input" id="sMobile" placeholder="9876543210" type="tel" maxlength="10" pattern="[0-9]{10}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
         </div>
         <div class="form-group">
           <label class="form-label">Email</label>
@@ -2320,6 +2592,53 @@
   </div>
 </div>
 
+<!-- ══ ADD/EDIT REFERRAL MODAL ══ -->
+<div class="modal-overlay" id="addReferralModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="referralModalTitle">Add Referral Source</div>
+      <button class="modal-close" onclick="closeModal('addReferralModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Referrer Name *</label>
+          <input class="form-input" id="rName" placeholder="e.g. CA Ramesh Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relationship / Type *</label>
+          <select class="form-select" id="rRelation">
+            <option>CA / Accountant</option>
+            <option>Existing Client</option>
+            <option>Advocate / Lawyer</option>
+            <option>Family / Friend</option>
+            <option>Business Associate</option>
+            <option>Online / Website</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input class="form-input" id="rMobile" placeholder="9876543210" type="tel" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="rEmail" placeholder="referrer@email.com" type="email">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="rNotes" placeholder="Any additional notes about this referral source…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-ghost" id="deleteReferralBtn" onclick="deleteCurrentReferral()" style="margin-right:auto;color:var(--accent);display:none;">🗑 Remove</button>
+      <button class="btn btn-outline" onclick="closeModal('addReferralModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveReferralBtn" onclick="saveReferral()">Add Referral</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SYNC MODAL ══ -->
 <div class="modal-overlay" id="syncModal">
   <div class="modal" style="max-width:480px;">
@@ -2373,37 +2692,54 @@
       <!-- Client summary strip -->
       <div id="cpClientSummary" style="background:var(--surface);border-radius:10px;padding:16px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;"></div>
 
-      <!-- Year filter tabs -->
-      <div style="margin-bottom:16px;">
-        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);margin-bottom:8px;">Filter by Assessment Year</div>
-        <div id="cpYearTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      <!-- View toggle -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div class="tabs" style="margin-bottom:0;">
+          <div class="tab active" id="cpTabTable" onclick="switchCPView('table')">📋 Table</div>
+          <div class="tab" id="cpTabKanban" onclick="switchCPView('kanban')">🗂️ Kanban</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);">Year:</div>
+          <div id="cpYearTabs" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+        </div>
       </div>
 
-      <!-- Tasks table for this client -->
-      <div class="table-card" style="margin-bottom:0;">
-        <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-          <div class="section-title" style="font-size:1rem;">All Tasks</div>
+      <!-- TABLE VIEW -->
+      <div id="cpViewTable">
+        <div class="table-card" style="margin-bottom:0;">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+            <div class="section-title" style="font-size:1rem;">All Tasks</div>
+            <button class="btn btn-primary" style="font-size:0.8rem;padding:6px 12px;" onclick="addTaskFromPipeline()">+ Add Task</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="font-size:0.82rem;">
+              <thead>
+                <tr>
+                  <th>Task ID</th>
+                  <th>Year</th>
+                  <th>Type</th>
+                  <th>Section</th>
+                  <th>Dept</th>
+                  <th>Stage</th>
+                  <th>Priority</th>
+                  <th>Due Date</th>
+                  <th>Responsible</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cpTasksTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- KANBAN VIEW -->
+      <div id="cpViewKanban" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:0.85rem;color:rgba(15,17,23,0.5);">Click a card to view details or advance stage</div>
           <button class="btn btn-primary" style="font-size:0.8rem;padding:6px 12px;" onclick="addTaskFromPipeline()">+ Add Task</button>
         </div>
-        <div style="overflow-x:auto;">
-          <table style="font-size:0.82rem;">
-            <thead>
-              <tr>
-                <th>Task ID</th>
-                <th>AY / Tax Year</th>
-                <th>Type</th>
-                <th>Section</th>
-                <th>Dept</th>
-                <th>Stage</th>
-                <th>Priority</th>
-                <th>Due Date</th>
-                <th>Responsible</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="cpTasksTable"></tbody>
-          </table>
-        </div>
+        <div id="cpKanbanBoard" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-items:start;"></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -2505,11 +2841,14 @@ async function loadFromSheets() {
   showToast('🔄 Connecting to Google Sheets…');
   try {
     // Run sequentially so errors are easier to attribute
-    const remoteTasks   = await apiGet('getTasks');
-    const remoteClients = await apiGet('getClients');
-    const remoteStaff   = await apiGet('getStaff');
+    const remoteTasks     = await apiGet('getTasks');
+    const remoteClients   = await apiGet('getClients');
+    const remoteStaff     = await apiGet('getStaff');
+    const remoteReferrals = await apiGet('getReferrals');
 
-    if (Array.isArray(remoteTasks))   { tasks   = remoteTasks;   }
+    if (Array.isArray(remoteTasks)) {
+      tasks = remoteTasks.map(t => ({...t, dueDate: normaliseDate(t.dueDate), filedDate: normaliseDate(t.filedDate)}));
+    }
     if (Array.isArray(remoteClients)) { clients = remoteClients; }
 
     // Always replace staffMembers with whatever the sheet returns (even empty)
@@ -2524,6 +2863,15 @@ async function loadFromSheets() {
       updateEmployeeDropdowns();
     }
 
+    // Load referrals and re-derive counter
+    if (Array.isArray(remoteReferrals)) {
+      referrals = remoteReferrals;
+      referralIdCounter = referrals.reduce((max, r) => {
+        const n = parseInt((r.id || '').replace(/\D/g, ''), 10);
+        return isNaN(n) ? max : Math.max(max, n + 1);
+      }, 1);
+    }
+
     // Re-derive taskIdCounter from sheet data
     if (Array.isArray(remoteTasks) && remoteTasks.length) {
       taskIdCounter = remoteTasks.reduce((max, t) => {
@@ -2532,11 +2880,24 @@ async function loadFromSheets() {
       }, 1);
     }
 
-    showToast('✅ Synced — Tasks: ' + tasks.length + ' | Clients: ' + clients.length + ' | Staff: ' + staffMembers.length);
+    showToast('✅ Synced — Tasks: ' + tasks.length + ' | Clients: ' + clients.length + ' | Staff: ' + staffMembers.length + ' | Referrals: ' + referrals.length);
     renderDashboard();
-    if (currentView === 'tasks')   renderTasks();
-    if (currentView === 'clients') renderClients();
-    if (currentView === 'staff')   renderStaff();
+    if (currentView === 'tasks')     renderTasks();
+    if (currentView === 'clients')   renderClients();
+    if (currentView === 'staff')     renderStaff();
+    if (currentView === 'referrals') renderReferrals();
+
+    // Load compliance modules in parallel (non-fatal if they fail)
+    try {
+      await Promise.all([loadGSTData(), loadROCData(), loadITRData()]);
+      // Auto-seed ITR for current AY if backend returns nothing
+      if (!itrRecords.length) await initITRFromClients();
+    } catch(e) { console.warn('Compliance modules load:', e.message); }
+
+    updateGSTBadge(); updateROCBadge(); updateITRBadge();
+    if (currentView === 'gst') renderGST();
+    if (currentView === 'roc') renderROC();
+    if (currentView === 'itr') renderITR();
 
   } catch (e) {
     showToast('❌ ' + e.message);
@@ -2622,6 +2983,29 @@ let clients = [];
 const today = new Date();
 const fmtDate = (d) => d.toISOString().split('T')[0];
 
+function normaliseDate(raw) {
+  if (!raw && raw !== 0) return '';
+  const s = String(raw).trim();
+  if (!s || s === 'null' || s === 'undefined') return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(s)) return s.replace(/\//g, '-');
+  const dmy = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (dmy) { const [,d,m,y]=dmy; return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; }
+  if (/^\d{4,5}$/.test(s)) {
+    const serial = parseInt(s, 10);
+    if (serial > 59 && serial < 73000) {
+      const d = new Date(Date.UTC(1899,11,30) + serial * 86400000);
+      if (!isNaN(d)) return fmtDate(d);
+    }
+  }
+  const parsed = new Date(s);
+  if (!isNaN(parsed.getTime())) {
+    const y = parsed.getFullYear(), m = String(parsed.getMonth()+1).padStart(2,'0'), d = String(parsed.getDate()).padStart(2,'0');
+    if (y >= 2000 && y <= 2100) return `${y}-${m}-${d}`;
+  }
+  return '';
+}
+
 let tasks = [];
 
 let taskIdCounter = 1;
@@ -2648,24 +3032,33 @@ let currentView = 'dashboard';
 //  NAVIGATION
 // ══════════════════════════════════════════
 function switchView(name, el) {
+  // Staff cannot access admin-only views
+  const adminOnly = ['settings','referrals','staff'];
+  if (adminOnly.includes(name) && currentUserRole === 'staff') {
+    showToast('⚠️ Access restricted to Admin only');
+    return;
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   if (el) el.classList.add('active');
   currentView = name;
-  const titles = {dashboard:'Dashboard',tasks:'Task Management',clients:'Client Master',kanban:'Litigation Pipeline',workload:'Workload Analysis',calendar:'Hearing Calendar',settings:'System Settings',staff:'Staff Management'};
+  const titles = {dashboard:'Dashboard',tasks:'Task Management',clients:'Client Master',referrals:'Referral Sources',workload:'Workload Analysis',calendar:'Hearing Calendar',settings:'System Settings',staff:'Staff Management',gst:'GST Compliance Calendar',roc:'ROC Compliance Tracker',itr:'ITR Filing Tracker'};
   document.getElementById('topbarTitle').textContent = titles[name] || name;
-  const addBtnLabels = {tasks:'+ Add Task', clients:'+ Add Client', kanban:'+ New Task', staff:'+ Add Staff'};
+  const addBtnLabels = {tasks:'+ Add Task', clients:'+ Add Client', referrals:'+ Add Referral', staff:'+ Add Staff', gst:'+ Add GST Client', roc:'+ Add Company', itr:'+ Add ITR Client'};
   const mainBtn = document.getElementById('mainAddBtn');
   if (addBtnLabels[name]) { mainBtn.textContent = addBtnLabels[name]; mainBtn.style.display=''; }
   else mainBtn.style.display = 'none';
   if (name==='tasks') renderTasks();
   if (name==='clients') renderClients();
-  if (name==='kanban') renderKanban();
+  if (name==='referrals') renderReferrals();
   if (name==='workload') renderWorkload();
   if (name==='calendar') renderCalendar();
   if (name==='dashboard') renderDashboard();
   if (name==='staff') renderStaff();
+  if (name==='gst') renderGST();
+  if (name==='roc') renderROC();
+  if (name==='itr') renderITR();
 }
 
 function filterAndGo(filter) {
@@ -2708,7 +3101,7 @@ function renderDashboard() {
     hearingEl.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No upcoming hearings</div></div>';
   } else {
     hearingEl.innerHTML = hearingTasks.map(t => {
-      const d = t.dueDate ? new Date(t.dueDate) : null;
+      const _iso = normaliseDate(t.dueDate); const d = _iso ? new Date(_iso + 'T00:00:00') : null;
       const dayNum = d ? d.getDate() : '--';
       const mon = d ? d.toLocaleString('en-IN', {month:'short'}) : '---';
       const sectionLabel = (t.section||'').replace(/–.*$/,'').trim() || (t.generalDesc ? t.generalDesc.slice(0,30) : '');
@@ -2730,8 +3123,21 @@ function renderDashboard() {
     }).join('');
   }
 
-  // ── Workload
-  renderWorkloadBar('workloadList');
+  // ── Stage Distribution in dashboard
+  const stageCounts = {};
+  stages.forEach(s=>stageCounts[s]=0);
+  tasks.forEach(t=>{ if(stageCounts[t.stage]!==undefined) stageCounts[t.stage]++; });
+  const maxS = Math.max(...Object.values(stageCounts),1);
+  document.getElementById('dashStageDistribution').innerHTML = stages.map(s=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.8rem;">
+        <span style="font-weight:600;">${s}</span>
+        <span style="font-family:'JetBrains Mono',monospace;color:rgba(15,17,23,0.5);">${stageCounts[s]}</span>
+      </div>
+      <div class="workload-bar-track">
+        <div class="workload-bar-fill" style="width:${(stageCounts[s]/maxS*100)}%;background:${stageColor(s)}"></div>
+      </div>
+    </div>`).join('');
 
   // ── Recent table
   document.getElementById('recentTable').innerHTML = tasks.slice(0,8).map(t=>`
@@ -2857,14 +3263,26 @@ function renderTasks() {
   const dept = document.getElementById('filterDept').value;
   const stage = document.getElementById('filterStatus').value;
   const prio = document.getElementById('filterPriority').value;
-  const assigned = document.getElementById('filterAssigned').value;
+  // Staff: force filter to own tasks; admin: use dropdown value
+  const assigned = currentUserRole === 'staff'
+    ? (staffMembers.find(s => s.name.trim() === currentUserName)?.shortName || currentUserName)
+    : document.getElementById('filterAssigned').value;
+
+  // Hide the assigned filter dropdown for staff (they can only see their own)
+  const assignedSel = document.getElementById('filterAssigned');
+  if (assignedSel) assignedSel.style.display = currentUserRole === 'staff' ? 'none' : '';
 
   let filtered = tasks.filter(t => {
     const matchSearch = !search || t.client.toLowerCase().includes(search) || t.pan.toLowerCase().includes(search) || t.id.toLowerCase().includes(search) || (t.section||'').toLowerCase().includes(search) || (t.generalDesc||'').toLowerCase().includes(search);
     const matchDept = !dept || t.dept===dept;
     const matchStage = !stage || t.stage===stage;
     const matchPrio = !prio || t.priority===prio;
-    const matchAssigned = !assigned || t.assigned===assigned;
+    // Staff match by name or shortName
+    const matchAssigned = !assigned || t.assigned===assigned ||
+      (currentUserRole === 'staff' && (
+        t.assigned.toLowerCase() === currentUserName.toLowerCase() ||
+        t.assigned.toLowerCase().includes(currentUserName.split(' ')[0].toLowerCase())
+      ));
     const sec = document.getElementById('filterSection').value;
     const matchSection = !sec || (sec==='General Task' ? t.taskType==='general' : (t.section||'').startsWith(sec));
     return matchSearch && matchDept && matchStage && matchPrio && matchAssigned && matchSection;
@@ -2914,45 +3332,38 @@ function renderClients() {
     const mm = !mType || c.matterType===mType;
     return ms && mm;
   });
-  document.getElementById('clientTable').innerHTML = filtered.map(c=>`
-    <tr onclick="showClientDetail('${c.id}')">
+  document.getElementById('clientTable').innerHTML = filtered.map(c=>{
+    const ref = referrals.find(r => r.id === c.referredBy);
+    return `
+    <tr onclick="showClientDetail('${c.id}')" style="cursor:pointer;" title="Click to open pipeline">
       <td class="td-mono" style="font-size:0.78rem;">${c.id}</td>
       <td><strong>${c.name}</strong></td>
       <td class="td-mono">${c.pan}</td>
-      <td>${c.mobile}</td>
-      <td style="font-size:0.8rem;">${c.ay}</td>
-      <td><span class="badge badge-gray">${c.matterType}</span></td>
-      <td><span class="badge ${deptBadge(c.dept)}">${c.dept}</span></td>
-      <td>${stageBadge(c.stage)}</td>
+      <td>${c.mobile || '—'}</td>
+      <td style="font-size:0.8rem;">${c.email || '—'}</td>
+      <td style="font-size:0.82rem;">${ref ? ref.name : '—'}</td>
       <td>${c.responsible ? initials(c.responsible)+' '+c.responsible : '—'}</td>
       <td>
         <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();addTaskForClient('${c.id}')">+ Task</button>
         <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();editClient('${c.id}')">✏️</button>
         <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();openClientDocModal('${c.id}')">📁</button>
-        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();showClientPipeline('${c.id}')">📊</button>
+        <button class="btn btn-primary" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();showClientPipeline('${c.id}')">📊 Pipeline</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function showClientDetail(id) {
-  // Open the client's tasks in tasks view filtered
-  const c = clients.find(x=>x.id===id);
-  if (!c) return;
-  switchView('tasks', document.querySelector('[onclick*="tasks"]'));
-  document.getElementById('taskSearch').value = c.name;
-  renderTasks();
+  // Open client-specific kanban/pipeline modal
+  showClientPipeline(id);
 }
 
 function addTaskForClient(cid) {
   const c = clients.find(x=>x.id===cid);
   if (!c) return;
+  // Store client to pre-fill after type selection
+  window._prefillClientId = cid;
   openAddModal();
-  setTimeout(()=>{
-    document.getElementById('taskClient').value = c.name;
-    document.getElementById('taskPAN').value = c.pan;
-    document.getElementById('taskDept').value = c.dept;
-    document.getElementById('taskStage').value = c.stage;
-  }, 100);
 }
 
 // ══════════════════════════════════════════
@@ -3177,24 +3588,30 @@ function editCurrentTask() {
   const editId = currentTaskId; // save before openAddModal resets it
   const t = tasks.find(x=>x.id===editId);
   if (!t) return;
-  openAddModal(); // resets form + sets currentTaskId = null
+  const taskType = t.taskType || 'litigation';
+  const genCategory = t.generalDesc ? (_currentGeneralCategory || 'General') : '';
+  _openAddModal(taskType, genCategory); // resets form + sets currentTaskId = null
   currentTaskId = editId; // restore for edit mode
   document.getElementById('addModalTitle').textContent = 'Edit Task · '+t.id;
+  document.getElementById('addModalSubtitle').textContent = taskType === 'litigation' ? '⚖️ Litigation' : '📋 General Task';
   document.getElementById('saveTaskBtn').textContent = 'Update Task';
   setTimeout(()=>{
     document.getElementById('taskClient').value = t.client;
     document.getElementById('taskPAN').value = t.pan;
     document.getElementById('taskAY').value = t.ay;
-    document.getElementById('taskDept').value = t.dept;
+    if (document.getElementById('taskDept')) document.getElementById('taskDept').value = t.dept || 'AO';
     document.getElementById('taskAssigned').value = t.assigned;
     document.getElementById('taskPriority').value = t.priority;
-    document.getElementById('taskDueDate').value = t.dueDate;
-    document.getElementById('taskStage').value = t.stage;
-    document.getElementById('taskType').value = t.taskType || 'litigation';
-    document.getElementById('taskSection').value = t.section || '';
+    if (document.getElementById('taskDueDate')) document.getElementById('taskDueDate').value = t.dueDate || '';
+    if (document.getElementById('taskStage')) document.getElementById('taskStage').value = t.stage || 'Notice Received';
+    document.getElementById('taskType').value = taskType;
+    onYearChange(); // rebuild section dropdown before setting value
+    setTimeout(()=>{
+      document.getElementById('taskSection').value = t.section || '';
+    }, 50);
     document.getElementById('taskGeneralDesc').value = t.generalDesc || '';
     document.getElementById('taskRemarks').value = t.remarks;
-    toggleTaskTypeFields();
+    _applyTaskTypeUI(taskType, genCategory);
   }, 100);
 }
 
@@ -3214,21 +3631,39 @@ async function deleteCurrentTask() {
 }
 
 // ══════════════════════════════════════════
-//  ADD TASK MODAL
+//  TASK TYPE CHOOSER FLOW
 // ══════════════════════════════════════════
-function toggleTaskTypeFields() {
-  const type = document.getElementById('taskType').value;
-  const isGeneral = type === 'general';
-  document.getElementById('sectionFieldGroup').style.display = isGeneral ? 'none' : '';
-  document.getElementById('generalTaskGroup').style.display  = isGeneral ? '' : 'none';
-  // For general tasks, some fields become optional
-  const deptGroup = document.getElementById('taskDept').closest('.form-group');
-  const ayGroup   = document.getElementById('taskAY').closest('.form-group');
-  if (deptGroup) deptGroup.style.opacity = isGeneral ? '0.5' : '1';
-  if (ayGroup)   ayGroup.style.opacity   = isGeneral ? '0.5' : '1';
+function showTaskTypeCards() {
+  document.getElementById('generalSubTypes').style.display = 'none';
+  document.getElementById('taskTypeCards').style.display = '';
+}
+
+function chooseLitigationTask() {
+  closeModal('taskTypeChooserModal');
+  _openAddModal('litigation', '');
+}
+
+function chooseGeneralTask() {
+  document.getElementById('taskTypeCards').style.display = 'none';
+  document.getElementById('generalSubTypes').style.display = 'block';
+}
+
+function openGeneralTaskModal(category) {
+  closeModal('taskTypeChooserModal');
+  _openAddModal('general', category);
 }
 
 function openAddModal() {
+  // Always reset to the main cards view
+  document.getElementById('generalSubTypes').style.display = 'none';
+  document.getElementById('taskTypeCards').style.display = '';
+  openModal('taskTypeChooserModal');
+}
+
+let _currentGeneralCategory = '';
+
+function _openAddModal(taskType, generalCategory) {
+  _currentGeneralCategory = generalCategory || '';
   // Populate client dropdown
   const sel = document.getElementById('taskClient');
   sel.innerHTML = '<option value="">Select Client</option>' + clients.map(c=>`<option>${c.name}</option>`).join('');
@@ -3247,18 +3682,205 @@ function openAddModal() {
   document.getElementById('taskDueDate').value = fmtDate(today);
   document.getElementById('taskStage').value = 'Notice Received';
   document.getElementById('taskRemarks').value = '';
-  document.getElementById('taskType').value = 'litigation';
+  document.getElementById('taskType').value = taskType;
   document.getElementById('taskSection').value = '';
   document.getElementById('taskGeneralDesc').value = '';
-  toggleTaskTypeFields();
+  // (ROC/GST/ITR fields removed — managed via dedicated modules)
+  // Set title and subtitle
   document.getElementById('addModalTitle').textContent = 'Add New Task';
+  if (taskType === 'litigation') {
+    document.getElementById('addModalSubtitle').textContent = '⚖️ Litigation / Notice Matter';
+  } else {
+    document.getElementById('addModalSubtitle').textContent = '📋 General Task · ' + generalCategory;
+  }
   document.getElementById('saveTaskBtn').textContent = 'Save Task';
-  currentTaskId = null; // clear edit mode
+  currentTaskId = null;
+  // Setup form fields based on type
+  _applyTaskTypeUI(taskType, generalCategory);
+  // Populate sections based on current year selection
+  onYearChange();
+  // Pre-fill client if coming from client row
+  if (window._prefillClientId) {
+    const _c = clients.find(x=>x.id===window._prefillClientId);
+    if (_c) {
+      setTimeout(()=>{
+        document.getElementById('taskClient').value = _c.name;
+        document.getElementById('taskPAN').value = _c.pan;
+        document.getElementById('taskDept').value = _c.dept || 'AO';
+        document.getElementById('taskStage').value = _c.stage || 'Notice Received';
+        if (window._prefillAY) {
+          document.getElementById('taskAY').value = window._prefillAY;
+          window._prefillAY = null;
+          onYearChange();
+        }
+      }, 80);
+    }
+    window._prefillClientId = null;
+  }
   openModal('addTaskModal');
 }
 
+function _applyTaskTypeUI(taskType, generalCategory) {
+  const isGeneral = taskType === 'general';
+
+  // Litigation-only fields
+  document.getElementById('sectionFieldGroup').style.display = isGeneral ? 'none' : '';
+  // General-only fields
+  document.getElementById('generalTaskGroup').style.display  = isGeneral ? '' : 'none';
+  document.getElementById('generalCategoryGroup').style.display = isGeneral ? '' : 'none';
+
+  // Hide stage, dept, dueDate for general tasks
+  document.getElementById('taskStageGroup').style.display   = isGeneral ? 'none' : '';
+  document.getElementById('taskDueDateGroup').style.display = isGeneral ? 'none' : '';
+  const deptGroup = document.getElementById('taskDeptGroup');
+  if (deptGroup) deptGroup.style.display = isGeneral ? 'none' : '';
+
+  if (isGeneral) {
+    document.getElementById('generalCategoryDisplay').textContent = generalCategory || 'General';
+  }
+  // GST / ROC / ITR fields are now managed exclusively in their dedicated modules
+}
+
+// ── Dynamic section population based on AY vs TY selection ──
+function onYearChange() {
+  const taskType = document.getElementById('taskType').value;
+  if (taskType !== 'litigation') return;
+  const ayVal = document.getElementById('taskAY').value || '';
+  const isTaxYear = ayVal.startsWith('TY');
+  buildSectionOptions(isTaxYear);
+}
+
+function buildSectionOptions(isTaxYear) {
+  const sel = document.getElementById('taskSection');
+  if (!sel) return;
+  if (isTaxYear) {
+    // Tax Year (IT Act 2025) — new section numbers with old in brackets
+    sel.innerHTML = `
+      <option value="">-- Select Section --</option>
+      <optgroup label="── Assessment (IT Act 2025) ──">
+        <option>263 – Intimation [old: 143(1)]</option>
+        <option>264 – Scrutiny Notice [old: 143(2)]</option>
+        <option>265 – Scrutiny Assessment [old: 143(3)]</option>
+        <option>267 – Best Judgement Assessment [old: 144]</option>
+        <option>268 – Faceless Assessment [old: 144B]</option>
+        <option>292 – Reassessment / Reopening [old: 147]</option>
+        <option>293 – Notice for Reassessment [old: 148]</option>
+        <option>294 – Show Cause Before Reopening [old: 148A]</option>
+        <option>305 – Search Assessment [old: 153A]</option>
+        <option>307 – Third Party Search Assessment [old: 153C]</option>
+        <option>275 – Notice of Demand [old: 156]</option>
+        <option>330 – Refund Adjustment Notice [old: 245]</option>
+      </optgroup>
+      <optgroup label="── Penalty (IT Act 2025) ──">
+        <option>461 – Underreporting / Misreporting Penalty [old: 270A]</option>
+        <option>463 – Concealment / Inaccurate Particulars [old: 271(1)(c)]</option>
+        <option>465 – Penalty on Search Cases [old: 271AAB]</option>
+        <option>466 – Penalty on Unexplained Income [old: 271AAC]</option>
+        <option>467 – Failure to Audit [old: 271B]</option>
+        <option>468 – Violation re: Loans / Deposits [old: 271D]</option>
+        <option>470 – Failure to Comply with Notices [old: 272A]</option>
+      </optgroup>
+      <optgroup label="── TDS / TCS (IT Act 2025) ──">
+        <option>386(2) – Interest on TDS Default [old: 201(1A)]</option>
+        <option>389 – Fee for Late TDS Return [old: 234E]</option>
+        <option>398 – TCS Notice [old: 206C]</option>
+      </optgroup>
+      <optgroup label="── Appeals (IT Act 2025) ──">
+        <option>349 – Appeal to JCIT(A) / CIT(A) [old: 246A]</option>
+        <option>357 – Appeal to ITAT [old: 253]</option>
+        <option>359 – ITAT Order [old: 254]</option>
+        <option>361 – Appeal to High Court [old: 260A]</option>
+        <option>363 – Appeal to Supreme Court [old: 261]</option>
+      </optgroup>
+      <optgroup label="── Revision / Rectification (IT Act 2025) ──">
+        <option>287 – Rectification of Mistake [old: 154]</option>
+        <option>346 – Revision by PCIT / CIT [old: 263]</option>
+        <option>347 – Revision on Application [old: 264]</option>
+      </optgroup>
+      <optgroup label="── Survey / Search (IT Act 2025) ──">
+        <option>240 – Summons [old: 131]</option>
+        <option>246 – Notice to Third Party [old: 133(6)]</option>
+        <option>244 – Survey [old: 133A]</option>
+        <option>247 – Search & Seizure [old: 132]</option>
+        <option>249 – Requisition [old: 132A]</option>
+      </optgroup>
+      <optgroup label="── Advance Tax / Interest (IT Act 2025) ──">
+        <option>416 – Interest for Late Return [old: 234A]</option>
+        <option>417 – Interest for Advance Tax Default [old: 234B]</option>
+        <option>418 – Interest on Instalment Default [old: 234C]</option>
+        <option>376(2) – Interest on Demand [old: 220(2)]</option>
+      </optgroup>
+    `;
+  } else {
+    // Assessment Year (IT Act 1961) — classic sections
+    sel.innerHTML = `
+      <option value="">-- Select Section --</option>
+      <optgroup label="── Assessment (AO) ──">
+        <option>143(1) – Intimation</option>
+        <option>143(2) – Scrutiny Notice</option>
+        <option>143(3) – Scrutiny Assessment</option>
+        <option>144 – Best Judgement Assessment</option>
+        <option>144B – Faceless Assessment</option>
+        <option>147 – Reassessment / Reopening</option>
+        <option>148 – Notice for Reassessment</option>
+        <option>148A – Show Cause Before Reopening</option>
+        <option>153A – Search Assessment</option>
+        <option>153C – Third Party Search Assessment</option>
+        <option>156 – Notice of Demand</option>
+        <option>245 – Refund Adjustment Notice</option>
+      </optgroup>
+      <optgroup label="── Penalty ──">
+        <option>270A – Underreporting / Misreporting Penalty</option>
+        <option>271(1)(c) – Concealment / Inaccurate Particulars</option>
+        <option>271AAB – Penalty on Search Cases</option>
+        <option>271AAC – Penalty on Unexplained Income</option>
+        <option>271B – Failure to Audit</option>
+        <option>271D – Violation of Section 269SS</option>
+        <option>271E – Violation of Section 269T</option>
+        <option>272A – Failure to Comply with Notices</option>
+      </optgroup>
+      <optgroup label="── TDS / TCS ──">
+        <option>201(1A) – Interest on TDS Default</option>
+        <option>234E – Fee for Late TDS Return</option>
+        <option>206C – TCS Notice</option>
+      </optgroup>
+      <optgroup label="── Appeals (CIT(A) / ITAT) ──">
+        <option>246A – Appeal to CIT(A)</option>
+        <option>253 – Appeal to ITAT</option>
+        <option>254 – ITAT Order</option>
+        <option>260A – Appeal to High Court</option>
+        <option>261 – Appeal to Supreme Court</option>
+      </optgroup>
+      <optgroup label="── Revision / Rectification ──">
+        <option>154 – Rectification of Mistake</option>
+        <option>263 – Revision by PCIT / CIT</option>
+        <option>264 – Revision on Application</option>
+      </optgroup>
+      <optgroup label="── Survey / Search ──">
+        <option>131 – Summons</option>
+        <option>133(6) – Notice to Third Party</option>
+        <option>133A – Survey</option>
+        <option>132 – Search &amp; Seizure</option>
+        <option>132A – Requisition</option>
+      </optgroup>
+      <optgroup label="── Exemption / Registration ──">
+        <option>12A – Registration of Trust</option>
+        <option>12AB – Re-registration of Trust</option>
+        <option>80G – Donation Exemption</option>
+        <option>10(23C) – Educational/Charitable Exemption</option>
+      </optgroup>
+      <optgroup label="── Advance Tax / Interest ──">
+        <option>234A – Interest for Late Return</option>
+        <option>234B – Interest for Advance Tax Default</option>
+        <option>234C – Interest on Instalment Default</option>
+        <option>220(2) – Interest on Demand</option>
+      </optgroup>
+    `;
+  }
+}
+
 function openAddModalWithStage(stage) {
-  openAddModal();
+  _openAddModal('litigation', '');
   setTimeout(()=>document.getElementById('taskStage').value=stage, 50);
 }
 
@@ -3271,25 +3893,31 @@ function autoFillPAN() {
 async function saveTask() {
   const client = document.getElementById('taskClient').value;
   if (!client) { showToast('⚠️ Please select a client'); return; }
-  const dueDate = document.getElementById('taskDueDate').value;
-  if (!dueDate) { showToast('⚠️ Please set a due date'); return; }
 
   const taskType = document.getElementById('taskType').value;
+  const isGeneral = taskType === 'general';
+
+  // Due date only required for litigation tasks
+  const dueDate = document.getElementById('taskDueDate').value;
+  if (!isGeneral && !dueDate) { showToast('⚠️ Please set a due date'); return; }
+
+  // (ROC/GST/ITR extra-info blocks removed — data lives in dedicated modules)
+
   const formData = {
     client,
     pan:         document.getElementById('taskPAN').value,
     ay:          document.getElementById('taskAY').value,
-    dept:        document.getElementById('taskDept').value,
+    dept:        isGeneral ? 'General' : document.getElementById('taskDept').value,
     assigned:    document.getElementById('taskAssigned').value,
     priority:    document.getElementById('taskPriority').value,
-    dueDate,
-    stage:       document.getElementById('taskStage').value,
+    dueDate:     isGeneral ? '' : dueDate,
+    stage:       isGeneral ? 'In Progress' : document.getElementById('taskStage').value,
     taskType,
     section:     document.getElementById('taskSection').value,
     generalDesc: document.getElementById('taskGeneralDesc').value,
     remarks:     document.getElementById('taskRemarks').value
   };
-  if (taskType === 'general' && !formData.generalDesc.trim()) {
+  if (taskType === 'general' && !document.getElementById('taskGeneralDesc').value.trim()) {
     showToast('⚠️ Please enter task description'); return;
   }
 
@@ -3340,6 +3968,7 @@ function openAddClientModal() {
   // Populate employee dropdown from staffMembers
   const empSel = document.getElementById('cEmployee');
   empSel.innerHTML = employees.map(e => `<option>${e}</option>`).join('');
+  populateReferralDropdown('cReferredBy');
   populateAYDropdowns();
   openModal('addClientModal');
 }
@@ -3358,6 +3987,7 @@ async function saveClient() {
     dept: document.getElementById('cDept').value,
     stage: document.getElementById('cStage').value,
     responsible: document.getElementById('cEmployee').value,
+    referredBy: document.getElementById('cReferredBy').value,
   };
 
   if (currentClientId) {
@@ -3432,14 +4062,19 @@ function showToast(msg) {
 
 function formatDate(d) {
   if (!d) return '—';
-  const dt = new Date(d+'T00:00:00');
+  const iso = normaliseDate(d);
+  if (!iso) return '—';
+  const dt = new Date(iso + 'T00:00:00');
+  if (isNaN(dt.getTime())) return '—';
   return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
 }
 
 function dueDateClass(d) {
   const now = fmtDate(today);
-  if (d < now) return 'due-overdue';
-  if (d === now) return 'due-today';
+  const iso = normaliseDate(d);
+  if (!iso) return '';
+  if (iso < now) return 'due-overdue';
+  if (iso === now) return 'due-today';
   return '';
 }
 
@@ -3477,12 +4112,7 @@ function exportCSV() {
   showToast('⬇ CSV exported');
 }
 
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(o=>{
-  o.addEventListener('click', e=>{
-    if (e.target===o) o.classList.remove('open');
-  });
-});
+// Modals only close via the ✕ button — clicking the overlay does NOT close them
 
 // ── INIT ──
 // Populate AY dropdowns from 2001-02 to current+2
@@ -3506,21 +4136,21 @@ function getTYForAY(ayStr) {
 }
 
 function populateAYDropdowns() {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth(); // 0-indexed; April = 3
-  // AY for current FY: if month >= April (3), AY = currentYear+1, else currentYear
-  const maxAYStart = currentMonth >= 3 ? currentYear + 1 : currentYear;
-  let options = '';
-  for (let yr = maxAYStart; yr >= 2001; yr--) {
+  // Build year list: TY 2026-27 first, then AY 2026-27, AY 2025-26, etc.
+  const years = [
+    { value: 'TY2026-27', label: 'TY 2026-27' },
+    { value: 'AY2026-27', label: 'AY 2026-27' },
+  ];
+  // Add AY from 2025-26 down to AY 2001-02
+  for (let yr = 2025; yr >= 2001; yr--) {
     const ayEnd = String(yr + 1).slice(-2);
     const ayLabel = `${yr}-${ayEnd}`;
-    const ty = getTYForAY(ayLabel);
-    const label = ty ? `${ayLabel} (${ty})` : ayLabel;
-    options += `<option value="${ayLabel}">${label}</option>`;
+    years.push({ value: 'AY'+ayLabel, label: 'AY '+ayLabel });
   }
+  const options = years.map(y => `<option value="${y.value}">${y.label}</option>`).join('');
   ['taskAY','cAY'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) { el.innerHTML = options; }
+    if (el && el.tagName === 'SELECT') { el.innerHTML = options; }
   });
 }
 populateAYDropdowns();
@@ -3528,6 +4158,10 @@ populateAYDropdowns();
 function handleMainAdd() {
   if (currentView === 'clients') openAddClientModal();
   else if (currentView === 'staff') openAddStaffModal();
+  else if (currentView === 'referrals') openAddReferralModal();
+  else if (currentView === 'gst') openAddGSTClientModal();
+  else if (currentView === 'roc') openAddROCClientModal();
+  else if (currentView === 'itr') openAddITRModal();
   else openAddModal();
 }
 
@@ -3711,16 +4345,28 @@ function showClientPipeline(id) {
   }).join('');
   document.getElementById('cpYearTabs').innerHTML = tabsHtml;
 
+  cpViewMode = 'table';
+  document.getElementById('cpViewTable').style.display = '';
+  document.getElementById('cpViewKanban').style.display = 'none';
+  document.getElementById('cpTabTable').classList.add('active');
+  document.getElementById('cpTabKanban').classList.remove('active');
   renderCPTasks();
   openModal('clientPipelineModal');
 }
 
 function cpSetAY(ay) {
   cpFilterAY = ay;
-  // Re-render tabs
+  // Re-render year tabs and content
   const c = clients.find(x => x.id === currentPipelineClientId);
-  if (c) showClientPipeline(c.id);
-  // keep modal open – showClientPipeline calls openModal again
+  if (!c) return;
+  // Rebuild year tabs
+  const clientTasks = tasks.filter(t => t.client === c.name);
+  const years = [...new Set(clientTasks.map(t => t.ay))].sort().reverse();
+  const tabsHtml = `<button class="btn ${ay==='all'?'btn-primary':'btn-outline'}" style="padding:5px 10px;font-size:0.72rem;" onclick="cpSetAY('all')">All</button>` +
+    years.map(yr => `<button class="btn ${yr===ay?'btn-primary':'btn-outline'}" style="padding:5px 10px;font-size:0.72rem;" onclick="cpSetAY('${yr}')">${yr}</button>`).join('');
+  document.getElementById('cpYearTabs').innerHTML = tabsHtml;
+  if (cpViewMode === 'kanban') renderCPKanban();
+  else renderCPTasks();
 }
 
 function renderCPTasks() {
@@ -3756,13 +4402,9 @@ function renderCPTasks() {
 function addTaskFromPipeline() {
   const c = clients.find(x => x.id === currentPipelineClientId);
   closeModal('clientPipelineModal');
-  if (!c) return openAddModal();
+  if (c) window._prefillClientId = c.id;
+  if (cpFilterAY && cpFilterAY !== 'all') window._prefillAY = cpFilterAY;
   openAddModal();
-  setTimeout(() => {
-    document.getElementById('taskClient').value = c.name;
-    autoFillPAN();
-    if (cpFilterAY && cpFilterAY !== 'all') document.getElementById('taskAY').value = cpFilterAY;
-  }, 80);
 }
 
 // ══════════════════════════════════════════
@@ -4177,70 +4819,1449 @@ loadFromSheets(); // no-op if URL not set
     const login = document.getElementById('loginScreen');
     if (ls) ls.classList.add('hidden');
     if (login) login.classList.remove('hidden');
-    // focus handled by PIN pad clicks
+    // Auto-focus password field for quick login
+    const pwField = document.getElementById('loginPassword');
+    if (pwField) setTimeout(() => pwField.focus(), 100);
   }, 2400);
 })();
 
-// ── PIN LOGIN ──────────────────────────────────────────────
-(function() {
-  const CORRECT_PIN = '2026';
-  let current = '';
+// ══════════════════════════════════════════
+//  AUTH SYSTEM — Admin / Staff Login
+// ══════════════════════════════════════════
+let currentUserRole = '';   // 'admin' | 'staff'
+let currentUserName  = '';  // staff name or 'Admin'
+let _loginRole = 'admin';
 
-  function updateDots() {
-    for (let i = 0; i < 4; i++) {
-      const d = document.getElementById('pd' + i);
-      if (d) d.classList.toggle('filled', i < current.length);
-    }
-  }
+// Keep backward-compat stubs so no other code breaks
+window.pinPress = function(){};
+window.pinDel   = function(){};
 
-  window.pinPress = function(digit) {
-    if (current.length >= 4) return;
-    current += digit;
-    updateDots();
-    document.getElementById('pinError').textContent = '';
-    if (current.length === 4) {
-      setTimeout(checkPin, 180);
-    }
-  };
+function switchLoginRole(role) {
+  _loginRole = role;
+  document.getElementById('loginTabAdmin').classList.toggle('active', role === 'admin');
+  document.getElementById('loginTabStaff').classList.toggle('active', role === 'staff');
+  document.getElementById('staffIdWrap').style.display = role === 'staff' ? '' : 'none';
+  document.getElementById('loginPasswordLabel').textContent = role === 'admin' ? 'Admin Password' : 'Staff Password';
+  document.getElementById('loginPassword').placeholder = role === 'admin' ? 'Enter admin password' : 'YourName@123';
+  document.getElementById('loginError').textContent = '';
+  if (role === 'staff') document.getElementById('loginUsername').focus();
+  else document.getElementById('loginPassword').focus();
+}
 
-  window.pinDel = function() {
-    if (!current.length) return;
-    current = current.slice(0, -1);
-    updateDots();
-    document.getElementById('pinError').textContent = '';
-  };
+function doLogin() {
+  const errEl = document.getElementById('loginError');
+  const pass  = document.getElementById('loginPassword').value.trim();
+  errEl.textContent = '';
 
-  function checkPin() {
-    if (current === CORRECT_PIN) {
-      const loginScreen = document.getElementById('loginScreen');
-      if (loginScreen) loginScreen.classList.add('hidden');
+  if (_loginRole === 'admin') {
+    if (pass === 'admin@123') {
+      _loginSuccess('admin', 'Admin');
     } else {
-      const errEl = document.getElementById('pinError');
-      errEl.textContent = 'Incorrect PIN. Please try again.';
-      errEl.classList.remove('shake');
-      void errEl.offsetWidth; // reflow to restart animation
-      errEl.classList.add('shake');
-      // shake dots
-      const dots = document.querySelector('.pin-dots');
-      if (dots) {
-        dots.style.animation = 'none';
-        void dots.offsetWidth;
-        dots.style.animation = 'shake 0.4s ease';
-        setTimeout(() => dots.style.animation = '', 400);
+      _loginFail('Incorrect admin password.');
+    }
+  } else {
+    // Staff login: name + Name@123
+    const username = (document.getElementById('loginUsername').value || '').trim();
+    if (!username) { errEl.textContent = 'Please enter your name.'; return; }
+
+    // Try to match against staffMembers loaded from Sheets
+    // (also allow match before Sheets load using just the pattern)
+    const expectedPass = username.replace(/\s+/g,'') + '@123';
+    // Case-insensitive name match among known staff
+    const matchedStaff = staffMembers.find(s =>
+      s.name.trim().toLowerCase() === username.toLowerCase() && s.status === 'Active'
+    );
+
+    if (matchedStaff) {
+      // Sheets data available: verify by exact matched name's password
+      const staffExpected = matchedStaff.name.trim().replace(/\s+/g,'') + '@123';
+      if (pass === staffExpected) {
+        _loginSuccess('staff', matchedStaff.name.trim());
+      } else {
+        _loginFail('Incorrect password. Use ' + matchedStaff.name.trim().split(' ')[0] + '@123 pattern.');
       }
-      current = '';
-      updateDots();
+    } else {
+      // Sheets not loaded yet or name not in sheet — allow pattern-based login
+      // Pattern: EnterName@123 (name without spaces + @123)
+      if (pass === expectedPass && username.length >= 2) {
+        _loginSuccess('staff', username);
+      } else {
+        _loginFail('Name not found or wrong password. Format: YourName@123');
+      }
     }
   }
+}
 
-  // Keyboard support
-  document.addEventListener('keydown', (e) => {
-    const loginScreen = document.getElementById('loginScreen');
-    if (!loginScreen || loginScreen.classList.contains('hidden')) return;
-    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
-    else if (e.key === 'Backspace') pinDel();
+function _loginSuccess(role, name) {
+  currentUserRole = role;
+  currentUserName = name;
+  document.getElementById('loginPassword').value = '';
+  if (document.getElementById('loginUsername')) document.getElementById('loginUsername').value = '';
+  document.getElementById('loginScreen').classList.add('hidden');
+  _applyRoleUI();
+  showToast('👋 Welcome, ' + name + (role === 'admin' ? ' (Admin)' : ''));
+}
+
+function _loginFail(msg) {
+  const errEl = document.getElementById('loginError');
+  errEl.textContent = msg;
+  errEl.classList.remove('shake');
+  void errEl.offsetWidth;
+  errEl.classList.add('shake');
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginPassword').focus();
+}
+
+function doLogout() {
+  currentUserRole = '';
+  currentUserName = '';
+  document.getElementById('loginPassword').value = '';
+  if (document.getElementById('loginUsername')) document.getElementById('loginUsername').value = '';
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginError').textContent = '';
+  // Reset to admin tab
+  switchLoginRole('admin');
+  document.getElementById('loginPassword').focus();
+}
+
+function _applyRoleUI() {
+  const isAdmin = currentUserRole === 'admin';
+  // Admin-only nav section visibility
+  document.querySelectorAll('.admin-only-nav').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
   });
-})();
+  // Topbar badge
+  const badge = document.getElementById('topbarUserBadge');
+  if (badge) {
+    badge.textContent = isAdmin ? '🔐 Admin' : ('👤 ' + currentUserName);
+    badge.style.display = '';
+    badge.style.background = isAdmin ? 'var(--accent-light)' : 'var(--blue-light)';
+    badge.style.color = isAdmin ? 'var(--gold-dark)' : 'var(--blue)';
+    badge.style.borderColor = isAdmin ? 'rgba(200,168,75,0.3)' : 'rgba(26,79,160,0.2)';
+  }
+  // Sidebar user label
+  const lbl = document.getElementById('sidebarUserLabel');
+  if (lbl) lbl.textContent = isAdmin ? '🔐 Admin · PK & Co' : ('👤 ' + currentUserName);
+
+  // Staff dashboard: filter tasks view to only show staff's own tasks
+  if (!isAdmin) {
+    // If on staff view, auto-filter tasks to this staff member
+    const filterSel = document.getElementById('filterAssigned');
+    if (filterSel) filterSel.value = currentUserName;
+    renderTasks();
+  }
+}
+
+// Keyboard enter support on login screen
+document.addEventListener('keydown', (e) => {
+  const loginScreen = document.getElementById('loginScreen');
+  if (!loginScreen || loginScreen.classList.contains('hidden')) return;
+  if (e.key === 'Enter') doLogin();
+});
+
+
+// ══════════════════════════════════════════
+//  PAN VALIDATION
+// ══════════════════════════════════════════
+function validatePAN(input) {
+  let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  // Format: 5 letters + 4 digits + 1 letter
+  let result = '';
+  for (let i = 0; i < v.length && i < 10; i++) {
+    if (i < 5) {
+      if (/[A-Z]/.test(v[i])) result += v[i];
+    } else if (i < 9) {
+      if (/[0-9]/.test(v[i])) result += v[i];
+    } else {
+      if (/[A-Z]/.test(v[i])) result += v[i];
+    }
+  }
+  input.value = result;
+}
+
+// ══════════════════════════════════════════
+//  REFERRALS MODULE
+// ══════════════════════════════════════════
+let referrals = [];
+let referralIdCounter = 1;
+let currentReferralId = null;
+
+function renderReferrals() {
+  const search = (document.getElementById('referralSearch') || {}).value || '';
+  const q = search.toLowerCase();
+  const filtered = referrals.filter(r =>
+    !q || r.name.toLowerCase().includes(q) || (r.relation||'').toLowerCase().includes(q)
+  );
+  const tbody = document.getElementById('referralTable');
+  if (!tbody) return;
+  tbody.innerHTML = filtered.map(r => {
+    const clientCount = clients.filter(c => c.referredBy === r.id).length;
+    return `<tr>
+      <td class="td-mono" style="font-size:0.78rem;">${r.id}</td>
+      <td><strong>${r.name}</strong></td>
+      <td><span class="badge badge-blue">${r.relation}</span></td>
+      <td>${r.mobile || '—'}</td>
+      <td style="font-size:0.8rem;color:rgba(15,17,23,0.55);">${r.email || '—'}</td>
+      <td>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${clientCount>0?'var(--green)':'rgba(15,17,23,0.4)'};">${clientCount}</span>
+        <span style="font-size:0.75rem;color:rgba(15,17,23,0.4);"> client${clientCount!==1?'s':''}</span>
+      </td>
+      <td style="font-size:0.8rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.notes || '—'}</td>
+      <td>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="editReferral('${r.id}')">✏️ Edit</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8"><div class="empty"><div class="empty-icon">🤝</div><div class="empty-text">No referral sources added yet</div></div></td></tr>';
+}
+
+function openAddReferralModal() {
+  currentReferralId = null;
+  document.getElementById('referralModalTitle').textContent = 'Add Referral Source';
+  document.getElementById('saveReferralBtn').textContent = 'Add Referral';
+  document.getElementById('deleteReferralBtn').style.display = 'none';
+  ['rName','rMobile','rEmail','rNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('rRelation').value = 'CA / Accountant';
+  openModal('addReferralModal');
+}
+
+function editReferral(id) {
+  const r = referrals.find(x => x.id === id);
+  if (!r) return;
+  currentReferralId = id;
+  document.getElementById('referralModalTitle').textContent = 'Edit Referral · ' + r.name;
+  document.getElementById('saveReferralBtn').textContent = 'Update';
+  document.getElementById('deleteReferralBtn').style.display = '';
+  document.getElementById('rName').value = r.name;
+  document.getElementById('rRelation').value = r.relation;
+  document.getElementById('rMobile').value = r.mobile || '';
+  document.getElementById('rEmail').value = r.email || '';
+  document.getElementById('rNotes').value = r.notes || '';
+  openModal('addReferralModal');
+}
+
+function saveReferral() {
+  const name = document.getElementById('rName').value.trim();
+  if (!name) { showToast('⚠️ Referrer name is required'); return; }
+  const data = {
+    name,
+    relation: document.getElementById('rRelation').value,
+    mobile: document.getElementById('rMobile').value,
+    email: document.getElementById('rEmail').value,
+    notes: document.getElementById('rNotes').value,
+  };
+  if (currentReferralId) {
+    // ── EDIT MODE ──
+    const r = referrals.find(x => x.id === currentReferralId);
+    if (r) Object.assign(r, data);
+    showToast('✅ Referral updated');
+    if (APPS_SCRIPT_URL) {
+      apiPost('updateReferrals', { id: currentReferralId, ...data })
+        .then(r => { if (r) showToast('☁️ Referral synced to Google Sheets'); })
+        .catch(e => showToast('⚠️ Sync failed: ' + e.message));
+    }
+  } else {
+    // ── ADD MODE ──
+    const id = 'REF-' + String(referralIdCounter++).padStart(3, '0');
+    referrals.push({ id, ...data });
+    showToast('✅ Referral source added');
+    if (APPS_SCRIPT_URL) {
+      apiPost('addReferrals', { id, ...data })
+        .then(r => { if (r) showToast('☁️ Referral saved to Google Sheets'); })
+        .catch(e => showToast('⚠️ Sync failed: ' + e.message));
+    }
+  }
+  closeModal('addReferralModal');
+  renderReferrals();
+  // Refresh the referred-by dropdown in client modal if open
+  populateReferralDropdown('cReferredBy');
+}
+
+function deleteCurrentReferral() {
+  if (!currentReferralId) return;
+  const r = referrals.find(x => x.id === currentReferralId);
+  if (!confirm('Remove ' + (r ? r.name : 'this referral source') + '?')) return;
+  const deletedId = currentReferralId;
+  referrals = referrals.filter(x => x.id !== deletedId);
+  closeModal('addReferralModal');
+  showToast('🗑 Referral source removed');
+  renderReferrals();
+  if (APPS_SCRIPT_URL) {
+    apiPost('deleteReferrals', { referralId: deletedId })
+      .catch(e => console.warn('Referral delete sync failed:', e.message));
+  }
+}
+
+function populateReferralDropdown(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const currentVal = el.value;
+  el.innerHTML = '<option value="">— None —</option>' +
+    referrals.map(r => `<option value="${r.id}">${r.name} (${r.relation})</option>`).join('');
+  if (currentVal) el.value = currentVal;
+}
+
+// ══════════════════════════════════════════
+//  CLIENT-SPECIFIC KANBAN (in pipeline modal)
+// ══════════════════════════════════════════
+let cpViewMode = 'table'; // 'table' | 'kanban'
+
+function switchCPView(mode) {
+  cpViewMode = mode;
+  document.getElementById('cpViewTable').style.display = mode === 'table' ? '' : 'none';
+  document.getElementById('cpViewKanban').style.display = mode === 'kanban' ? '' : 'none';
+  document.getElementById('cpTabTable').classList.toggle('active', mode === 'table');
+  document.getElementById('cpTabKanban').classList.toggle('active', mode === 'kanban');
+  if (mode === 'kanban') renderCPKanban();
+}
+
+function renderCPKanban() {
+  const board = document.getElementById('cpKanbanBoard');
+  if (!board) return;
+  const c = clients.find(x => x.id === currentPipelineClientId);
+  if (!c) return;
+  let clientTasks = tasks.filter(t => t.client === c.name);
+  if (cpFilterAY !== 'all') clientTasks = clientTasks.filter(t => t.ay === cpFilterAY);
+
+  board.innerHTML = stages.map(stage => {
+    const cards = clientTasks.filter(t => t.stage === stage);
+    return `
+      <div style="background:var(--surface-2);border-radius:var(--radius-lg);padding:12px;min-height:200px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--surface-3);">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:rgba(15,17,23,0.55);">${stage}</div>
+          <div style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;font-weight:600;background:var(--white);padding:1px 6px;border-radius:8px;color:rgba(15,17,23,0.5);">${cards.length}</div>
+        </div>
+        ${cards.map(t => `
+          <div style="background:var(--white);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all var(--transition);box-shadow:var(--shadow-sm);"
+               onclick="closeModal('clientPipelineModal');setTimeout(()=>openDetail('${t.id}'),50)"
+               onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'"
+               onmouseout="this.style.transform='';this.style.boxShadow='var(--shadow-sm)'">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:rgba(15,17,23,0.35);margin-bottom:3px;">${t.id} · ${t.ay}</div>
+            <div style="font-weight:600;font-size:0.82rem;margin-bottom:6px;line-height:1.3;">${(t.section||t.generalDesc||'General Task').replace(/–.*$/,'').trim().slice(0,40)}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:0.7rem;">
+              <span>${prioBadge(t.priority)}</span>
+              <span class="${dueDateClass(t.dueDate)}">${formatDate(t.dueDate)}</span>
+            </div>
+          </div>`).join('')}
+        <div style="border:2px dashed var(--border);border-radius:8px;padding:10px;text-align:center;font-size:0.72rem;color:rgba(15,17,23,0.3);cursor:pointer;margin-top:4px;" onclick="addTaskFromPipeline()">+ Add</div>
+      </div>`;
+  }).join('');
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  GST MODULE  — API-backed (falls back to in-memory when no URL)
+// ══════════════════════════════════════════════════════════════
+let gstClients = [];
+let gstTasks   = [];
+let _editGSTClientId  = null;
+let _gstShowAllMonths = false; // default: show current month + overdue only
+
+// GST due dates per the GST Act (using day-of-month, always current FY context)
+// ── GST Schedules — updated per Combined_GST_Due_Dates.xlsx ──────────────────
+const GST_REGULAR_SCHEDULE = [
+  // GSTR-1 (Monthly) — due 11th of next month
+  {returnType:'GSTR-1',  period:'April',     due:'11-05'},
+  {returnType:'GSTR-1',  period:'May',       due:'11-06'},
+  {returnType:'GSTR-1',  period:'June',      due:'11-07'},
+  {returnType:'GSTR-1',  period:'July',      due:'11-08'},
+  {returnType:'GSTR-1',  period:'August',    due:'11-09'},
+  {returnType:'GSTR-1',  period:'September', due:'11-10'},
+  {returnType:'GSTR-1',  period:'October',   due:'11-11'},
+  {returnType:'GSTR-1',  period:'November',  due:'11-12'},
+  {returnType:'GSTR-1',  period:'December',  due:'11-01+1'},
+  {returnType:'GSTR-1',  period:'January',   due:'11-02+1'},
+  {returnType:'GSTR-1',  period:'February',  due:'11-03+1'},
+  {returnType:'GSTR-1',  period:'March',     due:'11-04+1'},
+  // GSTR-3B (Monthly) — due 20th of next month
+  {returnType:'GSTR-3B', period:'April',     due:'20-05'},
+  {returnType:'GSTR-3B', period:'May',       due:'20-06'},
+  {returnType:'GSTR-3B', period:'June',      due:'20-07'},
+  {returnType:'GSTR-3B', period:'July',      due:'20-08'},
+  {returnType:'GSTR-3B', period:'August',    due:'20-09'},
+  {returnType:'GSTR-3B', period:'September', due:'20-10'},
+  {returnType:'GSTR-3B', period:'October',   due:'20-11'},
+  {returnType:'GSTR-3B', period:'November',  due:'20-12'},
+  {returnType:'GSTR-3B', period:'December',  due:'20-01+1'},
+  {returnType:'GSTR-3B', period:'January',   due:'20-02+1'},
+  {returnType:'GSTR-3B', period:'February',  due:'20-03+1'},
+  {returnType:'GSTR-3B', period:'March',     due:'20-04+1'},
+  // GSTR-2B (Monthly reconciliation) — due 14th of next month
+  {returnType:'GSTR-2B', period:'April',     due:'14-05'},
+  {returnType:'GSTR-2B', period:'May',       due:'14-06'},
+  {returnType:'GSTR-2B', period:'June',      due:'14-07'},
+  {returnType:'GSTR-2B', period:'July',      due:'14-08'},
+  {returnType:'GSTR-2B', period:'August',    due:'14-09'},
+  {returnType:'GSTR-2B', period:'September', due:'14-10'},
+  {returnType:'GSTR-2B', period:'October',   due:'14-11'},
+  {returnType:'GSTR-2B', period:'November',  due:'14-12'},
+  {returnType:'GSTR-2B', period:'December',  due:'14-01+1'},
+  {returnType:'GSTR-2B', period:'January',   due:'14-02+1'},
+  {returnType:'GSTR-2B', period:'February',  due:'14-03+1'},
+  {returnType:'GSTR-2B', period:'March',     due:'14-04+1'},
+  // GSTR-9 Annual Return — 31 Dec of next FY
+  {returnType:'GSTR-9',  period:'Annual',    due:'31-12+1'},
+  // GSTR-9C Reconciliation Statement — 31 Dec of next FY
+  {returnType:'GSTR-9C', period:'Annual',    due:'31-12+1'},
+];
+
+const GST_QRMP_SCHEDULE = [
+  // IFF (Invoice Furnishing Facility) — 13th of succeeding month (M1 & M2 of each quarter)
+  {returnType:'IFF',      period:'April',     due:'13-05'},
+  {returnType:'IFF',      period:'May',       due:'13-06'},
+  {returnType:'IFF',      period:'July',      due:'13-08'},
+  {returnType:'IFF',      period:'August',    due:'13-09'},
+  {returnType:'IFF',      period:'October',   due:'13-11'},
+  {returnType:'IFF',      period:'November',  due:'13-12'},
+  {returnType:'IFF',      period:'January',   due:'13-02+1'},
+  {returnType:'IFF',      period:'February',  due:'13-03+1'},
+  // PMT-06 — Monthly tax payment challan — 25th of every month
+  {returnType:'PMT-06',   period:'April',     due:'25-05'},
+  {returnType:'PMT-06',   period:'May',       due:'25-06'},
+  {returnType:'PMT-06',   period:'July',      due:'25-08'},
+  {returnType:'PMT-06',   period:'August',    due:'25-09'},
+  {returnType:'PMT-06',   period:'October',   due:'25-11'},
+  {returnType:'PMT-06',   period:'November',  due:'25-12'},
+  {returnType:'PMT-06',   period:'January',   due:'25-02+1'},
+  {returnType:'PMT-06',   period:'February',  due:'25-03+1'},
+  // GSTR-1 Quarterly — 13th of month after quarter end
+  {returnType:'GSTR-1 (Q)',period:'Q1 Apr-Jun',due:'13-07'},
+  {returnType:'GSTR-1 (Q)',period:'Q2 Jul-Sep',due:'13-10'},
+  {returnType:'GSTR-1 (Q)',period:'Q3 Oct-Dec',due:'13-01+1'},
+  {returnType:'GSTR-1 (Q)',period:'Q4 Jan-Mar',due:'13-04+1'},
+  // GSTR-3B Quarterly — 22nd of month after quarter end
+  {returnType:'GSTR-3B (Q)',period:'Q1 Apr-Jun',due:'22-07'},
+  {returnType:'GSTR-3B (Q)',period:'Q2 Jul-Sep',due:'22-10'},
+  {returnType:'GSTR-3B (Q)',period:'Q3 Oct-Dec',due:'22-01+1'},
+  {returnType:'GSTR-3B (Q)',period:'Q4 Jan-Mar',due:'22-04+1'},
+  // GSTR-2B (Monthly reconciliation) — 14th of every month
+  {returnType:'GSTR-2B',  period:'April',     due:'14-05'},
+  {returnType:'GSTR-2B',  period:'May',       due:'14-06'},
+  {returnType:'GSTR-2B',  period:'June',      due:'14-07'},
+  {returnType:'GSTR-2B',  period:'July',      due:'14-08'},
+  {returnType:'GSTR-2B',  period:'August',    due:'14-09'},
+  {returnType:'GSTR-2B',  period:'September', due:'14-10'},
+  {returnType:'GSTR-2B',  period:'October',   due:'14-11'},
+  {returnType:'GSTR-2B',  period:'November',  due:'14-12'},
+  {returnType:'GSTR-2B',  period:'December',  due:'14-01+1'},
+  {returnType:'GSTR-2B',  period:'January',   due:'14-02+1'},
+  {returnType:'GSTR-2B',  period:'February',  due:'14-03+1'},
+  {returnType:'GSTR-2B',  period:'March',     due:'14-04+1'},
+  // GSTR-9 Annual Return — 31 Dec of next FY
+  {returnType:'GSTR-9',   period:'Annual',    due:'31-12+1'},
+  // GSTR-9C Reconciliation Statement — 31 Dec of next FY
+  {returnType:'GSTR-9C',  period:'Annual',    due:'31-12+1'},
+];
+
+const GST_COMPOSITION_SCHEDULE = [
+  // CMP-08 — Quarterly self-assessed tax statement — 18th of month after quarter
+  {returnType:'CMP-08',  period:'Q1 Apr-Jun',due:'18-07'},
+  {returnType:'CMP-08',  period:'Q2 Jul-Sep',due:'18-10'},
+  {returnType:'CMP-08',  period:'Q3 Oct-Dec',due:'18-01+1'},
+  {returnType:'CMP-08',  period:'Q4 Jan-Mar',due:'18-04+1'},
+  // GSTR-4 Annual Return — 30 June of next FY (updated per GST portal)
+  {returnType:'GSTR-4',  period:'Annual',    due:'30-06+1'},
+];
+
+function gstDueDate(dueCode, fyStart) {
+  const fy = parseInt(String(fyStart), 10);
+  if (isNaN(fy)) return '';
+  const dashIdx = dueCode.indexOf('-');
+  if (dashIdx === -1) return '';
+  const dayStr = dueCode.substring(0, dashIdx);
+  const rest = dueCode.substring(dashIdx + 1);
+  const plusIdx = rest.indexOf('+');
+  const monthStr = plusIdx === -1 ? rest : rest.substring(0, plusIdx);
+  const day = parseInt(dayStr, 10), month = parseInt(monthStr, 10) - 1, year = fy + (plusIdx !== -1 ? 1 : 0);
+  if (isNaN(day) || isNaN(month) || month < 0 || month > 11) return '';
+  return fmtDate(new Date(year, month, day));
+}
+
+function getGSTSchedule(regType) {
+  if (regType === 'qrmp') return GST_QRMP_SCHEDULE;
+  if (regType === 'composition') return GST_COMPOSITION_SCHEDULE;
+  return GST_REGULAR_SCHEDULE;
+}
+
+function openAddGSTClientModal(editId) {
+  _editGSTClientId = editId || null;
+  const modal = document.getElementById('addGSTClientModal');
+  // Populate client dropdown
+  const sel = document.getElementById('gstClientName');
+  sel.innerHTML = '<option value="">Select Client</option>' + clients.map(c=>`<option value="${c.name}">${c.name} (${c.pan})</option>`).join('');
+  // Populate FY
+  const fySel = document.getElementById('gstClientFY');
+  const cyear = today.getFullYear();
+  fySel.innerHTML = [-1,0,1].map(i => {
+    const y = cyear + i;
+    const fy = `${y}-${String(y+1).slice(-2)}`;
+    return `<option value="${y}" ${i===0?'selected':''}>${fy}</option>`;
+  }).join('');
+  // Populate assigned
+  document.getElementById('gstClientAssigned').innerHTML = employees.map(e=>`<option>${e}</option>`).join('');
+  if (editId) {
+    const gc = gstClients.find(x=>x.id===editId);
+    if (gc) {
+      sel.value = gc.clientName;
+      document.getElementById('gstClientGSTIN').value = gc.gstin || '';
+      document.querySelector(`input[name="gstClientRegType"][value="${gc.regType}"]`).checked = true;
+      fySel.value = gc.fyStart;
+      document.getElementById('gstClientAssigned').value = gc.assigned || '';
+      document.getElementById('gstClientLogin').value = gc.login || '';
+      document.getElementById('gstClientPass').value = gc.pass || '';
+      document.getElementById('gstClientNotes').value = gc.notes || '';
+      document.getElementById('gstClientModalTitle').textContent = 'Edit GST Client · '+gc.clientName;
+    }
+  } else {
+    sel.value = '';
+    document.getElementById('gstClientGSTIN').value = '';
+    document.getElementById('gstCL_Regular').checked = true;
+    document.getElementById('gstClientLogin').value = '';
+    document.getElementById('gstClientPass').value = '';
+    document.getElementById('gstClientNotes').value = '';
+    document.getElementById('gstClientModalTitle').textContent = 'Add GST Client';
+  }
+  openModal('addGSTClientModal');
+}
+
+function autoFillGSTDetails() {
+  // Try to pre-fill GSTIN from an existing GST client record
+  const name = document.getElementById('gstClientName').value;
+  const existing = gstClients.find(x => x.clientName === name);
+  if (existing && existing.gstin) {
+    document.getElementById('gstClientGSTIN').value = existing.gstin;
+  }
+}
+
+async function saveGSTClient() {
+  const clientName = document.getElementById('gstClientName').value;
+  if (!clientName) { showToast('⚠️ Select a client'); return; }
+  const gstin    = document.getElementById('gstClientGSTIN').value.trim();
+  if (!gstin)    { showToast('⚠️ GSTIN is required'); return; }
+  const regType  = document.querySelector('input[name="gstClientRegType"]:checked').value;
+  const fyStart  = parseInt(String(document.getElementById('gstClientFY').value || '0'), 10);
+  const assigned = document.getElementById('gstClientAssigned').value;
+  const login    = document.getElementById('gstClientLogin').value;
+  const pass     = document.getElementById('gstClientPass').value;
+  const notes    = document.getElementById('gstClientNotes').value;
+  const pan      = (clients.find(x=>x.name===clientName)||{}).pan || '';
+  const params   = { clientName, pan, gstin, regType, fyStart, assigned, login, pass, notes };
+
+  const btn = document.querySelector('#addGSTClientModal .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    if (APPS_SCRIPT_URL) {
+      if (_editGSTClientId) {
+        await apiPost('updateGSTClient', { id: _editGSTClientId, ...params });
+      } else {
+        await apiPost('addGSTClient', params);
+      }
+      await loadGSTData();
+      showToast(_editGSTClientId ? '✅ GST client updated' : '✅ GST client added & returns created');
+    } else {
+      // ── offline / demo fallback ───────────────────────────
+      if (_editGSTClientId) {
+        const gc = gstClients.find(x=>x.id===_editGSTClientId);
+        if (gc) Object.assign(gc, { clientName,pan,gstin,regType,fyStart,assigned,login,pass,notes });
+        gstTasks = gstTasks.filter(t=>t.clientId!==_editGSTClientId);
+        _generateGSTTasksLocal(_editGSTClientId, regType, fyStart, assigned);
+        showToast('✅ GST client updated (local)');
+      } else {
+        const id = 'GST-'+String(gstClients.length+1).padStart(3,'0');
+        gstClients.push({id,clientName,pan,gstin,regType,fyStart,assigned,login,pass,notes});
+        _generateGSTTasksLocal(id, regType, fyStart, assigned);
+        showToast('✅ GST client added (local)');
+      }
+    }
+  } catch(e) { showToast('❌ '+e.message); }
+  finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Create Recurring Tasks'; }
+  }
+  closeModal('addGSTClientModal');
+  renderGST();
+  updateGSTBadge();
+}
+
+function gstReturnCount(regType) {
+  return getGSTSchedule(regType).length;
+}
+
+function _generateGSTTasksLocal(clientId, regType, fyStart, assigned) {
+  const schedule = getGSTSchedule(regType);
+  schedule.forEach((item, i) => {
+    const id = clientId + '-T' + String(i+1).padStart(2,'0');
+    const dueDate = gstDueDate(item.due, fyStart);
+    gstTasks.push({
+      id,
+      clientId,
+      returnType: item.returnType,
+      period: item.period,
+      dueDate,
+      status: 'Pending',
+      filedDate: '',
+      assigned
+    });
+  });
+}
+
+function updateGSTBadge() {
+  const now = fmtDate(today);
+  const pending = gstTasks.filter(t=>t.status==='Pending' && t.dueDate <= now).length;
+  const badge = document.getElementById('gstBadge');
+  if (badge) badge.textContent = pending;
+}
+
+function toggleGSTMonthView() {
+  _gstShowAllMonths = !_gstShowAllMonths;
+  const btn = document.getElementById('gstMonthToggle');
+  if (btn) {
+    btn.textContent   = _gstShowAllMonths ? '📅 This Month' : '📋 Show All';
+    btn.style.background    = _gstShowAllMonths ? 'var(--blue-light)' : '';
+    btn.style.borderColor   = 'var(--blue)';
+  }
+  renderGST();
+}
+
+async function renderGST() {
+  // Lazy-load from backend on first visit
+  if (!gstClients.length && APPS_SCRIPT_URL) {
+    await loadGSTData();
+  }
+  // Populate client filter
+  const clientSel = document.getElementById('gstFilterClient');
+  if (clientSel) {
+    const curr = clientSel.value;
+    clientSel.innerHTML = '<option value="">All Clients</option>' + gstClients.map(gc=>`<option value="${gc.id}">${gc.clientName}</option>`).join('');
+    clientSel.value = curr;
+  }
+
+  const filterClientId = (clientSel||{}).value || '';
+  const filterStatus   = (document.getElementById('gstFilterStatus')||{}).value || '';
+  const searchQ        = ((document.getElementById('gstClientSearch')||{}).value || '').toLowerCase().trim();
+  const now = fmtDate(today);
+  const thisMonth = now.slice(0,7); // "YYYY-MM"
+
+  // Sync toggle button label to current state
+  const toggleBtn = document.getElementById('gstMonthToggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = _gstShowAllMonths ? '📋 Show All' : '📅 This Month';
+    toggleBtn.style.background = _gstShowAllMonths ? '' : 'var(--blue-light)';
+    toggleBtn.style.color = 'var(--blue)';
+    toggleBtn.style.borderColor = 'var(--blue)';
+  }
+
+  // KPIs (always over all tasks, unaffected by month view toggle)
+  let allTasks = gstTasks;
+  if (filterClientId) allTasks = allTasks.filter(t=>t.clientId===filterClientId);
+  const overdue   = allTasks.filter(t=>t.status==='Pending' && t.dueDate < now).length;
+  const dueMonth  = allTasks.filter(t=>t.status==='Pending' && t.dueDate.startsWith(thisMonth)).length;
+  const filed     = allTasks.filter(t=>t.status==='Filed').length;
+  const numClients = filterClientId ? 1 : gstClients.length;
+  document.getElementById('gstKpiOverdue').textContent   = overdue;
+  document.getElementById('gstKpiDueMonth').textContent  = dueMonth;
+  document.getElementById('gstKpiFiled').textContent     = filed;
+  document.getElementById('gstKpiClients').textContent   = numClients;
+
+  const container = document.getElementById('gstCalendarContainer');
+  if (!container) return;
+
+  if (!gstClients.length) {
+    container.innerHTML = '<div class="empty" style="padding:48px;"><div class="empty-icon">🧾</div><div class="empty-text">No GST clients added yet — click "+ Add GST Client" to start</div></div>';
+    return;
+  }
+
+  let html = '';
+  const displayClients = filterClientId ? gstClients.filter(gc=>gc.id===filterClientId) : gstClients;
+
+  // ── Client-level search filter ──────────────────────────
+  let displayClientsFiltered = displayClients;
+  if (searchQ) {
+    displayClientsFiltered = displayClients.filter(gc =>
+      gc.clientName.toLowerCase().includes(searchQ) ||
+      (gc.gstin||'').toLowerCase().includes(searchQ) ||
+      (gc.pan||'').toLowerCase().includes(searchQ)
+    );
+  }
+
+  displayClientsFiltered.forEach(gc => {
+    let tasks = gstTasks.filter(t=>t.clientId===gc.id);
+
+    // ── Status filter (dropdown) ──────────────────────────
+    if (filterStatus === 'Overdue') tasks = tasks.filter(t=>t.status==='Pending' && t.dueDate < now);
+    else if (filterStatus === 'Filed') tasks = tasks.filter(t=>t.status==='Filed');
+    else if (filterStatus === 'Pending') tasks = tasks.filter(t=>t.status==='Pending');
+
+    // ── Month filter (toggle) ──────────────────────────────
+    // "This Month" mode: show ONLY tasks due this month (pending or filed) + overdue pending
+    // Strictly excludes all future months
+    let hiddenCount = 0;
+    if (!_gstShowAllMonths && !filterStatus) {
+      const visible = tasks.filter(t =>
+        (t.status === 'Pending' && t.dueDate < now) ||          // overdue pending — always show
+        t.dueDate.startsWith(thisMonth)                          // due this month (any status)
+      );
+      hiddenCount = tasks.filter(t => t.dueDate > now && !t.dueDate.startsWith(thisMonth)).length;
+      tasks = visible;
+    }
+
+    const overdueCount = tasks.filter(t=>t.status==='Pending' && t.dueDate < now).length;
+    const regTypeLabel = {regular:'Regular (Monthly)',qrmp:'QRMP (Quarterly)',composition:'Composition'}[gc.regType]||gc.regType;
+    const regBadgeColor = {regular:'badge-blue',qrmp:'badge-purple',composition:'badge-green'}[gc.regType]||'badge-gray';
+
+    const rows = tasks.sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).map(t => {
+      const isOD = t.status==='Pending' && t.dueDate < now;
+      const isToday = t.dueDate === now;
+      const dClass = isOD ? 'due-overdue' : (isToday ? 'due-today' : '');
+      const statusBadge = t.status==='Filed'
+        ? `<span class="badge badge-green">✓ Filed${t.filedDate ? ' '+formatDate(t.filedDate) : ''}</span>`
+        : (isOD ? '<span class="badge badge-danger">⚠ Overdue</span>'
+          : (isToday ? '<span class="badge badge-warning">⏰ Due Today</span>'
+          : '<span class="badge badge-gray">Pending</span>'));
+      return `<tr>
+        <td style="font-weight:600;font-size:0.85rem;">${t.returnType}</td>
+        <td style="font-size:0.82rem;color:rgba(15,17,23,0.65);">${t.period}</td>
+        <td class="${dClass}" style="white-space:nowrap;">${formatDate(t.dueDate)}</td>
+        <td>${statusBadge}</td>
+        <td>${t.assigned || '—'}</td>
+        <td>
+          ${t.status!=='Filed'
+            ? `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;" onclick="markGSTFiled('${t.id}')">✓ Mark Filed</button>`
+            : `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;color:rgba(15,17,23,0.4);" onclick="unmarkGSTFiled('${t.id}')">↩ Undo</button>`}
+        </td>
+      </tr>`;
+    }).join('');
+
+    // "N more returns upcoming" hint row
+    const hiddenHint = (!_gstShowAllMonths && hiddenCount > 0)
+      ? `<tr><td colspan="6" style="text-align:center;padding:10px 16px;font-size:0.78rem;color:rgba(15,17,23,0.4);background:var(--surface);border-top:1px dashed var(--border);">
+           + ${hiddenCount} upcoming return${hiddenCount>1?'s':''} hidden &nbsp;·&nbsp;
+           <a href="#" style="color:var(--blue);text-decoration:none;" onclick="event.preventDefault();toggleGSTMonthView()">Show all months</a>
+         </td></tr>`
+      : '';
+
+    html += `<div class="section-group" style="border-bottom:1px solid var(--border);">
+      <div class="section-group-header" style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--surface);cursor:pointer;" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div style="font-weight:700;font-size:0.95rem;">${gc.clientName}</div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:rgba(15,17,23,0.4);">${gc.gstin}</span>
+          <span class="badge ${regBadgeColor}" style="font-size:0.68rem;">${regTypeLabel}</span>
+          ${overdueCount ? `<span class="badge badge-danger">⚠ ${overdueCount} overdue</span>` : ''}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;" onclick="event.stopPropagation();openAddGSTClientModal('${gc.id}')">✏️ Edit</button>
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;color:#b93a1a;" onclick="event.stopPropagation();deleteGSTClient('${gc.id}')">🗑</button>
+          <span class="section-group-chevron">▼</span>
+        </div>
+      </div>
+      <div class="section-group-body" style="max-height:600px;">
+        <div style="overflow-x:auto;">
+          <table style="font-size:0.82rem;">
+            <thead><tr><th>Return</th><th>Period</th><th>Due Date</th><th>Status</th><th>Assigned</th><th>Action</th></tr></thead>
+            <tbody>${rows || '<tr><td colspan="6" style="text-align:center;padding:20px;color:rgba(15,17,23,0.4);">No returns match filter</td></tr>'}${hiddenHint}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  if (!displayClientsFiltered.length) {
+    container.innerHTML = '<div class="empty" style="padding:48px;"><div class="empty-icon">🔍</div><div class="empty-text">No GST clients match your search</div></div>';
+  } else {
+    container.innerHTML = html;
+  }
+  updateGSTBadge();
+}
+
+async function loadGSTData() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    const [gc, gt] = await Promise.all([
+      apiGet('getGSTClients'),
+      apiGet('getGSTTasks')
+    ]);
+    if (Array.isArray(gc)) gstClients = gc;
+    if (Array.isArray(gt)) gstTasks = gt.map(t => ({...t, dueDate: normaliseDate(t.dueDate), filedDate: normaliseDate(t.filedDate)}));
+  } catch(e) { console.warn('loadGSTData:', e.message); }
+}
+
+async function markGSTFiled(taskId) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('markGSTFiled', { taskId }); await loadGSTData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const t = gstTasks.find(x=>x.id===taskId);
+    if (t) { t.status='Filed'; t.filedDate=fmtDate(today); }
+  }
+  renderGST();
+  showToast('✅ Return marked as Filed');
+}
+
+async function unmarkGSTFiled(taskId) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('unmarkGSTFiled', { taskId }); await loadGSTData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const t = gstTasks.find(x=>x.id===taskId);
+    if (t) { t.status='Pending'; t.filedDate=''; }
+  }
+  renderGST();
+  showToast('↩ Filing status reset');
+}
+
+async function deleteGSTClient(clientId) {
+  const gc = gstClients.find(x=>x.id===clientId);
+  if (!confirm('Remove '+((gc||{}).clientName||'this client')+' from GST tracker?\nAll return records will be deleted.')) return;
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('deleteGSTClient', { clientId }); await loadGSTData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    gstClients = gstClients.filter(x=>x.id!==clientId);
+    gstTasks   = gstTasks.filter(t=>t.clientId!==clientId);
+  }
+  renderGST();
+  showToast('🗑 GST client removed');
+}
+
+function onGSTTypeChange() {
+  // Visual feedback for radio selection in add task modal
+  document.querySelectorAll('[id^="gstTypeRegularLabel"],[id^="gstTypeQRMPLabel"],[id^="gstTypeCompositionLabel"]').forEach(el=>{el.style.background='';el.style.borderColor='var(--border)';});
+  const sel = document.querySelector('input[name="gstRegType"]:checked');
+  if (sel) {
+    const lbl = sel.closest('label');
+    if (lbl) { lbl.style.background='var(--blue-light)'; lbl.style.borderColor='var(--blue)'; }
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  ROC MODULE
+//  rocClients: [{id, clientName, pan, cin, companyType, fyStart, assigned, mcaLogin, mcaPass, notes}]
+//  rocTasks:   [{id, clientId, filing, dueDate, status, filedDate}]
+// ══════════════════════════════════════════════════════════════
+let rocClients = [];
+let rocTasks   = [];
+let _editROCClientId  = null;
+let _rocShowAllMonths = false; // default: show current month + overdue only
+
+// Standard ROC annual compliance filings
+function getROCFilings(companyType, fyStart) {
+  // Always parseInt — Sheets/storage may return fyStart as string,
+  // causing "2025" + 1 = "20251" (Invalid Date) via template literals
+  const y     = parseInt(String(fyStart), 10);
+  if (isNaN(y)) return [];
+  const nextY = y + 1;
+  const filings = [];
+
+  if (companyType === 'llp') {
+    filings.push(
+      {filing:'Form 11 – LLP Annual Return',     dueDate:`${nextY}-05-30`},
+      {filing:'Form 8 – Statement of Accounts',  dueDate:`${nextY}-10-30`},
+      {filing:'DIR-3 KYC – Director KYC',        dueDate:`${nextY}-09-30`},
+    );
+  } else {
+    // Pvt / Public / OPC / Section 8
+    filings.push(
+      {filing:'MGT-7 / MGT-7A – Annual Return',       dueDate:`${nextY}-11-29`}, // 60 days from AGM (AGM by Sep 30)
+      {filing:'AOC-4 – Financial Statements',          dueDate:`${nextY}-10-29`}, // 30 days from AGM
+      {filing:'ADT-1 – Auditor Appointment',           dueDate:`${nextY}-10-14`}, // 15 days from AGM
+      {filing:'DIR-3 KYC – Director KYC',              dueDate:`${nextY}-09-30`},
+      {filing:'MSME-1 – MSME Outstanding Payments',    dueDate:`${nextY}-04-30`}, // Apr for H2 of prev FY
+      {filing:'MSME-1 – MSME Outstanding Payments (H2)',dueDate:`${nextY}-10-31`}, // Oct for H1
+      {filing:'BEN-2 – Significant Beneficial Owner',  dueDate:`${y}-04-30`},
+      {filing:'DPT-3 – Return of Deposits',            dueDate:`${nextY}-06-30`},
+      {filing:'AOC-4 XBRL (if applicable)',             dueDate:`${nextY}-11-14`},
+    );
+    if (companyType === 'opc') {
+      // OPC AGM not required, earlier deadlines
+      filings.push({filing:'MGT-7A – OPC Annual Return', dueDate:`${nextY}-11-29`});
+    }
+  }
+  return filings;
+}
+
+function openAddROCClientModal(editId) {
+  _editROCClientId = editId || null;
+  const sel = document.getElementById('rocClientName');
+  sel.innerHTML = '<option value="">Select Client</option>' + clients.map(c=>`<option value="${c.name}">${c.name} (${c.pan})</option>`).join('');
+  const fySel = document.getElementById('rocClientFY');
+  const cyear = today.getFullYear();
+  fySel.innerHTML = [-1,0,1].map(i => {
+    const y = cyear + i;
+    const fy = `${y}-${String(y+1).slice(-2)}`;
+    return `<option value="${y}" ${i===0?'selected':''}>${fy}</option>`;
+  }).join('');
+  document.getElementById('rocClientAssigned').innerHTML = employees.map(e=>`<option>${e}</option>`).join('');
+
+  if (editId) {
+    const rc = rocClients.find(x=>x.id===editId);
+    if (rc) {
+      sel.value = rc.clientName;
+      document.getElementById('rocClientCIN').value = rc.cin || '';
+      document.getElementById('rocCompanyType').value = rc.companyType || 'private';
+      fySel.value = rc.fyStart;
+      document.getElementById('rocClientAssigned').value = rc.assigned || '';
+      document.getElementById('rocClientMCALogin').value = rc.mcaLogin || '';
+      document.getElementById('rocClientMCAPass').value  = rc.mcaPass  || '';
+      document.getElementById('rocClientNotes').value    = rc.notes    || '';
+      document.getElementById('rocClientModalTitle').textContent = 'Edit Company · '+rc.clientName;
+    }
+  } else {
+    sel.value = '';
+    ['rocClientCIN','rocClientMCALogin','rocClientMCAPass','rocClientNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('rocCompanyType').value = 'private';
+    document.getElementById('rocClientModalTitle').textContent = 'Add Company for ROC Compliance';
+  }
+  openModal('addROCClientModal');
+}
+
+function autoFillROCDetails() {
+  // Try to pre-fill CIN from an existing ROC client record
+  const name = document.getElementById('rocClientName').value;
+  const existing = rocClients.find(x => x.clientName === name);
+  if (existing && existing.cin) {
+    document.getElementById('rocClientCIN').value = existing.cin;
+  }
+}
+
+async function saveROCClient() {
+  const clientName  = document.getElementById('rocClientName').value;
+  if (!clientName) { showToast('⚠️ Select a client'); return; }
+  const cin         = document.getElementById('rocClientCIN').value.trim();
+  const companyType = document.getElementById('rocCompanyType').value;
+  const fyStart     = parseInt(String(document.getElementById('rocClientFY').value || '0'), 10);
+  const assigned    = document.getElementById('rocClientAssigned').value;
+  const mcaLogin    = document.getElementById('rocClientMCALogin').value;
+  const mcaPass     = document.getElementById('rocClientMCAPass').value;
+  const notes       = document.getElementById('rocClientNotes').value;
+  const pan         = (clients.find(x=>x.name===clientName)||{}).pan || '';
+  const params      = { clientName, pan, cin, companyType, fyStart, assigned, mcaLogin, mcaPass, notes };
+
+  const btn = document.querySelector('#addROCClientModal .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    if (APPS_SCRIPT_URL) {
+      if (_editROCClientId) {
+        await apiPost('updateROCClient', { id: _editROCClientId, ...params });
+      } else {
+        await apiPost('addROCClient', params);
+      }
+      await loadROCData();
+      showToast(_editROCClientId ? '✅ Company updated' : '✅ Company added & ROC checklist created');
+    } else {
+      // offline fallback
+      if (_editROCClientId) {
+        const rc = rocClients.find(x=>x.id===_editROCClientId);
+        if (rc) Object.assign(rc, {clientName,pan,cin,companyType,fyStart,assigned,mcaLogin,mcaPass,notes});
+        rocTasks = rocTasks.filter(t=>t.clientId!==_editROCClientId);
+        _generateROCTasksLocal(_editROCClientId, companyType, fyStart, assigned);
+        showToast('✅ ROC company updated (local)');
+      } else {
+        const id = 'ROC-'+String(rocClients.length+1).padStart(3,'0');
+        rocClients.push({id,clientName,pan,cin,companyType,fyStart,assigned,mcaLogin,mcaPass,notes});
+        _generateROCTasksLocal(id, companyType, fyStart, assigned);
+        showToast('✅ Company added (local)');
+      }
+    }
+  } catch(e) { showToast('❌ '+e.message); }
+  finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Add & Create Checklist'; }
+  }
+  closeModal('addROCClientModal');
+  renderROC();
+  updateROCBadge();
+}
+
+async function loadROCData() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    const [rc, rt] = await Promise.all([
+      apiGet('getROCClients'),
+      apiGet('getROCTasks')
+    ]);
+    if (Array.isArray(rc)) rocClients = rc;
+    if (Array.isArray(rt)) rocTasks = rt.map(t => ({...t, dueDate: normaliseDate(t.dueDate), filedDate: normaliseDate(t.filedDate)}));
+  } catch(e) { console.warn('loadROCData:', e.message); }
+}
+
+function _generateROCTasksLocal(clientId, companyType, fyStart, assigned) {
+  const filings = getROCFilings(companyType, fyStart);
+  filings.forEach((item,i) => {
+    rocTasks.push({
+      id: clientId+'-F'+String(i+1).padStart(2,'0'),
+      clientId,
+      filing: item.filing,
+      dueDate: item.dueDate,
+      status: 'Pending',
+      filedDate: '',
+      assigned
+    });
+  });
+}
+
+function updateROCBadge() {
+  const now = fmtDate(today);
+  const pending = rocTasks.filter(t=>t.status==='Pending' && t.dueDate <= now).length;
+  const badge = document.getElementById('rocBadge');
+  if (badge) badge.textContent = pending;
+}
+
+function toggleROCMonthView() {
+  _rocShowAllMonths = !_rocShowAllMonths;
+  const btn = document.getElementById('rocMonthToggle');
+  if (btn) {
+    btn.textContent = _rocShowAllMonths ? '📅 This Month' : '📋 Show All';
+    btn.style.background = _rocShowAllMonths ? 'var(--blue-light)' : '';
+    btn.style.borderColor = 'var(--blue)';
+  }
+  renderROC();
+}
+
+async function renderROC() {
+  if (!rocClients.length && APPS_SCRIPT_URL) {
+    await loadROCData();
+  }
+  const clientSel = document.getElementById('rocFilterClient');
+  if (clientSel) {
+    const curr = clientSel.value;
+    clientSel.innerHTML = '<option value="">All Companies</option>' + rocClients.map(rc=>`<option value="${rc.id}">${rc.clientName}</option>`).join('');
+    clientSel.value = curr;
+  }
+  const filterClientId = (clientSel||{}).value || '';
+  const filterStatus   = (document.getElementById('rocFilterStatus')||{}).value || '';
+  const searchQ        = ((document.getElementById('rocClientSearch')||{}).value || '').toLowerCase().trim();
+  const now = fmtDate(today);
+  const thisMonth = now.slice(0,7); // "YYYY-MM"
+
+  // Sync toggle button label
+  const toggleBtn = document.getElementById('rocMonthToggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = _rocShowAllMonths ? '📋 Show All' : '📅 This Month';
+    toggleBtn.style.background = _rocShowAllMonths ? '' : 'var(--blue-light)';
+    toggleBtn.style.color = 'var(--blue)';
+    toggleBtn.style.borderColor = 'var(--blue)';
+  }
+
+  // KPIs (all tasks, unaffected by month view)
+  const allTasks = filterClientId ? rocTasks.filter(t=>t.clientId===filterClientId) : rocTasks;
+  const overdue   = allTasks.filter(t=>t.status==='Pending' && t.dueDate < now).length;
+  const dueMonth  = allTasks.filter(t=>t.status==='Pending' && t.dueDate.startsWith(thisMonth)).length;
+  const filed     = allTasks.filter(t=>t.status==='Filed').length;
+  document.getElementById('rocKpiOverdue').textContent  = overdue;
+  document.getElementById('rocKpiDueMonth').textContent = dueMonth;
+  document.getElementById('rocKpiFiled').textContent    = filed;
+  document.getElementById('rocKpiClients').textContent  = filterClientId ? 1 : rocClients.length;
+
+  const container = document.getElementById('rocContainer');
+  if (!container) return;
+
+  if (!rocClients.length) {
+    container.innerHTML = '<div class="empty" style="padding:48px;"><div class="empty-icon">🏢</div><div class="empty-text">No companies added yet — click "+ Add Company" to start</div></div>';
+    return;
+  }
+
+  let html = '';
+  const displayClients = filterClientId ? rocClients.filter(rc=>rc.id===filterClientId) : rocClients;
+
+  // ── Client-level search filter ──────────────────────────
+  let displayClientsFiltered = displayClients;
+  if (searchQ) {
+    displayClientsFiltered = displayClients.filter(rc =>
+      rc.clientName.toLowerCase().includes(searchQ) ||
+      (rc.cin||'').toLowerCase().includes(searchQ) ||
+      (rc.pan||'').toLowerCase().includes(searchQ)
+    );
+  }
+
+  displayClientsFiltered.forEach(rc => {
+    let tasks = rocTasks.filter(t=>t.clientId===rc.id);
+
+    // ── Status filter (dropdown) ──────────────────────────
+    if (filterStatus === 'Overdue') tasks = tasks.filter(t=>t.status==='Pending' && t.dueDate < now);
+    else if (filterStatus === 'Filed') tasks = tasks.filter(t=>t.status==='Filed');
+    else if (filterStatus === 'Pending') tasks = tasks.filter(t=>t.status==='Pending');
+
+    // ── Month filter (toggle) ──────────────────────────────
+    // "This Month" mode: show ONLY tasks due this month (any status) + overdue pending
+    // Strictly excludes all future months
+    let hiddenCount = 0;
+    if (!_rocShowAllMonths && !filterStatus) {
+      const visible = tasks.filter(t =>
+        (t.status === 'Pending' && t.dueDate < now) ||          // overdue pending — always show
+        t.dueDate.startsWith(thisMonth)                          // due this month (any status)
+      );
+      hiddenCount = tasks.filter(t => t.dueDate > now && !t.dueDate.startsWith(thisMonth)).length;
+      tasks = visible;
+    }
+
+    const overdueCount = tasks.filter(t=>t.status==='Pending' && t.dueDate < now).length;
+    const companyTypeLabel = {private:'Pvt Ltd',public:'Public Ltd',opc:'OPC',llp:'LLP',section8:'Sec 8 NGO'}[rc.companyType]||rc.companyType;
+    const pctFiled = tasks.length ? Math.round(tasks.filter(t=>t.status==='Filed').length / tasks.length * 100) : 0;
+
+    const rows = tasks.sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).map(t => {
+      const isOD = t.status==='Pending' && t.dueDate < now;
+      const dClass = isOD ? 'due-overdue' : (t.dueDate===now ? 'due-today' : '');
+      const statusBadge = t.status==='Filed'
+        ? `<span class="badge badge-green">✓ Filed</span>`
+        : (isOD ? '<span class="badge badge-danger">⚠ Overdue</span>' : '<span class="badge badge-gray">Pending</span>');
+      return `<tr>
+        <td style="font-size:0.82rem;font-weight:600;">${t.filing}</td>
+        <td class="${dClass}" style="white-space:nowrap;">${formatDate(t.dueDate)}</td>
+        <td>${statusBadge}</td>
+        <td>${t.assigned||'—'}</td>
+        <td>
+          ${t.status!=='Filed'
+            ? `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;" onclick="markROCFiled('${t.id}')">✓ Mark Filed</button>`
+            : `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;color:rgba(15,17,23,0.4);" onclick="unmarkROCFiled('${t.id}')">↩ Undo</button>`}
+        </td>
+      </tr>`;
+    }).join('');
+
+    // "N more filings upcoming" hint row
+    const hiddenHint = (!_rocShowAllMonths && hiddenCount > 0)
+      ? `<tr><td colspan="5" style="text-align:center;padding:10px 16px;font-size:0.78rem;color:rgba(15,17,23,0.4);background:var(--surface);border-top:1px dashed var(--border);">
+           + ${hiddenCount} upcoming filing${hiddenCount>1?'s':''} hidden &nbsp;·&nbsp;
+           <a href="#" style="color:var(--blue);text-decoration:none;" onclick="event.preventDefault();toggleROCMonthView()">Show all months</a>
+         </td></tr>`
+      : '';
+
+    html += `<div class="section-group" style="border-bottom:1px solid var(--border);">
+      <div class="section-group-header" style="padding:14px 20px;background:var(--surface);cursor:pointer;" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div style="font-weight:700;font-size:0.95rem;">${rc.clientName}</div>
+            ${rc.cin ? `<span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:rgba(15,17,23,0.4);">${rc.cin}</span>` : ''}
+            <span class="badge badge-blue">${companyTypeLabel}</span>
+            ${overdueCount ? `<span class="badge badge-danger">⚠ ${overdueCount} overdue</span>` : ''}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div style="font-size:0.75rem;color:rgba(15,17,23,0.45);">${pctFiled}% filed</div>
+            <div style="width:80px;height:6px;background:var(--surface-3);border-radius:10px;overflow:hidden;"><div style="height:100%;width:${pctFiled}%;background:var(--green);border-radius:10px;"></div></div>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;" onclick="event.stopPropagation();openAddROCClientModal('${rc.id}')">✏️</button>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;color:#b93a1a;" onclick="event.stopPropagation();deleteROCClient('${rc.id}')">🗑</button>
+            <span class="section-group-chevron">▼</span>
+          </div>
+        </div>
+      </div>
+      <div class="section-group-body" style="max-height:600px;">
+        <div style="overflow-x:auto;">
+          <table style="font-size:0.82rem;">
+            <thead><tr><th>Filing</th><th>Due Date</th><th>Status</th><th>Assigned</th><th>Action</th></tr></thead>
+            <tbody>${rows||'<tr><td colspan="5" style="text-align:center;padding:20px;color:rgba(15,17,23,0.4);">No filings match filter</td></tr>'}${hiddenHint}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  if (!displayClientsFiltered.length) {
+    container.innerHTML = '<div class="empty" style="padding:48px;"><div class="empty-icon">🔍</div><div class="empty-text">No companies match your search</div></div>';
+  } else {
+    container.innerHTML = html;
+  }
+  updateROCBadge();
+}
+
+async function markROCFiled(taskId) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('markROCFiled', { taskId }); await loadROCData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const t = rocTasks.find(x=>x.id===taskId);
+    if (t) { t.status='Filed'; t.filedDate=fmtDate(today); }
+  }
+  renderROC();
+  showToast('✅ ROC filing marked as done');
+}
+
+async function unmarkROCFiled(taskId) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('unmarkROCFiled', { taskId }); await loadROCData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const t = rocTasks.find(x=>x.id===taskId);
+    if (t) { t.status='Pending'; t.filedDate=''; }
+  }
+  renderROC();
+}
+
+async function deleteROCClient(clientId) {
+  const rc = rocClients.find(x=>x.id===clientId);
+  if (!confirm('Remove '+((rc||{}).clientName||'this company')+' from ROC tracker?')) return;
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('deleteROCClient', { clientId }); await loadROCData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    rocClients = rocClients.filter(x=>x.id!==clientId);
+    rocTasks   = rocTasks.filter(t=>t.clientId!==clientId);
+  }
+  renderROC();
+  showToast('🗑 Company removed from ROC tracker');
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  ITR MODULE
+//  itrRecords: [{id, clientName, pan, ay, formType, assigned, dueDate, status, notes, filedDate}]
+// ══════════════════════════════════════════════════════════════
+let itrRecords = [];
+let _editITRId = null;
+
+function getITRDueDate(ay) {
+  // AY like "2025-26" → due date is typically 31 July of the AY year (31 Oct for audit cases)
+  if (!ay) return '';
+  const y = parseInt(ay.split('-')[0]);
+  return `${y}-07-31`;
+}
+
+function openAddITRModal(editId) {
+  _editITRId = editId || null;
+  const sel = document.getElementById('itrClientName');
+  sel.innerHTML = '<option value="">Select Client</option>' + clients.map(c=>`<option value="${c.name}">${c.name} (${c.pan})</option>`).join('');
+  const aySel = document.getElementById('itrClientAY');
+  const cyear = today.getFullYear();
+  // Current AY is April-based: if month >= 4, AY = cyear - cyear+1, else cyear-1 - cyear
+  const currentAYStart = today.getMonth() >= 3 ? cyear : cyear - 1;
+  aySel.innerHTML = [-1,0,1].map(i => {
+    const y = currentAYStart + i;
+    const ay = `${y}-${String(y+1).slice(-2)}`;
+    return `<option value="${ay}" ${i===0?'selected':''}>${ay}</option>`;
+  }).join('');
+  document.getElementById('itrAssigned').innerHTML = employees.map(e=>`<option>${e}</option>`).join('');
+  // Set default due date based on current AY
+  document.getElementById('itrDueDate').value = getITRDueDate(aySel.value);
+  document.getElementById('itrClientAY').onchange = function() {
+    document.getElementById('itrDueDate').value = getITRDueDate(this.value);
+  };
+
+  if (editId) {
+    const rec = itrRecords.find(x=>x.id===editId);
+    if (rec) {
+      sel.value = rec.clientName;
+      document.getElementById('itrClientPAN').value = rec.pan || '';
+      aySel.value = rec.ay;
+      document.getElementById('itrFormType').value = rec.formType || 'ITR-1 (Sahaj)';
+      document.getElementById('itrAssigned').value = rec.assigned || '';
+      document.getElementById('itrDueDate').value  = rec.dueDate || '';
+      document.getElementById('itrStatus').value   = rec.status  || 'Pending';
+      document.getElementById('itrNotes').value    = rec.notes   || '';
+      document.getElementById('itrModalTitle').textContent = 'Edit ITR · '+rec.clientName;
+      document.getElementById('itrSaveBtn').textContent = 'Update';
+    }
+  } else {
+    sel.value='';
+    document.getElementById('itrClientPAN').value='';
+    document.getElementById('itrFormType').value='ITR-1 (Sahaj)';
+    document.getElementById('itrStatus').value='Pending';
+    document.getElementById('itrNotes').value='';
+    document.getElementById('itrModalTitle').textContent='Add ITR Client';
+    document.getElementById('itrSaveBtn').textContent='Save ITR Record';
+  }
+  openModal('addITRModal');
+}
+
+function autoFillITRDetails() {
+  const name = document.getElementById('itrClientName').value;
+  const c = clients.find(x=>x.name===name);
+  if (c) document.getElementById('itrClientPAN').value = c.pan || '';
+}
+
+async function saveITRClient() {
+  const clientName = document.getElementById('itrClientName').value;
+  if (!clientName) { showToast('⚠️ Select a client'); return; }
+  const pan      = document.getElementById('itrClientPAN').value;
+  const ay       = document.getElementById('itrClientAY').value;
+  const formType = document.getElementById('itrFormType').value;
+  const assigned = document.getElementById('itrAssigned').value;
+  const dueDate  = document.getElementById('itrDueDate').value;
+  const status   = document.getElementById('itrStatus').value;
+  const notes    = document.getElementById('itrNotes').value;
+  const params   = { clientName, pan, ay, formType, assigned, dueDate, status, notes };
+
+  const btn = document.getElementById('itrSaveBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    if (APPS_SCRIPT_URL) {
+      if (_editITRId) {
+        await apiPost('updateITRRecord', { id: _editITRId, ...params });
+      } else {
+        await apiPost('addITRRecord', params);
+      }
+      await loadITRData();
+      showToast(_editITRId ? '✅ ITR record updated' : '✅ ITR record added for '+clientName);
+    } else {
+      // offline fallback
+      if (_editITRId) {
+        const rec = itrRecords.find(x=>x.id===_editITRId);
+        if (rec) Object.assign(rec, params);
+        showToast('✅ ITR record updated (local)');
+      } else {
+        if (itrRecords.find(x=>x.clientName===clientName && x.ay===ay)) {
+          showToast('⚠️ ITR for '+clientName+' in AY '+ay+' already exists'); return;
+        }
+        const id = 'ITR-'+String(itrRecords.length+1).padStart(3,'0');
+        itrRecords.push({id,...params,filedDate:''});
+        showToast('✅ ITR record added (local)');
+      }
+    }
+  } catch(e) { showToast('❌ '+e.message); }
+  finally {
+    if (btn) { btn.disabled = false; btn.textContent = _editITRId ? 'Update' : 'Save ITR Record'; }
+  }
+  closeModal('addITRModal');
+  renderITR();
+  updateITRBadge();
+}
+
+async function loadITRData() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    const data = await apiGet('getITRRecords');
+    if (Array.isArray(data)) itrRecords = data.map(r => ({...r, dueDate: normaliseDate(r.dueDate), filedDate: normaliseDate(r.filedDate)}));
+  } catch(e) { console.warn('loadITRData:', e.message); }
+}
+
+function updateITRBadge() {
+  const pending = itrRecords.filter(t=>t.status!=='Filed').length;
+  const badge = document.getElementById('itrBadge');
+  if (badge) badge.textContent = pending;
+}
+
+async function renderITR() {
+  if (!itrRecords.length && APPS_SCRIPT_URL) {
+    await loadITRData();
+  }
+  // Populate AY filter
+  const aySel = document.getElementById('itrFilterAY');
+  if (aySel) {
+    const curr = aySel.value;
+    const aySet = [...new Set(itrRecords.map(r=>r.ay))].sort().reverse();
+    aySel.innerHTML = '<option value="">All AY</option>' + aySet.map(ay=>`<option value="${ay}">${ay}</option>`).join('');
+    aySel.value = curr;
+  }
+  const filterAY     = (aySel||{}).value || '';
+  const filterStatus = (document.getElementById('itrFilterStatus')||{}).value || '';
+  const search       = (document.getElementById('itrSearch')||{}).value?.toLowerCase() || '';
+  const now = fmtDate(today);
+
+  let filtered = itrRecords.filter(r => {
+    const ms = !search || r.clientName.toLowerCase().includes(search) || (r.pan||'').toLowerCase().includes(search);
+    const ma = !filterAY || r.ay === filterAY;
+    const mx = !filterStatus || r.status === filterStatus;
+    return ms && ma && mx;
+  });
+
+  // KPIs
+  document.getElementById('itrKpiPending').textContent  = itrRecords.filter(r=>r.status==='Pending').length;
+  document.getElementById('itrKpiProgress').textContent = itrRecords.filter(r=>['Data Awaited','In Progress','Ready to File'].includes(r.status)).length;
+  document.getElementById('itrKpiFiled').textContent    = itrRecords.filter(r=>r.status==='Filed').length;
+  document.getElementById('itrKpiTotal').textContent    = itrRecords.length;
+
+  const statusColor = {
+    'Pending':'badge-gray',
+    'Data Awaited':'badge-warning',
+    'In Progress':'badge-blue',
+    'Ready to File':'badge-purple',
+    'Filed':'badge-green'
+  };
+
+  const tbody = document.getElementById('itrTable');
+  if (!tbody) return;
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">📑</div><div class="empty-text">No ITR records match filter</div></div></td></tr>';
+    return;
+  }
+
+  filtered.sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+  tbody.innerHTML = filtered.map(r => {
+    const isOD = r.status!=='Filed' && r.dueDate < now;
+    const dClass = isOD ? 'due-overdue' : (r.dueDate===now?'due-today':'');
+    return `<tr>
+      <td><strong>${r.clientName}</strong></td>
+      <td class="td-mono" style="font-size:0.78rem;">${r.pan||'—'}</td>
+      <td style="font-weight:600;">${r.ay}</td>
+      <td style="font-size:0.82rem;">${r.formType}</td>
+      <td>${r.assigned||'—'}</td>
+      <td class="${dClass}" style="white-space:nowrap;">${formatDate(r.dueDate)}${isOD?' ⚠':''}</td>
+      <td><span class="badge ${statusColor[r.status]||'badge-gray'}">${r.status}</span></td>
+      <td>
+        <button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;" onclick="openAddITRModal('${r.id}')">✏️</button>
+        ${r.status!=='Filed'
+          ? `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;" onclick="markITRFiled('${r.id}')">✓ Filed</button>`
+          : `<button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;color:rgba(15,17,23,0.4);" onclick="unmarkITRFiled('${r.id}')">↩</button>`}
+        <button class="btn btn-ghost" style="padding:3px 8px;font-size:0.72rem;color:#b93a1a;" onclick="deleteITRRecord('${r.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+  updateITRBadge();
+}
+
+async function markITRFiled(id) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('markITRFiled', { recordId: id }); await loadITRData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const r = itrRecords.find(x=>x.id===id);
+    if (r) { r.status='Filed'; r.filedDate=fmtDate(today); }
+  }
+  renderITR();
+  showToast('✅ ITR marked as Filed');
+}
+
+async function unmarkITRFiled(id) {
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('unmarkITRFiled', { recordId: id }); await loadITRData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    const r = itrRecords.find(x=>x.id===id);
+    if (r) { r.status='Pending'; r.filedDate=''; }
+  }
+  renderITR();
+}
+
+async function deleteITRRecord(id) {
+  const r = itrRecords.find(x=>x.id===id);
+  if (!confirm('Delete ITR record for '+((r||{}).clientName||'this client')+'?')) return;
+  if (APPS_SCRIPT_URL) {
+    try { await apiPost('deleteITRRecord', { recordId: id }); await loadITRData(); }
+    catch(e) { showToast('❌ '+e.message); return; }
+  } else {
+    itrRecords = itrRecords.filter(x=>x.id!==id);
+  }
+  renderITR();
+  showToast('🗑 ITR record deleted');
+}
+
+// initITRFromClients: calls bulkInitITR on backend (or seeds locally)
+async function initITRFromClients() {
+  const cyear = today.getFullYear();
+  const currentAYStart = today.getMonth() >= 3 ? cyear : cyear - 1;
+  const currentAY = `${currentAYStart}-${String(currentAYStart+1).slice(-2)}`;
+
+  if (APPS_SCRIPT_URL) {
+    try {
+      // Tell backend to create Pending rows for all clients for current AY
+      await apiPost('bulkInitITR', { ay: currentAY });
+      await loadITRData();
+    } catch(e) { console.warn('bulkInitITR:', e.message); }
+  } else {
+    // Offline: seed from local clients array (only if empty)
+    if (itrRecords.length) return;
+    clients.forEach(c => {
+      if (!itrRecords.find(r=>r.clientName===c.name && r.ay===currentAY)) {
+        const id = 'ITR-'+String(itrRecords.length+1).padStart(3,'0');
+        itrRecords.push({
+          id, clientName:c.name, pan:c.pan||'', ay:currentAY,
+          formType:'ITR-1 (Sahaj)', assigned:c.responsible||'',
+          dueDate: getITRDueDate(currentAY), status:'Pending', notes:'', filedDate:''
+        });
+      }
+    });
+  }
+  updateITRBadge();
+}
 
 function saveAppsScriptUrl(url) {
   APPS_SCRIPT_URL = url.trim();
