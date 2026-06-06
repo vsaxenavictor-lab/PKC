@@ -1619,7 +1619,7 @@
         <span class="nav-icon">📅</span>
         <span>Calendar</span>
       </div>
-      <div class="nav-item" onclick="switchView('billing', this)">
+      <div class="nav-item admin-only-billing" onclick="switchView('billing', this)">
         <span class="nav-icon">🧾</span>
         <span>Billing</span>
       </div>
@@ -2215,6 +2215,13 @@
 
     <!-- ══ BILLING MODULE ══ -->
     <div class="view" id="view-billing">
+      <!-- ── Staff access denied overlay (defensive guard) ── -->
+      <div id="billingAccessDenied" style="display:none;position:absolute;inset:0;z-index:10;background:var(--surface);flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:340px;">
+        <div style="font-size:3rem;">🔒</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--ink);">Access Restricted</div>
+        <div style="font-size:0.9rem;color:rgba(15,17,23,0.5);text-align:center;max-width:320px;">The Billing module is available to Administrators only. Please contact your admin if you need access.</div>
+      </div>
+      <div id="billingContent">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
         <div>
           <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;">Billing & Invoicing</h2>
@@ -2269,7 +2276,8 @@
         </table>
         </div>
       </div>
-    </div>
+      </div><!-- /billingContent -->
+    </div><!-- /view-billing -->
 
   </div><!-- /content -->
 </div><!-- /main -->
@@ -3212,9 +3220,9 @@ let currentView = 'dashboard';
 // ══════════════════════════════════════════
 function switchView(name, el) {
   // Staff cannot access admin-only views
-  const adminOnly = ['settings','referrals','staff'];
+  const adminOnly = ['settings','referrals','staff','billing'];
   if (adminOnly.includes(name) && currentUserRole === 'staff') {
-    showToast('⚠️ Access restricted to Admin only');
+    showToast('🔒 Billing is restricted to Admin only');
     return;
   }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -5315,8 +5323,12 @@ function doLogout() {
 
 function _applyRoleUI() {
   const isAdmin = currentUserRole === 'admin';
-  // Admin-only nav section visibility
+  // Admin-only nav section visibility (Administration section)
   document.querySelectorAll('.admin-only-nav').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  // Admin-only Billing nav item
+  document.querySelectorAll('.admin-only-billing').forEach(el => {
     el.style.display = isAdmin ? '' : 'none';
   });
   // Topbar badge
@@ -6888,6 +6900,18 @@ function switchBillingTab(tab) {
 
 // ── Main render ───────────────────────────────────────────────────────────
 function renderBilling() {
+  // ── Role guard: Staff cannot access Billing ──────────────────────────────
+  const accessDeniedEl = document.getElementById('billingAccessDenied');
+  const billingContentEl = document.getElementById('billingContent');
+  if (currentUserRole === 'staff') {
+    if (accessDeniedEl) accessDeniedEl.style.display = 'flex';
+    if (billingContentEl) billingContentEl.style.display = 'none';
+    return;
+  }
+  if (accessDeniedEl) accessDeniedEl.style.display = 'none';
+  if (billingContentEl) billingContentEl.style.display = '';
+  // ─────────────────────────────────────────────────────────────────────────
+
   _selectedBillingTasks = new Set();
   _refreshCreateDraftBtn();
 
