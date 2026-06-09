@@ -1619,6 +1619,11 @@
         <span class="nav-icon">📅</span>
         <span>Calendar</span>
       </div>
+      <div class="nav-item" onclick="switchView('assistance', this)">
+        <span class="nav-icon">🤝</span>
+        <span>Assistance</span>
+        <span class="nav-badge" id="assistanceBadge" style="display:none;">0</span>
+      </div>
       <div class="nav-item admin-only-billing" onclick="switchView('billing', this)">
         <span class="nav-icon">🧾</span>
         <span>Billing</span>
@@ -2030,6 +2035,70 @@
           <div class="section-title">Hearing Calendar — May 2025</div>
         </div>
         <div style="padding:20px;" id="calendarView"></div>
+      </div>
+    </div>
+
+    <!-- ══ ASSISTANCE MODULE VIEW ══ -->
+    <div class="view" id="view-assistance">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'DM Serif Display',serif;font-size:1.4rem;">Assistance Requests</h2>
+          <div style="font-size:0.8rem;color:rgba(15,17,23,0.5);margin-top:4px;">Request help from another staff member on a task · Not linked to billing</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <select class="filter-select" id="assistFilterStatus" onchange="renderAssistance()">
+            <option value="">All Status</option>
+            <option value="Open">Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+          <select class="filter-select" id="assistFilterStaff" onchange="renderAssistance()">
+            <option value="">All Staff</option>
+          </select>
+          <button class="btn btn-primary" onclick="openAssistModal()">+ Request Assistance</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr));margin-bottom:20px;">
+        <div class="kpi-card warning"><div class="kpi-label">Open Requests</div><div class="kpi-value" id="assistKpiOpen">0</div></div>
+        <div class="kpi-card info"><div class="kpi-label">In Progress</div><div class="kpi-value" id="assistKpiProgress">0</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Resolved</div><div class="kpi-value" id="assistKpiResolved">0</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value" id="assistKpiTotal">0</div></div>
+      </div>
+
+      <!-- Assistance Requests Table -->
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Search by client, task ID, or description…" id="assistSearch" oninput="renderAssistance()">
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Task / Reference</th>
+                <th>Client</th>
+                <th>Requested By</th>
+                <th>Assisted By</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="assistanceTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Info note: not billed -->
+      <div style="margin-top:16px;padding:12px 16px;background:var(--green-light);border-radius:8px;font-size:0.82rem;color:var(--green);border:1px solid rgba(26,122,74,0.2);display:flex;align-items:center;gap:8px;">
+        <span>ℹ️</span>
+        <span><strong>Note:</strong> Assistance requests are for internal coordination only. They are <strong>not included in billing</strong> and do not generate invoice line items. They are visible in task details under "Assistance" tab.</span>
       </div>
     </div>
 
@@ -2603,6 +2672,15 @@
           <div style="display:flex;flex-direction:column;gap:8px;" id="quickActions"></div>
         </div>
       </div>
+      <!-- Assistance section in task detail -->
+      <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(15,17,23,0.4);">🤝 Assistance Requests <span style="font-size:0.65rem;font-weight:400;color:rgba(15,17,23,0.3);text-transform:none;letter-spacing:0;">(internal · not billed)</span></div>
+        </div>
+        <div id="taskAssistanceSection">
+          <div style="font-size:0.82rem;color:rgba(15,17,23,0.4);">Loading…</div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-ghost" id="deleteTaskBtn" onclick="deleteCurrentTask()" style="margin-right:auto;color:var(--accent);">🗑 Delete</button>
@@ -2861,6 +2939,80 @@
   </div>
 </div>
 
+<!-- ══ ASSISTANCE REQUEST MODAL ══ -->
+<div class="modal-overlay" id="assistanceModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="assistModalTitle">Request Assistance</div>
+        <div style="font-size:0.78rem;color:rgba(15,17,23,0.4);margin-top:2px;">Internal only — not billed to client</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('assistanceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Related Task (optional)</label>
+          <select class="form-select" id="assistTaskRef" onchange="assistAutoFillClient()">
+            <option value="">— No specific task —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Client</label>
+          <input class="form-input" id="assistClient" placeholder="Auto-filled or type client name" readonly style="background:var(--surface);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Requested By *</label>
+          <select class="form-select" id="assistRequestedBy">
+            <option value="">Select staff member</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Assistance Required From *</label>
+          <select class="form-select" id="assistAssistants" multiple style="min-height:80px;padding:8px;">
+            <!-- populated dynamically -->
+          </select>
+          <div style="font-size:0.72rem;color:rgba(15,17,23,0.4);margin-top:4px;">Hold Ctrl / Cmd to select multiple staff members</div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Description / What Help is Needed *</label>
+          <textarea class="form-textarea" id="assistDescription" style="min-height:90px;" placeholder="Describe what assistance is needed, e.g. 'Please review the reply draft before submission on 15 June' …"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-select" id="assistPriority">
+            <option>High</option>
+            <option selected>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="assistStatus">
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Resolved</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes / Progress Updates</label>
+          <textarea class="form-textarea" id="assistNotes" style="min-height:60px;" placeholder="Add any follow-up notes or progress updates…"></textarea>
+        </div>
+      </div>
+      <!-- Non-billing notice -->
+      <div style="margin-top:12px;padding:10px 14px;background:#e0f5ea;border-radius:8px;font-size:0.8rem;color:var(--green);border:1px solid rgba(26,122,74,0.2);display:flex;align-items:center;gap:8px;">
+        <span>🔒</span>
+        <span>This assistance request is <strong>internal only</strong> and will <strong>not appear in invoices or billing</strong>.</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-ghost" id="deleteAssistBtn" onclick="deleteCurrentAssist()" style="margin-right:auto;color:var(--accent);display:none;">🗑 Delete</button>
+      <button class="btn btn-outline" onclick="closeModal('assistanceModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveAssistBtn" onclick="saveAssistance()">Save Request</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -3081,10 +3233,11 @@ async function loadFromSheets() {
       if (!itrRecords.length) await initITRFromClients();
     } catch(e) { console.warn('Compliance modules load:', e.message); }
 
-    updateGSTBadge(); updateROCBadge(); updateITRBadge();
+    updateGSTBadge(); updateROCBadge(); updateITRBadge(); updateAssistanceBadge();
     if (currentView === 'gst') renderGST();
     if (currentView === 'roc') renderROC();
     if (currentView === 'itr') renderITR();
+    if (currentView === 'assistance') renderAssistance();
 
   } catch (e) {
     showToast('❌ ' + e.message);
@@ -3230,9 +3383,9 @@ function switchView(name, el) {
   document.getElementById('view-'+name).classList.add('active');
   if (el) el.classList.add('active');
   currentView = name;
-  const titles = {dashboard:'Dashboard',tasks:'Task Management',clients:'Client Master',referrals:'Referral Sources',workload:'Workload Analysis',calendar:'Hearing Calendar',settings:'System Settings',staff:'Staff Management',gst:'GST Compliance Calendar',roc:'ROC Compliance Tracker',itr:'ITR Filing Tracker',billing:'Billing & Invoicing'};
+  const titles = {dashboard:'Dashboard',tasks:'Task Management',clients:'Client Master',referrals:'Referral Sources',workload:'Workload Analysis',calendar:'Hearing Calendar',settings:'System Settings',staff:'Staff Management',gst:'GST Compliance Calendar',roc:'ROC Compliance Tracker',itr:'ITR Filing Tracker',billing:'Billing & Invoicing',assistance:'Assistance Requests'};
   document.getElementById('topbarTitle').textContent = titles[name] || name;
-  const addBtnLabels = {tasks:'+ Add Task', clients:'+ Add Client', referrals:'+ Add Referral', staff:'+ Add Staff', gst:'+ Add GST Client', roc:'+ Add Company', itr:'+ Add ITR Client'};
+  const addBtnLabels = {tasks:'+ Add Task', clients:'+ Add Client', referrals:'+ Add Referral', staff:'+ Add Staff', gst:'+ Add GST Client', roc:'+ Add Company', itr:'+ Add ITR Client', assistance:'+ Request Assistance'};
   const mainBtn = document.getElementById('mainAddBtn');
   if (addBtnLabels[name]) { mainBtn.textContent = addBtnLabels[name]; mainBtn.style.display=''; }
   else mainBtn.style.display = 'none';
@@ -3247,6 +3400,7 @@ function switchView(name, el) {
   if (name==='roc') renderROC();
   if (name==='itr') renderITR();
   if (name==='billing') renderBilling();
+  if (name==='assistance') renderAssistance();
 }
 
 function filterAndGo(filter) {
@@ -3681,9 +3835,61 @@ function renderCalendar() {
 }
 
 function calDay(dateStr) {
-  switchView('tasks', document.querySelector('[onclick*="tasks"]'));
-  document.getElementById('taskSearch').value = dateStr;
-  renderTasks();
+  // Parse the date for display
+  const d = new Date(dateStr + 'T00:00:00');
+  const dayLabel = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const dayTasks = tasks.filter(t => t.dueDate === dateStr);
+
+  // Build a nice modal overlay
+  let existing = document.getElementById('calDayModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'calDayModal';
+  modal.className = 'modal-overlay open';
+  modal.style.zIndex = '500';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:620px;">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">📅 ${dayLabel}</div>
+          <div style="font-size:0.78rem;color:rgba(15,17,23,0.4);margin-top:2px;">${dayTasks.length} task${dayTasks.length!==1?'s':''} due</div>
+        </div>
+        <button class="modal-close" onclick="document.getElementById('calDayModal').remove()">✕</button>
+      </div>
+      <div class="modal-body" style="max-height:65vh;overflow-y:auto;padding:16px;">
+        ${dayTasks.length === 0
+          ? `<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">No tasks due on this date</div></div>`
+          : dayTasks.map(t => `
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;background:var(--white);cursor:pointer;transition:all var(--transition);"
+                 onclick="document.getElementById('calDayModal').remove();setTimeout(()=>openDetail('${t.id}'),80)"
+                 onmouseover="this.style.borderColor='var(--ca-gold)';this.style.boxShadow='var(--shadow-md)'"
+                 onmouseout="this.style.borderColor='var(--border)';this.style.boxShadow=''">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:rgba(15,17,23,0.4);">${t.id}</span>
+                  ${prioBadge(t.priority)}
+                  <span class="badge ${deptBadge(t.dept)}">${t.dept}</span>
+                  ${stageBadge(t.stage)}
+                </div>
+                <div style="font-weight:700;font-size:0.95rem;margin-bottom:3px;">${t.client}</div>
+                <div style="font-size:0.78rem;color:rgba(15,17,23,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  ${t.section ? t.section.split('–')[0].trim() : (t.generalDesc || 'General Task')}
+                </div>
+                <div style="font-size:0.72rem;color:rgba(15,17,23,0.4);margin-top:4px;">👤 ${t.assigned||'Unassigned'} · AY ${t.ay||'—'}</div>
+              </div>
+              <div style="color:rgba(15,17,23,0.3);font-size:0.8rem;align-self:center;">›</div>
+            </div>`).join('')}
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('calDayModal').remove()">Close</button>
+        <button class="btn btn-primary" onclick="document.getElementById('calDayModal').remove();switchView('tasks',document.querySelector('[onclick*=tasks]'));setTimeout(()=>{document.getElementById('taskSearch').value='';renderTasks();},80)">View All Tasks</button>
+      </div>
+    </div>`;
+
+  // Close on backdrop click
+  modal.addEventListener('click', function(e){ if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 // ══════════════════════════════════════════
@@ -3734,6 +3940,8 @@ function openDetail(id) {
   `;
 
   openModal('taskDetailModal');
+  // Populate assistance section (non-blocking)
+  setTimeout(() => _refreshAssistanceInDetail(id), 0);
 }
 
 async function advanceStage() {
@@ -4562,6 +4770,7 @@ function handleMainAdd() {
   else if (currentView === 'gst') openAddGSTClientModal();
   else if (currentView === 'roc') openAddROCClientModal();
   else if (currentView === 'itr') openAddITRModal();
+  else if (currentView === 'assistance') openAssistModal();
   else openAddModal();
 }
 
@@ -6669,7 +6878,263 @@ function saveAppsScriptUrl(url) {
   localStorage.setItem('lextrack_url', APPS_SCRIPT_URL);
   showToast('✅ URL saved. Syncing…');
   loadFromSheets();
-}</script>
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  ASSISTANCE MODULE  — Internal staff coordination (NOT billed)
+//
+//  Each request: { id, taskRef, client, requestedBy, assistants:[],
+//    description, priority, status, notes, createdAt, updatedAt }
+// ══════════════════════════════════════════════════════════════════
+
+let assistanceRequests = [];
+let assistanceIdCounter = 1;
+let currentAssistId = null;
+
+function generateAssistId() {
+  return 'AST-' + String(assistanceIdCounter++).padStart(3,'0');
+}
+
+// ── Render assistance table ───────────────────────────────────────
+function renderAssistance() {
+  const search  = (document.getElementById('assistSearch')?.value||'').toLowerCase();
+  const status  = document.getElementById('assistFilterStatus')?.value||'';
+  const staff   = document.getElementById('assistFilterStaff')?.value||'';
+
+  // Populate staff filter dropdown once
+  const staffSel = document.getElementById('assistFilterStaff');
+  if (staffSel && staffSel.options.length <= 1) {
+    employees.forEach(e => { const o = document.createElement('option'); o.value=e; o.textContent=e; staffSel.appendChild(o); });
+  }
+
+  let filtered = assistanceRequests.filter(a => {
+    const ms = !search || (a.client||'').toLowerCase().includes(search) ||
+               (a.taskRef||'').toLowerCase().includes(search) ||
+               (a.description||'').toLowerCase().includes(search) ||
+               (a.requestedBy||'').toLowerCase().includes(search);
+    const mst = !status || a.status === status;
+    const msf = !staff  || a.requestedBy===staff || (a.assistants||[]).includes(staff);
+    return ms && mst && msf;
+  });
+
+  // KPIs
+  const all = assistanceRequests;
+  document.getElementById('assistKpiOpen').textContent     = all.filter(a=>a.status==='Open').length;
+  document.getElementById('assistKpiProgress').textContent = all.filter(a=>a.status==='In Progress').length;
+  document.getElementById('assistKpiResolved').textContent = all.filter(a=>a.status==='Resolved').length;
+  document.getElementById('assistKpiTotal').textContent    = all.length;
+  updateAssistanceBadge();
+
+  const tbody = document.getElementById('assistanceTable');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🤝</div><div class="empty-text">No assistance requests found</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(a => {
+    const statusColor = {Open:'badge-warning','In Progress':'badge-blue',Resolved:'badge-green'}[a.status]||'badge-gray';
+    const prioColor   = {High:'prio-high',Medium:'prio-medium',Low:'prio-low'}[a.priority]||'prio-low';
+    const assistList  = (a.assistants||[]).join(', ') || '—';
+    const task = a.taskRef ? tasks.find(t=>t.id===a.taskRef) : null;
+    const taskLabel = task ? `${a.taskRef} · ${task.dept}` : (a.taskRef || '—');
+    const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN') : '—';
+    return `<tr onclick="editAssistance('${a.id}')" style="cursor:pointer;">
+      <td class="td-mono" style="font-size:0.78rem;">${a.id}</td>
+      <td style="font-size:0.8rem;">${taskLabel}</td>
+      <td><strong>${a.client||'—'}</strong></td>
+      <td>${a.requestedBy||'—'}</td>
+      <td style="font-size:0.8rem;color:var(--ca-blue);">${assistList}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.8rem;" title="${(a.description||'').replace(/"/g,'&quot;')}">${a.description||'—'}</td>
+      <td><span class="badge ${statusColor}">${a.status}</span></td>
+      <td style="font-size:0.78rem;">${createdAt}</td>
+      <td>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;" onclick="event.stopPropagation();editAssistance('${a.id}')">✏️</button>
+        <button class="btn btn-ghost" style="padding:4px 8px;font-size:0.75rem;color:var(--green);" onclick="event.stopPropagation();resolveAssistance('${a.id}')">${a.status==='Resolved'?'↩ Reopen':'✅ Resolve'}</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateAssistanceBadge() {
+  const open = assistanceRequests.filter(a=>a.status!=='Resolved').length;
+  const badge = document.getElementById('assistanceBadge');
+  if (badge) { badge.textContent = open; badge.style.display = open>0?'':'none'; }
+}
+
+// ── Open add/edit modal ──────────────────────────────────────────
+function openAssistModal(prefillTaskId) {
+  currentAssistId = null;
+  document.getElementById('assistModalTitle').textContent = 'Request Assistance';
+  document.getElementById('deleteAssistBtn').style.display = 'none';
+  document.getElementById('saveAssistBtn').textContent = 'Save Request';
+
+  // Populate task dropdown
+  const taskSel = document.getElementById('assistTaskRef');
+  taskSel.innerHTML = '<option value="">— No specific task —</option>' +
+    tasks.filter(t=>t.stage!=='Closed').map(t=>`<option value="${t.id}" ${prefillTaskId===t.id?'selected':''}>${t.id} · ${t.client} (${t.dept})</option>`).join('');
+
+  // Populate requested by
+  const reqSel = document.getElementById('assistRequestedBy');
+  reqSel.innerHTML = '<option value="">Select staff member</option>' + employees.map(e=>`<option>${e}</option>`).join('');
+  // If current user is staff, pre-select them
+  if (currentUserRole==='staff') {
+    const sn = staffMembers.find(s=>s.name.trim()===currentUserName||s.shortName===currentUserName);
+    if (sn) reqSel.value = sn.shortName||sn.name;
+  }
+
+  // Populate assistants multi-select
+  const assistSel = document.getElementById('assistAssistants');
+  assistSel.innerHTML = employees.map(e=>`<option value="${e}">${e}</option>`).join('');
+
+  // Clear fields
+  document.getElementById('assistDescription').value = '';
+  document.getElementById('assistNotes').value = '';
+  document.getElementById('assistPriority').value = 'Medium';
+  document.getElementById('assistStatus').value = 'Open';
+
+  if (prefillTaskId) {
+    assistAutoFillClient();
+  } else {
+    document.getElementById('assistClient').value = '';
+  }
+
+  openModal('assistanceModal');
+}
+
+function assistAutoFillClient() {
+  const taskId = document.getElementById('assistTaskRef').value;
+  const t = tasks.find(x=>x.id===taskId);
+  document.getElementById('assistClient').value = t ? t.client : '';
+}
+
+function editAssistance(id) {
+  const a = assistanceRequests.find(x=>x.id===id);
+  if (!a) return;
+  currentAssistId = id;
+
+  document.getElementById('assistModalTitle').textContent = 'Edit Assistance · ' + id;
+  document.getElementById('deleteAssistBtn').style.display = '';
+  document.getElementById('saveAssistBtn').textContent = 'Update';
+
+  const taskSel = document.getElementById('assistTaskRef');
+  taskSel.innerHTML = '<option value="">— No specific task —</option>' +
+    tasks.map(t=>`<option value="${t.id}" ${a.taskRef===t.id?'selected':''}>${t.id} · ${t.client} (${t.dept})</option>`).join('');
+
+  const reqSel = document.getElementById('assistRequestedBy');
+  reqSel.innerHTML = '<option value="">Select staff member</option>' + employees.map(e=>`<option ${e===a.requestedBy?'selected':''}>${e}</option>`).join('');
+
+  const assistSel = document.getElementById('assistAssistants');
+  assistSel.innerHTML = employees.map(e=>`<option value="${e}" ${(a.assistants||[]).includes(e)?'selected':''}>${e}</option>`).join('');
+
+  document.getElementById('assistClient').value      = a.client||'';
+  document.getElementById('assistDescription').value = a.description||'';
+  document.getElementById('assistNotes').value       = a.notes||'';
+  document.getElementById('assistPriority').value    = a.priority||'Medium';
+  document.getElementById('assistStatus').value      = a.status||'Open';
+
+  openModal('assistanceModal');
+}
+
+function saveAssistance() {
+  const desc = document.getElementById('assistDescription').value.trim();
+  const reqBy = document.getElementById('assistRequestedBy').value;
+  if (!desc)  { showToast('⚠️ Description is required'); return; }
+  if (!reqBy) { showToast('⚠️ Please select who is requesting assistance'); return; }
+
+  const assistSel = document.getElementById('assistAssistants');
+  const assistants = Array.from(assistSel.selectedOptions).map(o=>o.value);
+  if (!assistants.length) { showToast('⚠️ Please select at least one person to assist'); return; }
+
+  const now = new Date().toISOString();
+  const taskRef = document.getElementById('assistTaskRef').value;
+  const client  = document.getElementById('assistClient').value;
+
+  if (currentAssistId) {
+    // Edit mode
+    const a = assistanceRequests.find(x=>x.id===currentAssistId);
+    if (a) {
+      Object.assign(a, {
+        taskRef, client, requestedBy:reqBy, assistants,
+        description:desc,
+        priority: document.getElementById('assistPriority').value,
+        status:   document.getElementById('assistStatus').value,
+        notes:    document.getElementById('assistNotes').value.trim(),
+        updatedAt: now
+      });
+    }
+    closeModal('assistanceModal');
+    showToast('✅ Assistance request updated');
+  } else {
+    // Add mode
+    const id = generateAssistId();
+    assistanceRequests.unshift({
+      id, taskRef, client, requestedBy: reqBy, assistants,
+      description: desc,
+      priority:    document.getElementById('assistPriority').value,
+      status:      'Open',
+      notes:       document.getElementById('assistNotes').value.trim(),
+      createdAt:   now, updatedAt: now
+    });
+    closeModal('assistanceModal');
+    showToast(`✅ Assistance request ${id} created`);
+  }
+
+  if (currentView==='assistance') renderAssistance();
+  updateAssistanceBadge();
+
+  // Refresh task detail if open to show updated assistance info
+  if (currentTaskId) _refreshAssistanceInDetail(currentTaskId);
+}
+
+function resolveAssistance(id) {
+  const a = assistanceRequests.find(x=>x.id===id);
+  if (!a) return;
+  a.status = a.status==='Resolved' ? 'Open' : 'Resolved';
+  a.updatedAt = new Date().toISOString();
+  if (currentView==='assistance') renderAssistance();
+  updateAssistanceBadge();
+  showToast(a.status==='Resolved' ? '✅ Marked Resolved' : '↩ Reopened');
+}
+
+function deleteCurrentAssist() {
+  if (!currentAssistId) return;
+  if (!confirm('Delete this assistance request?')) return;
+  assistanceRequests = assistanceRequests.filter(x=>x.id!==currentAssistId);
+  currentAssistId = null;
+  closeModal('assistanceModal');
+  if (currentView==='assistance') renderAssistance();
+  updateAssistanceBadge();
+  showToast('🗑 Assistance request deleted');
+}
+
+// ── Show assistance info in task detail modal ─────────────────────
+function _refreshAssistanceInDetail(taskId) {
+  const container = document.getElementById('taskAssistanceSection');
+  if (!container) return;
+  const related = assistanceRequests.filter(a => a.taskRef === taskId);
+  if (!related.length) {
+    container.innerHTML = `<div style="font-size:0.82rem;color:rgba(15,17,23,0.4);padding:8px 0;">No assistance requests for this task. <button class="btn btn-ghost" style="font-size:0.78rem;padding:3px 10px;" onclick="openAssistModal('${taskId}')">+ Request</button></div>`;
+    return;
+  }
+  container.innerHTML = related.map(a => {
+    const sc = {Open:'badge-warning','In Progress':'badge-blue',Resolved:'badge-green'}[a.status]||'badge-gray';
+    return `<div style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--white);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;flex-wrap:wrap;gap:6px;">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:rgba(15,17,23,0.4);">${a.id}</span>
+        <span class="badge ${sc}">${a.status}</span>
+      </div>
+      <div style="font-size:0.82rem;margin-bottom:4px;"><strong>By:</strong> ${a.requestedBy} → <span style="color:var(--ca-blue);">${(a.assistants||[]).join(', ')}</span></div>
+      <div style="font-size:0.82rem;color:rgba(15,17,23,0.7);">${a.description}</div>
+      ${a.notes?`<div style="font-size:0.75rem;color:rgba(15,17,23,0.4);margin-top:4px;font-style:italic;">Note: ${a.notes}</div>`:''}
+      <div style="margin-top:6px;display:flex;gap:6px;">
+        <button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="editAssistance('${a.id}')">✏️ Edit</button>
+        <button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;color:var(--green);" onclick="resolveAssistance('${a.id}');_refreshAssistanceInDetail('${taskId}')">${a.status==='Resolved'?'↩ Reopen':'✅ Resolve'}</button>
+      </div>
+    </div>`;
+  }).join('') +
+  `<button class="btn btn-outline" style="font-size:0.78rem;padding:5px 12px;margin-top:4px;" onclick="openAssistModal('${taskId}')">+ Add Assistance Request</button>`;
+}
+</script>
 
 <!-- ══ BILLING: INVOICE DRAFT/EDIT MODAL ══ -->
 <div class="modal-overlay" id="invoiceModal">
@@ -6698,7 +7163,45 @@ function saveAppsScriptUrl(url) {
         </div>
         <div class="form-group">
           <label class="form-label">Client State Name &amp; Code</label>
-          <input class="form-input" id="invClientState" placeholder="Uttar Pradesh, Code : 09">
+          <select class="form-select" id="invClientState" onchange="onInvStateChange()">
+            <option value="">-- Select State --</option>
+            <option value="Andaman and Nicobar Islands, Code : 35">Andaman &amp; Nicobar Islands (35)</option>
+            <option value="Andhra Pradesh, Code : 37">Andhra Pradesh (37)</option>
+            <option value="Arunachal Pradesh, Code : 12">Arunachal Pradesh (12)</option>
+            <option value="Assam, Code : 18">Assam (18)</option>
+            <option value="Bihar, Code : 10">Bihar (10)</option>
+            <option value="Chandigarh, Code : 04">Chandigarh (04)</option>
+            <option value="Chhattisgarh, Code : 22">Chhattisgarh (22)</option>
+            <option value="Dadra and Nagar Haveli and Daman and Diu, Code : 26">Dadra &amp; NH / Daman &amp; Diu (26)</option>
+            <option value="Delhi, Code : 07">Delhi (07)</option>
+            <option value="Goa, Code : 30">Goa (30)</option>
+            <option value="Gujarat, Code : 24">Gujarat (24)</option>
+            <option value="Haryana, Code : 06">Haryana (06)</option>
+            <option value="Himachal Pradesh, Code : 02">Himachal Pradesh (02)</option>
+            <option value="Jammu and Kashmir, Code : 01">Jammu &amp; Kashmir (01)</option>
+            <option value="Jharkhand, Code : 20">Jharkhand (20)</option>
+            <option value="Karnataka, Code : 29">Karnataka (29)</option>
+            <option value="Kerala, Code : 32">Kerala (32)</option>
+            <option value="Ladakh, Code : 38">Ladakh (38)</option>
+            <option value="Lakshadweep, Code : 31">Lakshadweep (31)</option>
+            <option value="Madhya Pradesh, Code : 23">Madhya Pradesh (23)</option>
+            <option value="Maharashtra, Code : 27">Maharashtra (27)</option>
+            <option value="Manipur, Code : 14">Manipur (14)</option>
+            <option value="Meghalaya, Code : 17">Meghalaya (17)</option>
+            <option value="Mizoram, Code : 15">Mizoram (15)</option>
+            <option value="Nagaland, Code : 13">Nagaland (13)</option>
+            <option value="Odisha, Code : 21">Odisha (21)</option>
+            <option value="Puducherry, Code : 34">Puducherry (34)</option>
+            <option value="Punjab, Code : 03">Punjab (03)</option>
+            <option value="Rajasthan, Code : 08">Rajasthan (08)</option>
+            <option value="Sikkim, Code : 11">Sikkim (11)</option>
+            <option value="Tamil Nadu, Code : 33">Tamil Nadu (33)</option>
+            <option value="Telangana, Code : 36">Telangana (36)</option>
+            <option value="Tripura, Code : 16">Tripura (16)</option>
+            <option value="Uttar Pradesh, Code : 09" selected>Uttar Pradesh (09)</option>
+            <option value="Uttarakhand, Code : 05">Uttarakhand (05)</option>
+            <option value="West Bengal, Code : 19">West Bengal (19)</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label">Client GSTIN / UIN (if any)</label>
@@ -6737,13 +7240,16 @@ function saveAppsScriptUrl(url) {
       </div>
 
       <!-- GST settings -->
-      <div class="form-grid" style="margin:16px 0 4px;">
-        <div class="form-group">
-          <label class="form-label">CGST Rate (%)</label>
+      <div id="gstRateNote" style="display:none;margin:12px 0 4px;padding:8px 14px;background:var(--blue-light);border-radius:8px;font-size:0.8rem;color:var(--ca-blue);border:1px solid rgba(26,79,160,0.2);">
+        🔵 <strong>Inter-State Supply Detected</strong> — IGST applies instead of CGST+SGST. IGST = CGST rate + SGST rate (e.g. 9%+9% = 18% IGST).
+      </div>
+      <div class="form-grid" style="margin:8px 0 4px;">
+        <div class="form-group" id="cgstInputGroup">
+          <label class="form-label" id="cgstInputLabel">CGST Rate (%)</label>
           <input class="form-input" type="number" id="invCGST" value="9" min="0" max="14" oninput="recalcInvoice()">
         </div>
-        <div class="form-group">
-          <label class="form-label">SGST Rate (%)</label>
+        <div class="form-group" id="sgstInputGroup">
+          <label class="form-label" id="sgstInputLabel">SGST Rate (%)</label>
           <input class="form-input" type="number" id="invSGST" value="9" min="0" max="14" oninput="recalcInvoice()">
         </div>
         <div class="form-group">
@@ -6755,8 +7261,9 @@ function saveAppsScriptUrl(url) {
       <!-- Totals summary -->
       <div style="background:var(--surface);border-radius:10px;padding:14px 18px;margin:12px 0 0;font-size:0.88rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:var(--ink-2);">Professional Fees (Taxable):</span><span id="invTaxableDisplay" style="font-weight:600;">₹0.00</span></div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span id="invCGSTLabel">CGST @ 9%:</span><span id="invCGSTDisplay">₹0.00</span></div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span id="invSGSTLabel">SGST @ 9%:</span><span id="invSGSTDisplay">₹0.00</span></div>
+        <div id="invCGSTRow" style="display:flex;justify-content:space-between;margin-bottom:5px;"><span id="invCGSTLabel">CGST @ 9%:</span><span id="invCGSTDisplay">₹0.00</span></div>
+        <div id="invSGSTRow" style="display:flex;justify-content:space-between;margin-bottom:5px;"><span id="invSGSTLabel">SGST @ 9%:</span><span id="invSGSTDisplay">₹0.00</span></div>
+        <div id="invIGSTRow" style="display:none;justify-content:space-between;margin-bottom:5px;"><span id="invIGSTLabel" style="color:#1a4fa0;font-weight:600;">IGST @ 18%:</span><span id="invIGSTDisplay" style="color:#1a4fa0;font-weight:600;">₹0.00</span></div>
         <div style="display:flex;justify-content:space-between;margin-bottom:5px;padding-top:6px;border-top:1px dashed var(--border);"><span style="color:var(--ink-2);">Reimbursements (Non-taxable):</span><span id="invReimbDisplay" style="font-weight:600;color:#0f6b35;">₹0.00</span></div>
         <div style="display:flex;justify-content:space-between;border-top:1.5px solid var(--border);padding-top:8px;margin-top:4px;font-size:1rem;font-weight:700;"><span>Grand Total (incl. GST + Reimbursements):</span><span id="invTotalDisplay" style="color:var(--ca-navy);">₹0.00</span></div>
       </div>
@@ -7272,7 +7779,7 @@ function _renderInvoicesTable() {
       <td style="text-align:center;">${items}</td>
       <td>₹${(inv.taxable||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
       <td style="color:#0f6b35;">₹${reimb.toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
-      <td>₹${((inv.cgstAmt||0)+(inv.sgstAmt||0)).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+      <td>${inv.igstMode ? `<span style="color:#1a4fa0;font-size:0.8rem;">IGST</span> ₹${(inv.igstAmt||0).toLocaleString('en-IN',{minimumFractionDigits:2})}` : `₹${((inv.cgstAmt||0)+(inv.sgstAmt||0)).toLocaleString('en-IN',{minimumFractionDigits:2})}`}</td>
       <td style="font-weight:700;">₹${(inv.total||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
       <td>${statusBadge(inv.status)}${payInfo}</td>
       <td>
@@ -7353,7 +7860,9 @@ function createDraftFromSelected(forceClient) {
   document.getElementById('invDate').value        = new Date().toISOString().split('T')[0];
   document.getElementById('invClient').value      = client;
   document.getElementById('invClientAddr').value  = '';
-  document.getElementById('invClientState').value = 'Uttar Pradesh, Code : 09';
+  // Set state dropdown - default to UP for intra-state
+  const stateSel = document.getElementById('invClientState');
+  if (stateSel) { stateSel.value = 'Uttar Pradesh, Code : 09'; onInvStateChange(); }
   document.getElementById('invClientGSTIN').value = '';
   document.getElementById('invCGST').value = '9';
   document.getElementById('invSGST').value = '9';
@@ -7496,6 +8005,47 @@ function removeReimbRow(idx) {
 }
 
 // ── Recalc totals ─────────────────────────────────────────────────────────
+// ── State change handler: auto-switch CGST+SGST ↔ IGST ─────────────────────
+function onInvStateChange() {
+  const sel = document.getElementById('invClientState');
+  const stateVal = (sel ? sel.value : '') || '';
+  const isUP = stateVal === '' || stateVal.toLowerCase().includes('uttar pradesh');
+  const note = document.getElementById('gstRateNote');
+  const cgstLbl = document.getElementById('cgstInputLabel');
+  const sgstLbl = document.getElementById('sgstInputLabel');
+
+  if (isUP) {
+    // CGST + SGST mode (intra-state)
+    if (note) note.style.display = 'none';
+    if (cgstLbl) cgstLbl.textContent = 'CGST Rate (%)';
+    if (sgstLbl) sgstLbl.textContent = 'SGST Rate (%)';
+    const cgst = parseFloat(document.getElementById('invCGST').value)||0;
+    const sgst = parseFloat(document.getElementById('invSGST').value)||0;
+    if (cgst === 0 && sgst === 0) {
+      document.getElementById('invCGST').value = 9;
+      document.getElementById('invSGST').value = 9;
+    }
+  } else {
+    // IGST mode (inter-state)
+    if (note) note.style.display = 'block';
+    if (cgstLbl) cgstLbl.textContent = 'CGST Share (%) → IGST';
+    if (sgstLbl) sgstLbl.textContent = 'SGST Share (%) → IGST';
+    const cgst = parseFloat(document.getElementById('invCGST').value)||0;
+    const sgst = parseFloat(document.getElementById('invSGST').value)||0;
+    if (cgst === 0 && sgst === 0) {
+      document.getElementById('invCGST').value = 9;
+      document.getElementById('invSGST').value = 9;
+    }
+  }
+  recalcInvoice();
+}
+
+function _isIGSTMode() {
+  const sel = document.getElementById('invClientState');
+  const stateVal = (sel ? sel.value : '') || '';
+  return stateVal !== '' && !stateVal.toLowerCase().includes('uttar pradesh');
+}
+
 function recalcInvoice() {
   const cgstR = parseFloat(document.getElementById('invCGST').value)||0;
   const sgstR = parseFloat(document.getElementById('invSGST').value)||0;
@@ -7510,15 +8060,29 @@ function recalcInvoice() {
     reimbTotal += parseFloat(inp.value)||0;
   });
 
-  const cgstAmt = parseFloat((taxable * cgstR / 100).toFixed(2));
-  const sgstAmt = parseFloat((taxable * sgstR / 100).toFixed(2));
-  const total   = parseFloat((taxable + cgstAmt + sgstAmt + reimbTotal).toFixed(2));
+  const igstMode = _isIGSTMode();
+  const igstRate = cgstR + sgstR; // e.g. 9+9=18 for IGST
+  const cgstAmt  = igstMode ? 0 : parseFloat((taxable * cgstR / 100).toFixed(2));
+  const sgstAmt  = igstMode ? 0 : parseFloat((taxable * sgstR / 100).toFixed(2));
+  const igstAmt  = igstMode ? parseFloat((taxable * igstRate / 100).toFixed(2)) : 0;
+  const totalGST = igstMode ? igstAmt : (cgstAmt + sgstAmt);
+  const total    = parseFloat((taxable + totalGST + reimbTotal).toFixed(2));
 
   document.getElementById('invTaxableDisplay').textContent = '₹' + taxable.toLocaleString('en-IN',{minimumFractionDigits:2});
-  document.getElementById('invCGSTLabel').textContent      = `CGST @ ${cgstR}%:`;
-  document.getElementById('invSGSTLabel').textContent      = `SGST @ ${sgstR}%:`;
-  document.getElementById('invCGSTDisplay').textContent    = '₹' + cgstAmt.toLocaleString('en-IN',{minimumFractionDigits:2});
-  document.getElementById('invSGSTDisplay').textContent    = '₹' + sgstAmt.toLocaleString('en-IN',{minimumFractionDigits:2});
+  if (!igstMode) {
+    document.getElementById('invCGSTLabel').textContent   = `CGST @ ${cgstR}%:`;
+    document.getElementById('invSGSTLabel').textContent   = `SGST @ ${sgstR}%:`;
+    document.getElementById('invCGSTDisplay').textContent = '₹' + cgstAmt.toLocaleString('en-IN',{minimumFractionDigits:2});
+    document.getElementById('invSGSTDisplay').textContent = '₹' + sgstAmt.toLocaleString('en-IN',{minimumFractionDigits:2});
+    const cr = document.getElementById('invCGSTRow'), sr = document.getElementById('invSGSTRow'), ir = document.getElementById('invIGSTRow');
+    if(cr) cr.style.display='flex'; if(sr) sr.style.display='flex'; if(ir) ir.style.display='none';
+  } else {
+    const il = document.getElementById('invIGSTLabel'), id2 = document.getElementById('invIGSTDisplay');
+    const cr = document.getElementById('invCGSTRow'), sr = document.getElementById('invSGSTRow'), ir = document.getElementById('invIGSTRow');
+    if(il) il.textContent = `IGST @ ${igstRate}%:`;
+    if(id2) id2.textContent = '₹' + igstAmt.toLocaleString('en-IN',{minimumFractionDigits:2});
+    if(cr) cr.style.display='none'; if(sr) sr.style.display='none'; if(ir) ir.style.display='flex';
+  }
   document.getElementById('invReimbDisplay').textContent   = '₹' + reimbTotal.toLocaleString('en-IN',{minimumFractionDigits:2});
   document.getElementById('invTotalDisplay').textContent   = '₹' + total.toLocaleString('en-IN',{minimumFractionDigits:2});
 }
@@ -7552,29 +8116,35 @@ function _collectReimbursements() {
 }
 
 function _collectInvoiceData(status) {
-  const cgstR        = parseFloat(document.getElementById('invCGST').value)||0;
-  const sgstR        = parseFloat(document.getElementById('invSGST').value)||0;
-  const items        = _collectLineItems();
+  const cgstR          = parseFloat(document.getElementById('invCGST').value)||0;
+  const sgstR          = parseFloat(document.getElementById('invSGST').value)||0;
+  const igstMode       = _isIGSTMode();
+  const igstRate       = cgstR + sgstR;
+  const items          = _collectLineItems();
   const reimbursements = _collectReimbursements();
-  const taxable      = items.reduce((s,li) => s + li.amount, 0);
-  const reimbTotal   = reimbursements.reduce((s,r) => s + r.amount, 0);
-  const cgstAmt      = parseFloat((taxable * cgstR / 100).toFixed(2));
-  const sgstAmt      = parseFloat((taxable * sgstR / 100).toFixed(2));
-  const total        = parseFloat((taxable + cgstAmt + sgstAmt + reimbTotal).toFixed(2));
+  const taxable        = items.reduce((s,li) => s + li.amount, 0);
+  const reimbTotal     = reimbursements.reduce((s,r) => s + r.amount, 0);
+  // IGST mode: cgstAmt & sgstAmt stay 0; igstAmt holds combined tax
+  const cgstAmt = igstMode ? 0 : parseFloat((taxable * cgstR / 100).toFixed(2));
+  const sgstAmt = igstMode ? 0 : parseFloat((taxable * sgstR / 100).toFixed(2));
+  const igstAmt = igstMode ? parseFloat((taxable * igstRate / 100).toFixed(2)) : 0;
+  const totalGST = igstMode ? igstAmt : (cgstAmt + sgstAmt);
+  const total    = parseFloat((taxable + totalGST + reimbTotal).toFixed(2));
   return {
-    id:             _currentInvoiceId || ('INV-' + Date.now()),
-    invNo:          document.getElementById('invNo').value.trim(),
-    date:           document.getElementById('invDate').value,
-    client:         document.getElementById('invClient').value,
-    clientAddr:     document.getElementById('invClientAddr').value.trim(),
-    clientState:    document.getElementById('invClientState').value.trim(),
-    clientGSTIN:    document.getElementById('invClientGSTIN').value.trim(),
-    hsnSac:         document.getElementById('invHSN').value.trim(),
-    lineItems:      items,
+    id:          _currentInvoiceId || ('INV-' + Date.now()),
+    invNo:       document.getElementById('invNo').value.trim(),
+    date:        document.getElementById('invDate').value,
+    client:      document.getElementById('invClient').value,
+    clientAddr:  document.getElementById('invClientAddr').value.trim(),
+    clientState: document.getElementById('invClientState').value.trim(),
+    clientGSTIN: document.getElementById('invClientGSTIN').value.trim(),
+    hsnSac:      document.getElementById('invHSN').value.trim(),
+    lineItems:   items,
     reimbursements,
-    cgstRate:       cgstR,
-    sgstRate:       sgstR,
-    taxable, reimbTotal, cgstAmt, sgstAmt, total,
+    cgstRate: cgstR,
+    sgstRate: sgstR,
+    igstMode, igstRate,
+    taxable, reimbTotal, cgstAmt, sgstAmt, igstAmt, total,
     status,
     payment: (_currentInvoiceId ? (invoices.find(i=>i.id===_currentInvoiceId)||{}).payment : null) || null
   };
@@ -7625,7 +8195,7 @@ function editInvoice(invId) {
   document.getElementById('invHSN').value  = inv.hsnSac||'998231';
   _buildLineItems([], inv.lineItems||[]);
   _buildReimbursements(inv.reimbursements||[]);
-  recalcInvoice();
+  onInvStateChange(); // apply IGST/CGST+SGST mode for restored state
   openModal('invoiceModal');
 }
 
@@ -7741,10 +8311,15 @@ function _buildInvoiceHTML(inv) {
   const sgstRate   = inv.sgstRate || 9;
   const hsnSac     = inv.hsnSac   || '998231';
   const taxable    = inv.taxable  || 0;
-  const cgstAmt    = inv.cgstAmt  || 0;
-  const sgstAmt    = inv.sgstAmt  || 0;
   const reimbTotal = (inv.reimbursements||[]).reduce((s,r)=>s+(r.amount||0), 0);
   const total      = inv.total    || 0;
+  // IGST mode: inter-state supply (client not in UP)
+  const _stateVal  = (inv.clientState||'').toLowerCase();
+  const _isIGST    = _stateVal !== '' && !_stateVal.includes('uttar pradesh');
+  const igstRate   = cgstRate + sgstRate;
+  const cgstAmt    = _isIGST ? 0 : (inv.cgstAmt  || 0);
+  const sgstAmt    = _isIGST ? 0 : (inv.sgstAmt  || 0);
+  const igstAmt    = _isIGST ? parseFloat((taxable * igstRate / 100).toFixed(2)) : 0;
 
   const fmtAmt = v => v.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
 
@@ -7955,6 +8530,17 @@ function _buildInvoiceHTML(inv) {
     <!-- GST Summary table (on taxable amount only) -->
     <table style="width:100%;border-collapse:collapse;font-size:10.5px;border-top:1.5px solid #444;">
       <thead>
+        ${_isIGST ? `
+        <tr style="border-bottom:1px solid #ccc;">
+          <th style="padding:5px 8px;text-align:left;">HSN/SAC</th>
+          <th style="padding:5px 8px;text-align:right;">Taxable Value</th>
+          <th style="padding:5px 8px;text-align:center;" colspan="2">Integrated Tax (IGST)</th>
+          <th style="padding:5px 8px;text-align:right;">Total Tax Amount</th>
+        </tr>
+        <tr style="border-bottom:1px solid #ccc;"><th></th><th></th>
+          <th style="padding:4px 8px;text-align:center;font-weight:400;">Rate</th>
+          <th style="padding:4px 8px;text-align:right;font-weight:400;">Amount</th><th></th>
+        </tr>` : `
         <tr style="border-bottom:1px solid #ccc;">
           <th style="padding:5px 8px;text-align:left;">HSN/SAC</th>
           <th style="padding:5px 8px;text-align:right;">Taxable Value</th>
@@ -7962,16 +8548,30 @@ function _buildInvoiceHTML(inv) {
           <th style="padding:5px 8px;text-align:center;" colspan="2">State Tax</th>
           <th style="padding:5px 8px;text-align:right;">Total Tax Amount</th>
         </tr>
-        <tr style="border-bottom:1px solid #ccc;">
-          <th></th><th></th>
+        <tr style="border-bottom:1px solid #ccc;"><th></th><th></th>
           <th style="padding:4px 8px;text-align:center;font-weight:400;">Rate</th>
           <th style="padding:4px 8px;text-align:right;font-weight:400;">Amount</th>
           <th style="padding:4px 8px;text-align:center;font-weight:400;">Rate</th>
           <th style="padding:4px 8px;text-align:right;font-weight:400;">Amount</th>
           <th></th>
-        </tr>
+        </tr>`}
       </thead>
       <tbody>
+        ${_isIGST ? `
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:5px 8px;">${hsnSac}</td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(taxable)}</td>
+          <td style="padding:5px 8px;text-align:center;">${igstRate}%</td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(igstAmt)}</td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(igstAmt)}</td>
+        </tr>
+        <tr style="border-top:1.5px solid #444;font-weight:700;">
+          <td style="padding:5px 8px;">Total</td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(taxable)}</td>
+          <td></td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(igstAmt)}</td>
+          <td style="padding:5px 8px;text-align:right;">${fmtAmt(igstAmt)}</td>
+        </tr>` : `
         <tr style="border-bottom:1px solid #eee;">
           <td style="padding:5px 8px;">${hsnSac}</td>
           <td style="padding:5px 8px;text-align:right;">${fmtAmt(taxable)}</td>
@@ -7989,14 +8589,14 @@ function _buildInvoiceHTML(inv) {
           <td></td>
           <td style="padding:5px 8px;text-align:right;">${fmtAmt(sgstAmt)}</td>
           <td style="padding:5px 8px;text-align:right;">${fmtAmt(cgstAmt+sgstAmt)}</td>
-        </tr>
+        </tr>`}
         ${reimbNote}
       </tbody>
     </table>
 
     <!-- Tax amount in words -->
     <div style="border-top:1px solid #ccc;padding:6px 10px;font-size:10.5px;">
-      <strong>Tax Amount (in words) : ${_amtInWords(cgstAmt + sgstAmt)}</strong>
+      <strong>Tax Amount (in words) : ${_amtInWords(_isIGST ? igstAmt : (cgstAmt + sgstAmt))}</strong>
     </div>
 
     <!-- Footer: declaration + bank + signature -->
